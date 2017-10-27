@@ -90,11 +90,12 @@ public class DF {
 		private IDefaultValueProvider dvProvider = new DefaultValueProvider();
 
 		public override SObject getSObjectInstance(String sObjectName){
-			return getSObjectInstance(sObjectName,null);
+
+			return getSObjectInstance(globalDescribe.get(sObjectName));
 		}
 
 		public override SObject getSObjectInstance(Schema.SObjectType sObjectType){
-			return getSObjectInstance(sObjectType,null);
+			return getSObjectInstance(sObjectType,dvProvider.getDefaultMap(sObjectType));
 		}
 
 
@@ -177,6 +178,7 @@ public class DF {
 
 	public interface IDefaultValueProvider{
 		Map<String,Object> getDefaultMap(String sObjectName);
+		Map<String,Object> getDefaultMap(Schema.SObjectType sObjectType);
 		Object getDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
 		Blob getBase64DefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
 		Boolean getBooleanDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
@@ -202,13 +204,21 @@ public class DF {
 
 	public abstract class ADefaultValueProvider implements IDefaultValueProvider{
 
+		/**
+		* @description get the default map values
+		* @param sObjectName : sObject name
+		* @return Map<String,Object> : map values
+		*/
 		public Map<String,Object> getDefaultMap(String sObjectName){
-			return getDefaultMap(sObjectName,'');
+			return getDefaultMap(globalDescribe.get(sObjectName));
+		}
+		public Map<String,Object> getDefaultMap(Schema.SObjectType sObjectType){
+			return getDefaultMap(sObjectType,'');
 		}
 
-		private Map<String,Object> getDefaultMap(String sObjectName, String prefix){
+		private Map<String,Object> getDefaultMap(Schema.SObjectType sObjectType, String prefix){
 			Map<String, Object> defaultValues = new Map<String,Object>();
-			Map<String, Schema.SObjectField> fieldMap = globalDescribe.get(sObjectName).getDescribe().fields.getMap();
+			Map<String, Schema.SObjectField> fieldMap = sObjectType.getDescribe().fields.getMap();
 			Schema.DescribeFieldResult fieldDesc;
 			Integer counter = 0;
 			for(String fieldName : fieldMap.keySet()){
@@ -216,7 +226,7 @@ public class DF {
 				if(!fieldDesc.isDefaultedOnCreate() && !fieldDesc.isNillable() && fieldDesc.isCreateable()){
 					if(fieldDesc.getRelationshipName() != null){
 						defaultValues.put(prefix+fieldDesc.getRelationshipName()+DOT+'Id',null);
-						defaultValues.putAll(getDefaultMap(fieldDesc.getReferenceTo().get(0).getDescribe().getName(),fieldDesc.getRelationshipName()+DOT));
+						defaultValues.putAll(getDefaultMap(fieldDesc.getReferenceTo().get(0),fieldDesc.getRelationshipName()+DOT));
 					}else {
 						defaultValues.put(prefix+fieldName,getDefaultValue(fieldDesc,counter++));
 					}
@@ -225,45 +235,53 @@ public class DF {
 			return defaultValues;
 		}
 
+		/**
+		* @description get the default for a specific field
+		* @param fieldDesc : field describe
+		* @param counter : counter
+		* @return Object : default value
+		*/
 		public Object getDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
-			if(fieldDesc.getType() == Schema.DisplayType.Base64){
-				return getBase64DefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.Boolean){
-				return getBooleanDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.Combobox){
-				return getComboboxDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.Currency){
-				return getCurrencyDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.Date){
-				return getDateDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.Datetime){
-				return getDateTimeDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.Double){
-				return getDoubleDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.Email){
-				return getEmailDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.EncryptedString){
-				return getEncryptedStringDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.ID){
-				return getIDDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.Integer){
-				return getIntegerDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.MultiPicklist){
-				return getMultiPicklistDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.Percent){
-				return getPercentDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.Phone){
-				return getPhoneDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.Picklist){
-				return getPicklistDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.String){
-				return getStringDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.TextArea){
-				return getTextAreaDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.Time){
-				return getTimeDefaultValue(fieldDesc,counter);
-			} else if(fieldDesc.getType() == Schema.DisplayType.URL){
-				return getURLDefaultValue(fieldDesc,counter);
+			if(fieldDesc != null){
+				if(fieldDesc.getType() == Schema.DisplayType.Base64){
+					return getBase64DefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Boolean){
+					return getBooleanDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Combobox){
+					return getComboboxDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Currency){
+					return getCurrencyDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Date){
+					return getDateDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Datetime){
+					return getDateTimeDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Double){
+					return getDoubleDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Email){
+					return getEmailDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.EncryptedString){
+					return getEncryptedStringDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.ID){
+					return getIDDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Integer){
+					return getIntegerDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.MultiPicklist){
+					return getMultiPicklistDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Percent){
+					return getPercentDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Phone){
+					return getPhoneDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Picklist){
+					return getPicklistDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.String){
+					return getStringDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.TextArea){
+					return getTextAreaDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Time){
+					return getTimeDefaultValue(fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.URL){
+					return getURLDefaultValue(fieldDesc,counter);
+				}
 			}
 			return null;
 		}
@@ -390,7 +408,7 @@ public class DF {
 			        return pickVal.getValue();
 			    }    
 			}
-			// if no default value set
+			// if no default value is set
 			return pickVals.get(0).getValue();
 		}
 		return null;

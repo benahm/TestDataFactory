@@ -11,6 +11,14 @@ private class DFTest {
 	}
 	
 	// DefaultValueProvider tests
+	@isTest static void getDefaultMapTest() {
+		DF.IDefaultValueProvider dvProvider = new DF.DefaultValueProvider();
+		Map<String,Object> mapValues = dvProvider.getDefaultMap(Opportunity.SObjectType);
+		System.assertEquals('test0',mapValues.get('name'));
+		System.assertNotEquals('',mapValues.get('stagename'));
+		System.assertEquals(Date.today(),mapValues.get('closedate'));
+	}
+
 	@isTest static void getDefaultValueTest() {
 		DF.IDefaultValueProvider dvProvider = new DF.DefaultValueProvider();
 		System.assertEquals(Blob.valueOf('0'),dvProvider.getDefaultValue(Attachment.fields.Body.getDescribe(),0));
@@ -26,6 +34,13 @@ private class DFTest {
 		System.assertEquals(0,dvProvider.getDefaultValue(Attachment.fields.BodyLength.getDescribe(),0));
 		//System.assertNotEquals('',dvProvider.getDefaultValue(Group.fields.Categories.getDescribe(),0));
 		System.assertEquals(0,dvProvider.getDefaultValue(Opportunity.fields.Probability.getDescribe(),0));
+		System.assertEquals('123456789',dvProvider.getDefaultValue(Contact.fields.Phone.getDescribe(),0));
+		System.assertNotEquals('',dvProvider.getDefaultValue(Account.fields.Type.getDescribe(),0));
+		System.assertEquals('test0',dvProvider.getDefaultValue(Contact.fields.FirstName.getDescribe(),0));
+		System.assertEquals('test0',dvProvider.getDefaultValue(Account.fields.Description.getDescribe(),0));
+		// no time field
+		//System.assertEquals('http://test0.com',dvProvider.getDefaultValue(Weblink.fields.URL.getDescribe(),0));
+		System.assertEquals(null,dvProvider.getDefaultValue(null,0));
 
 	}
 	@isTest static void getTypeDefaultValueTest() {
