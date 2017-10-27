@@ -2,6 +2,8 @@
 
 _Work in progress_
 
+![overview](/docs/assets/TDF.png)
+
 Generate an sObject with all required fields & relationships auto-filled
   ```apex
   TDF.generateSObject('Contact');
