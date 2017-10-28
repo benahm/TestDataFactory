@@ -14,7 +14,6 @@
 
 ##### Create an sObject by providing a map to override some field values in the main and the related sObjects
   ```apex
-  // using sObject name
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'FirstName' => 'Doe',
     'LastName' => 'John',
