@@ -1,11 +1,12 @@
 /**
 * @author benahm
 * @date 2017
-* @description DF Class
+* @description TDF Class
 */
-public class DF {
+public class TDF {
 	private static final String DOT = '.';
 	private static final Map<String, Schema.SObjectType> globalDescribe = Schema.getGlobalDescribe();
+	@testVisible
 	private static IDefaultValueProvider tdfDefaultValueProvider = null;
 
 	/**
@@ -23,6 +24,12 @@ public class DF {
 	}
 	public static SObject createSObject(Schema.SObjectType sObjectType, Map<String,Object> overrideMapValues){
 		return createSObject(sObjectType,overrideMapValues,false);
+	}	
+	public static SObject createSObject(String sObjectName, Boolean doInsert){
+		return createSObject(globalDescribe.get(sObjectName),doInsert);
+	}
+	public static SObject createSObject(Schema.SObjectType sObjectType, Boolean doInsert){
+		return createSObjectList(sObjectType,new Map<String,Object>(),doInsert,1).get(0);
 	}	
 	public static SObject createSObject(String sObjectName, Map<String,Object> overrideMapValues, Boolean doInsert){
 		return createSObject(globalDescribe.get(sObjectName),overrideMapValues,doInsert);
@@ -46,6 +53,12 @@ public class DF {
 	}	
 	public static List<SObject> createSObjectList(Schema.SObjectType sObjectType, Map<String,Object> overrideMapValues, Integer numberOfSObjects){
 		return createSObjectList(sObjectType,overrideMapValues,false,numberOfSObjects);
+	}
+	public static List<SObject> createSObjectList(String sObjectName, Boolean doInsert, Integer numberOfSObjects){
+		return createSObjectList(globalDescribe.get(sObjectName),doInsert,numberOfSObjects);
+	}
+	public static List<SObject> createSObjectList(Schema.SObjectType sObjectType, Boolean doInsert, Integer numberOfSObjects){
+		return createSObjectList(sObjectType,new Map<String,Object>(),doInsert,numberOfSObjects);
 	}
 	public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> overrideMapValues, Boolean doInsert, Integer numberOfSObjects){
 		return createSObjectList(globalDescribe.get(sObjectName),overrideMapValues,doInsert,numberOfSObjects);
@@ -91,9 +104,13 @@ public class DF {
 	/**
 	* @description class SObjectManager
 	*/
+	@testVisible
 	private class SObjectManager extends ASObjectManager{
+		@testVisible
 		private List<SObject> mainSObjectList = new List<SObject>();
+		@testVisible
 		private Map<String,List<SObject>> relatedSObjMapList = new Map<String,List<SObject>>();
+		@testVisible
 		private List<String> orderedRelationshipList = new List<String>();
 
 		public override List<SObject> getSObjectList(){
@@ -101,27 +118,32 @@ public class DF {
 		}
 
 		public override void setSObject(Integer index,SObject sObj){
+			if(index < 0) return;
 			if(index < mainSObjectList.size())
 				mainSObjectList.set(index,sObj);
 			else mainSObjectList.add(sObj);
 		}
 
 		public override SObject getSObject(Integer index){
+			if(index >= mainSObjectList.size() || index < 0) return null;
 			return mainSObjectList.get(index);
 		}
 
 		public override void setRelationship(Integer index, String relationshipName, SObject sObj){
+			if(index < 0) return;
 			List<SObject> relatedSObjList = relatedSObjMapList.get(relationshipName);
 			if(relatedSObjList == null) relatedSObjList = new List<SObject>();
 			if(index < relatedSObjList.size())
 				relatedSObjList.set(index,sObj);
 			else relatedSObjList.add(sObj);
+			relatedSObjMapList.put(relationshipName.toLowerCase(),relatedSObjList);
 			addRelationshipName(relationshipName);
 		}
 
 		public override SObject getRelationship(Integer index,String relationshipName){
 			List<SObject> relatedSObjList = relatedSObjMapList.get(relationshipName);
 			if(relatedSObjList == null) return null;
+			if(index >= relatedSObjList.size() || index < 0) return null;
 			return relatedSObjList.get(index);
 		}
 
@@ -132,16 +154,17 @@ public class DF {
 			insert mainSObjectList;
 		}
 
+		@testVisible
 		private void addRelationshipName(String relationshipName){
 			Integer i=0;
 			for (String rName : orderedRelationshipList) {
 				if(rName.countMatches('.') < relationshipName.countMatches('.')){
-					orderedRelationshipList.add(i, relationshipName);
+					orderedRelationshipList.add(i, relationshipName.toLowerCase());
 					return;
 				}
 				i++;
 			}
-			orderedRelationshipList.add(relationshipName);
+			orderedRelationshipList.add(relationshipName.toLowerCase());
 		}
 	}
 
