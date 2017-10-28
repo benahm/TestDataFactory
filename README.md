@@ -9,16 +9,16 @@ _Work in progress_
 
 #### The ultimate Apex Test Data Factory
 
-Generate an sObject with all required fields & relationships auto-filled
+Generate an sObject with all the required fields & relationships auto-filled
   ```apex
   SObject con = TDF.createSObject('Contact');
   ```
 
-Generate an sObject with all required fields & relationships auto-filled and overriding values
+Generate an sObject with all the required fields & relationships auto-filled and override some values
   ```apex
   SObject con = TDF.createSObject('Contact', new Map<String,Object>{
-      'Email' => 'test@email.com'
-      'Account.Description' => 'Test for the Description field of the account'
+    'Email' => 'test@email.com'
+    'Account.Description' => 'Test for the Description field of the account'
   });
   ```
   
