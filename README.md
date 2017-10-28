@@ -2,7 +2,8 @@
 
 _Work in progress_
 
-![overview](/docs/assets/TDF.png)
+<p align="center"><img src ="/docs/assets/TDF.png" width="500"/></p>
+
 
 Generate an sObject with all required fields & relationships auto-filled
   ```apex
