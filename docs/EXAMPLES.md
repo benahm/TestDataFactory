@@ -3,8 +3,7 @@
 
 ### Create a single sObject:
 
-
-Create an sObject using the sObject name or the sObject type
+##### Create an sObject using the sObject name or the sObject type
   ```apex
   // using sObject name
   Contact con = (Contact)TDF.createSObject('Contact');
@@ -15,7 +14,7 @@ Create an sObject using the sObject name or the sObject type
 
 ### Create a list of sObjects:
 
-Create an sObject using the sObject name or the sObject type
+##### Create an sObject using the sObject name or the sObject type
   ```apex
   // using sObject name
   List<Contact> conList = TDF.createSObjectList('Contact',10);
