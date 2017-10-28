@@ -18,7 +18,7 @@ Generate an sObject with all the required fields & relationships auto-filled and
   ```apex
   SObject con = TDF.createSObject('Contact', new Map<String,Object>{
     'Email' => 'test@email.com'
-    'Account.Description' => 'Test for the Description field of the account'
+    'Account.Description' => 'Text for the Description field on the Account'
   });
   ```
   
