@@ -5,10 +5,10 @@
 
 ##### Create an sObject using the sObject name or the sObject type
   ```apex
-  // using sObject name
+  // Using sObject name
   Contact con = (Contact)TDF.createSObject('Contact');
   
-  // using sObject Type
+  // Using sObject Type
   Contact con = (Contact)TDF.createSObject(Contact.SObjectType);
   ```
 
@@ -25,9 +25,9 @@
 
 ##### Create an sObject using the sObject name or the sObject type
   ```apex
-  // using sObject name
+  // Using sObject name
   List<Contact> conList = TDF.createSObjectList('Contact',10);
   
-  // using sObject Type
+  // Using sObject Type
   List<Contact> conList = TDF.createSObjectList(Contact.SObjectType,10);
   ```
