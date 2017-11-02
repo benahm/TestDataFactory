@@ -21,6 +21,12 @@
   });
   ```
 
+##### Create and insert an sObject
+  ```apex
+  Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
+    'FirstName' => 'Doe',
+  },true);
+  
 ### Create a list of sObjects:
 
 ##### Create an sObject using the sObject name or the sObject type
