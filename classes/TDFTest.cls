@@ -39,17 +39,31 @@ private class TDFTest {
 		System.assertNotEquals(null,sObj);
 	}
 	@isTest static void createSObjectTest9(){
-		TDF.ISObjectFactory factory = new TDF.SObjectFactory();
 		SObject sObj = TDF.createSObject('Case', new Map<String,Object>{
 				'aCCount.Description' => 'test',
 				'ConTact.FirstName'=> 'test',
 				'Description' => 'test',
-				'asset.accounT.description' => 'test',
+				'asset.accounT.Name' => 'test',
 				'asset.contact.account.Description' => 'test',
 				'asset.Parent.contact.account.Description' => 'test'
 			},true);
 		Case cse = [select Asset.Parent.Contact.Account.Name from Case limit 1];
 		System.assertEquals('test0',cse.Asset.Parent.Contact.Account.Name);
+	}
+	@isTest static void createSObjectTest10(){
+		SObject sObj = TDF.createSObject('Account', new Map<String,Object>{
+				'Name'=> 'test',
+				'OwnerId'=> UserInfo.getUserId()
+			},true);
+		Account acc = [select OwnerId from Account limit 1];
+		System.assertEquals(UserInfo.getUserId(),acc.OwnerId);
+	}
+	@isTest static void createSObjectTest11(){
+		SObject sObj = TDF.createSObject('Account', new Map<String,Object>{
+				'Name'=> 'Test'
+			},true);
+		Account acc = [select Name from Account limit 1];
+		System.assertEquals('Test',acc.Name);
 	}
 	@isTest static void createSObjectListTest1(){
 		List<SObject> sObjList = TDF.createSObjectList('Account',5);
@@ -100,12 +114,12 @@ private class TDFTest {
 	}
 
 	/************************* SObjectManager tests *************************/
-	@isTest static void getSObjectListTest(){
+	@isTest static void getMainSObjectListTest(){
 		TDF.SObjectManager sObjManager = new TDF.SObjectManager();
-		System.assertNotEquals(null,sObjManager.getSObjectList());
-		System.assertEquals(0,sObjManager.getSObjectList().size());
+		System.assertNotEquals(null,sObjManager.getMainSObjectList());
+		System.assertEquals(0,sObjManager.getMainSObjectList().size());
 		sObjManager.mainSObjectList.add(new Contact());
-		System.assertEquals(1,sObjManager.getSObjectList().size());
+		System.assertEquals(1,sObjManager.getMainSObjectList().size());
 	}
 	@isTest static void setSObjectTest(){
 		TDF.SObjectManager sObjManager = new TDF.SObjectManager();
@@ -163,7 +177,7 @@ private class TDFTest {
 			sObjManager.insertAllSObjects();
 		}catch(DmlException e){
 			System.debug(e);
-			System.assert(true); // missing required fields
+			System.assert(true); // if missing required fields
 		}
 		List<Contact> conList = [select LastName, Account.Name from Contact limit 1];
 		System.assertNotEquals(null,conList);
@@ -180,7 +194,7 @@ private class TDFTest {
 			sObjManager.setChildParentRelationship(conList,accList,'Account');
 		}catch(DmlException e){
 			System.debug(e);
-			System.assert(true); // missing required fields
+			System.assert(true); // if missing required fields
 		}
 		System.assertNotEquals(null,conList.get(0).AccountId);
 	}
@@ -321,7 +335,6 @@ private class TDFTest {
 		System.assertEquals(Datetime.now(),dvProvider.getDefaultValue(Account.fields.CreatedDate.getDescribe(),0));
 		System.assertEquals(0,dvProvider.getDefaultValue(Asset.fields.Quantity.getDescribe(),0));
 		System.assertEquals('test0@email.com',dvProvider.getDefaultValue(Contact.fields.Email.getDescribe(),0));
-		//System.assertEquals('secret0',dvProvider.getDefaultValue(ExternalDataUserAuth.fields.Password.getDescribe(),0));
 		System.assertEquals(null,dvProvider.getDefaultValue(Account.fields.Id.getDescribe(),0));
 		System.assertEquals(0,dvProvider.getDefaultValue(Attachment.fields.BodyLength.getDescribe(),0));
 		//System.assertNotEquals('',dvProvider.getDefaultValue(Group.fields.Categories.getDescribe(),0));
@@ -344,7 +357,6 @@ private class TDFTest {
 		System.assertEquals(Datetime.now(),dvProvider.getDateTimeDefaultValue(null,0));
 		System.assertEquals(0,dvProvider.getDoubleDefaultValue(null,0));
 		System.assertEquals('test0@email.com',dvProvider.getEmailDefaultValue(null,0));
-		System.assertEquals('secret0',dvProvider.getEncryptedStringDefaultValue(null,0));
 		System.assertEquals(null,dvProvider.getIDDefaultValue(null,0));
 		System.assertEquals(0,dvProvider.getIntegerDefaultValue(null,0));
 		System.assertEquals(null,dvProvider.getMultiPicklistDefaultValue(null,0));
