@@ -24,19 +24,27 @@
 ##### Create and insert an sObject
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
-    'FirstName' => 'Doe',
+    'FirstName' => 'Doe'
   },true);
   ```
 
-##### Force to instanciate a related objects
+##### Force to instanciate a related sObject
 
 For example when creating a contact you can force the test data factory to create a related account event if and account is not required to create a contact
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
-    'Account.Id' => null,
+    'Account.Id' => null
   },true);
   ```
 
+##### Provide an Id for required related sObject to avoid instanciation
+
+You can provide an Id for a required object, to force the use of that Id and prevent the instanciation of a related sObject
+  ```apex
+  User u = (User)TDF.createSObject('User', new Map<String,Object>{
+    'ProfileId' => UserInfo.profileId()
+  },true);
+  ```
 
 ### Create a list of sObjects:
 
