@@ -28,6 +28,16 @@
   },true);
   ```
 
+##### Force to instanciate a related objects
+
+For example when creating a contact you can force the test data factory to create a related account event if and account is not required to create a contact
+  ```apex
+  Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
+    'Account.Id' => null,
+  },true);
+  ```
+
+
 ### Create a list of sObjects:
 
 ##### Create an sObject using the sObject name or the sObject type
