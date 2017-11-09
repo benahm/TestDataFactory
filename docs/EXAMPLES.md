@@ -56,3 +56,10 @@ You can provide an Id for a required related sObject, to force the use of that I
   // Using sObject Type
   List<Contact> conList = TDF.createSObjectList(Contact.SObjectType,10);
   ```
+
+##### Create a list of users using the index merge field
+  ```apex
+  List<User> uList = (User)TDF.createSObjectList('User', new Map<String,Object>{
+    'ProfileId' => UserInfo.profileId(),
+    'username' => 'test{!index}@mytestdomain.developer'
+  });
