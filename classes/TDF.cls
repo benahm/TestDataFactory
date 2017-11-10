@@ -167,6 +167,9 @@ public class TDF {
 		* @description insert all the sObjects
 		*/
 		public override void insertAllSObjects(){
+			System.debug('orderedRelationshipList '+orderedRelationshipList);
+			System.debug('mainSObjectList '+mainSObjectList);
+			System.debug('relatedSObjMapList '+relatedSObjMapList);
 			String lastRelationshipName = null;
 			Set<String> relationshipSet = new Set<String>(orderedRelationshipList);
 			for(Integer i = 0; i < orderedRelationshipList.size(); i++){
@@ -192,7 +195,7 @@ public class TDF {
 		private void setChildParentRelationship(List<SObject> sObjChildList, List<SObject> sObjParentList, String relationshipName){
 			if(sObjChildList == null || sObjParentList == null) return;
 			if(sObjChildList.size() != sObjParentList.size()) return;
-
+			System.debug('relationshipName '+relationshipName);
 			Integer index = 0;
 			for(SObject sObjChild: sObjChildList){
 				sObjChild.put(util.relationshipToFieldName(relationshipName),sObjParentList.get(index).get('Id'));
@@ -205,15 +208,17 @@ public class TDF {
 		*/
 		@testVisible
 		private void addRelationshipName(String relationshipName){
+			String relationshipNameLowerCase = relationshipName.toLowerCase();
+			if((new Set<String>(orderedRelationshipList)).contains(relationshipNameLowerCase)) return;
 			Integer i=0;
 			for (String rName : orderedRelationshipList) {
 				if(rName.countMatches('.') < relationshipName.countMatches('.')){
-					orderedRelationshipList.add(i, relationshipName.toLowerCase());
+					orderedRelationshipList.add(i, relationshipNameLowerCase);
 					return;
 				}
 				i++;
 			}
-			orderedRelationshipList.add(relationshipName.toLowerCase());
+			orderedRelationshipList.add(relationshipNameLowerCase);
 		}
 	}
 
@@ -319,7 +324,7 @@ public class TDF {
 						String fullyQualifiedRelationshipName = fullyQualifiedFieldName.substringBeforeLast(DOT);
 						String fieldName = fullyQualifiedFieldName.substringAfterLast(DOT);
 						SObject relatedSObj = getRelationshipInstance(sObjectType,fullyQualifiedRelationshipName,i);
-						relatedSObj.put(fieldName,mapValues.get(fullyQualifiedFieldName)); 
+						relatedSObj.put(fieldName,util.mergeValue(mapValues.get(fullyQualifiedFieldName),'Index',i.format())); 
 						sObjMgr.getSObject(i).putSObject(firstRelationshipName, sObjMgr.getRelationship(i,firstRelationshipName));
 
 					}else { // field name
@@ -389,6 +394,7 @@ public class TDF {
 		public Map<String,Object> getDefaultMap(Schema.SObjectType sObjectType, Set<String> setValuesOverride){
 			return getDefaultMap(sObjectType,setValuesOverride,'');
 		}
+		@testVisible
 		private Map<String,Object> getDefaultMap(Schema.SObjectType sObjectType, Set<String> setValuesOverride, String prefix){
 			Map<String, Object> defaultValues = new Map<String,Object>();
 			Map<String, Schema.SObjectField> fieldMap = sObjectType.getDescribe().fields.getMap();
