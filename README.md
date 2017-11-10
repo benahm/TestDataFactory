@@ -14,7 +14,7 @@ Generate an sObject with all the required fields & relationships auto-filled
   Contact con = (Contact)TDF.createSObject('Contact');
   ```
 
-Generate an sObject with all the required fields & relationships auto-filled and override some values
+Override values in the main and the related sObjects
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'Email' => 'test@email.com'
