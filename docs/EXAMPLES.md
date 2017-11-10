@@ -61,5 +61,6 @@ You can provide an Id for a required related sObject, to force the use of that I
   ```apex
   List<User> uList = (User)TDF.createSObjectList('User', new Map<String,Object>{
     'ProfileId' => UserInfo.profileId(),
-    'Username' => 'test{!index}@mytestdomain.developer'
+    'Username' => 'test{!index}@mytestdomain.developer',
+    'CommunityNickname' => 'test{!index}'
   });
