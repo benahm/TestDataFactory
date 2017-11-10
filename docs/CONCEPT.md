@@ -2,6 +2,7 @@
 ## Core concepts 
 
 
+<p align="center"><img src ="./assets/TDF-CoreConcept.png"/></p>
 
 
 Test Data Factory contains the following classes 
