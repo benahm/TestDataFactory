@@ -5,7 +5,7 @@
 */
 @isTest
 private class TDFTest {
-	/************************* TTDF tests *************************/
+	/************************* TDF tests *************************/
 	@isTest static void createSObjectTest1(){
 		SObject sObj = TDF.createSObject('Account');
 		System.assertNotEquals(null,sObj);
@@ -65,6 +65,16 @@ private class TDFTest {
 		Account acc = [select Name from Account limit 1];
 		System.assertEquals('Test',acc.Name);
 	}
+	@isTest static void createSObjectTest12(){
+		SObject sObj = TDF.createSObject('Account', new Map<String,Object>{
+			'Owner.ProfileId' => UserInfo.getProfileId(),
+			'Owner.Username' => 'test123456789@mycompanydomain.developer'
+			},true);
+		List<User> uList = [select Id,ProfileId from User where Username = 'test123456789@mycompanydomain.developer'];
+		System.assertNotEquals(null,uList);
+		System.assertEquals(1,uList.size());
+		System.assertEquals(UserInfo.getProfileId(),uList.get(0).ProfileId);
+	}
 	@isTest static void createSObjectListTest1(){
 		List<SObject> sObjList = TDF.createSObjectList('Account',5);
 		System.assertNotEquals(null,sObjList);
@@ -104,6 +114,16 @@ private class TDFTest {
 		List<SObject> sObjList = TDF.createSObjectList(Account.SObjectType,new Map<String,Object>(),false,5);
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
+	}
+	@isTest static void createSObjectListTest9(){
+		List<SObject> sObjList = TDF.createSObjectList('Account', new Map<String,Object>{
+			'Owner.ProfileId' => UserInfo.getProfileId(),
+			'Owner.Username' => 'test123456789@mycompanydomain.developer{!index}'
+			},true,5);
+		List<User> uList = [select Id,ProfileId from User where Username LIKE 'test123456789@mycompanydomain.developer%'];
+		System.assertNotEquals(null,uList);
+		System.assertEquals(5,uList.size());
+		System.assertEquals(UserInfo.getProfileId(),uList.get(0).ProfileId);
 	}
 	@isTest static void setDefaultValueProviderTest(){
 		System.assertEquals(null,TDF.dvPrvdrOverride);
@@ -319,11 +339,22 @@ private class TDFTest {
 		System.assertEquals(null,mapValues.get('account.id'));
 		System.assertEquals('test0',mapValues.get('account.name'));
 	}
+	@isTest static void getSetOverrideRelationshipTest(){
+		TDF.ADefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		System.assertEquals(new Set<String>{'contact'},dvProvider.getSetOverrideRelationship(new Set<String>{'Contact.AccountId','Contact.Account.ParentId'},''));
+		System.assertEquals(new Set<String>{'account'},dvProvider.getSetOverrideRelationship(new Set<String>{'Contact.Account.Id','Contact.Account.ParentId','Contact.AccountId'},'Contact.'));
+		System.assertEquals(new Set<String>{'parent','user'},dvProvider.getSetOverrideRelationship(new Set<String>{'Contact.Account.User.Id','Contact.Account.Parent.Id','Contact.AccountId'},'Contact.Account.'));
+	}
 	@isTest static void getDefaultPicklistValueTest(){
 		TDF.ADefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
 		String defaultValue = dvProvider.getDefaultPicklistValue(Contract.fields.Status.getDescribe());
 		System.assertNotEquals(null,defaultValue);
 		System.assertNotEquals('',defaultValue);
+	}
+	@isTest static void defaultValueIsRequiredTest(){
+		TDF.ADefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		System.assertEquals(true,dvProvider.defaultValueIsRequired(Account.fields.Name.getDescribe()));
+		System.assertEquals(false,dvProvider.defaultValueIsRequired(Account.fields.OwnerId.getDescribe()));
 	}
 	@isTest static void getDefaultValueTest(){
 		TDF.ADefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
@@ -377,5 +408,26 @@ private class TDFTest {
 		System.assertEquals('customrelationship__c',util.relationshipToFieldName('customrelationshiP__r'));
 		System.assertEquals('standardrelationshipid',util.relationshipToFieldName('standardRelationshiP'));
 	}
-	
+	@isTest static void mapToLowerCaseTest(){
+		TDF.Util util = new TDF.Util();
+		Map<String,Object> mapTest = new Map<String,Object>{
+			'TesT' => 0,
+			'tOto' => 1
+			};
+		System.assert(util.mapToLowerCase(mapTest).keySet().contains('test'));
+		System.assert(util.mapToLowerCase(mapTest).keySet().contains('toto'));
+	}
+	@isTest static void toLowerCaseTest(){
+		TDF.Util util = new TDF.Util();
+		System.assertEquals(null,util.toLowerCase(null));
+		System.assertEquals('test',util.toLowerCase('TeSt'));
+	}
+	@isTest static void mergeValueTest(){
+		TDF.Util util = new TDF.Util();
+		System.assertEquals(null,util.mergeValue(null,'i','101'));
+		System.assertEquals(1,util.mergeValue(1,'i','101'));
+		System.assertEquals('test101',util.mergeValue('test{!i}','i','101'));
+		System.assertEquals('test101',util.mergeValue('test{!iD}','id','101'));
+		System.assertEquals('test101',util.mergeValue('test{!Id}','ID','101'));
+	}
 }
