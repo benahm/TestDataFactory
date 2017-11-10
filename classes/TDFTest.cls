@@ -60,13 +60,6 @@ private class TDFTest {
 	}
 	@isTest static void createSObjectTest11(){
 		SObject sObj = TDF.createSObject('Account', new Map<String,Object>{
-				'Name'=> 'Test'
-			},true);
-		Account acc = [select Name from Account limit 1];
-		System.assertEquals('Test',acc.Name);
-	}
-	@isTest static void createSObjectTest12(){
-		SObject sObj = TDF.createSObject('Account', new Map<String,Object>{
 			'Owner.ProfileId' => UserInfo.getProfileId(),
 			'Owner.Username' => 'test123456789@mycompanydomain.developer'
 			},true);
