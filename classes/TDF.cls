@@ -323,7 +323,7 @@ public class TDF {
 						sObjMgr.getSObject(i).putSObject(firstRelationshipName, sObjMgr.getRelationship(i,firstRelationshipName));
 
 					}else { // field name
-						sObjMgr.getSObject(i).put(fullyQualifiedFieldName,mapValues.get(fullyQualifiedFieldName));
+						sObjMgr.getSObject(i).put(fullyQualifiedFieldName,util.mergeValue(mapValues.get(fullyQualifiedFieldName),'Index',i.format()));
 					}
 
 				}
@@ -340,23 +340,24 @@ public class TDF {
 		private SObject getRelationshipInstance(Schema.SObjectType sObjectType,String fullyQualifiedRelationshipName, Integer index){
 			SObject sObj = sObjMgr.getRelationship(index,fullyQualifiedRelationshipName);
 			if(sObj != null) return sObj;
+			Schema.SObjectType mainSObjectType = sObjectType;
+			String leafRelationshipName = fullyQualifiedRelationshipName;
 
-			if(fullyQualifiedRelationshipName.contains(DOT)){
+			if(fullyQualifiedRelationshipName.contains(DOT)){ // multiple relationships
 				String fullyQualifiedRelationshipNameBefore = fullyQualifiedRelationshipName.substringBeforeLast(DOT);
-				String lastRelationshipName = fullyQualifiedRelationshipName.substringAfterLast(DOT);
 				SObject relatedSObj = getRelationshipInstance(sObjectType,fullyQualifiedRelationshipNameBefore,index);
-				sObj = sObjMgr.getRelationship(index,fullyQualifiedRelationshipName);
-				if(sObj == null) sObj = getRelatedSObjectInstance(relatedSObj.getSObjectType(),util.relationshipToFieldName(lastRelationshipName));
-				sObjMgr.setRelationship(index,fullyQualifiedRelationshipName,sObj);
-				//relatedSObj.putSObject(lastRelationshipName,sObj);
-				return sObj;
-			}else {
-				sObj = sObjMgr.getRelationship(index,fullyQualifiedRelationshipName);
-				if(sObj == null) sObj = getRelatedSObjectInstance(sObjectType,util.relationshipToFieldName(fullyQualifiedRelationshipName)); 
-				sObjMgr.setRelationship(index,fullyQualifiedRelationshipName,sObj);
-				return sObj;
+				mainSObjectType = relatedSObj.getSObjectType();
+				leafRelationshipName = fullyQualifiedRelationshipName.substringAfterLast(DOT);
 			}
+			sObj = sObjMgr.getRelationship(index,fullyQualifiedRelationshipName);
+			if(sObj == null) sObj = getRelatedSObjectInstance(mainSObjectType,util.relationshipToFieldName(leafRelationshipName)); 
+			sObjMgr.setRelationship(index,fullyQualifiedRelationshipName,sObj);
+			return sObj;
 		}
+		/**
+		* @description get related sObject 
+		* @return SObject
+		*/
 		@testVisible
 		private SObject getRelatedSObjectInstance(Schema.SObjectType sObjectType, String fieldName){
 			Map<String, Schema.SObjectField> fieldMap = sObjectType.getDescribe().fields.getMap();
@@ -388,7 +389,6 @@ public class TDF {
 		public Map<String,Object> getDefaultMap(Schema.SObjectType sObjectType, Set<String> setValuesOverride){
 			return getDefaultMap(sObjectType,setValuesOverride,'');
 		}
-
 		private Map<String,Object> getDefaultMap(Schema.SObjectType sObjectType, Set<String> setValuesOverride, String prefix){
 			Map<String, Object> defaultValues = new Map<String,Object>();
 			Map<String, Schema.SObjectField> fieldMap = sObjectType.getDescribe().fields.getMap();
@@ -400,28 +400,35 @@ public class TDF {
 				fieldDesc = fieldMap.get(fieldName).getDescribe();
 				if(defaultValueIsRequired(fieldDesc) || setOverrideRelationship.contains(util.toLowerCase(fieldDesc.getRelationshipName()))){
 					if(fieldDesc.getRelationshipName() != null){ // relationship field
-						defaultValues.put((prefixLowerCase+fieldDesc.getRelationshipName().toLowerCase()+DOT+'id').toLowerCase(),null);
-						defaultValues.putAll(getDefaultMap(fieldDesc.getReferenceTo().get(0),setValuesOverride,prefixLowerCase+fieldDesc.getRelationshipName()+DOT));
+						String fullyQualifiedRelationshipName = prefixLowerCase+fieldDesc.getRelationshipName().toLowerCase();
+						if(!setValuesOverride.contains(fullyQualifiedRelationshipName+'id')){
+							defaultValues.put(fullyQualifiedRelationshipName+DOT+'id',null);
+							defaultValues.putAll(getDefaultMap(fieldDesc.getReferenceTo().get(0),setValuesOverride,fullyQualifiedRelationshipName+DOT));
+						}
 					}else { // non relationship field
-						defaultValues.put(prefixLowerCase+fieldName.toLowerCase(),getDefaultValue(fieldDesc,counter++));
+						Object fieldValue = getDefaultValue(fieldDesc,counter++);
+						defaultValues.put(prefixLowerCase+fieldName.toLowerCase(),fieldValue);
 					}
 				}
 			}
 			return defaultValues;
 		}
 
+		@testVisible
 		private Set<String> getSetOverrideRelationship(Set<String> setValuesOverride, String prefix){
+			if(setValuesOverride == null || prefix == null) return null;
 			Set<String> setOverrideRelationship = new Set<String>();
+			String prefixLowerCase = prefix.toLowerCase();
 			for(String fullyQualifiedFieldName : setValuesOverride){
 				fullyQualifiedFieldName = fullyQualifiedFieldName.toLowerCase();
-				if(fullyQualifiedFieldName.startsWith(prefix) && fullyQualifiedFieldName.substringAfter(prefix).contains(DOT)){
-					setOverrideRelationship.add(fullyQualifiedFieldName.substringBetween(prefix,DOT));
+				if(fullyQualifiedFieldName.startsWith(prefixLowerCase) && fullyQualifiedFieldName.substringAfter(prefixLowerCase).contains(DOT)){
+					setOverrideRelationship.add(fullyQualifiedFieldName.substringBetween(prefixLowerCase,DOT));
 				}
 			}
 			return setOverrideRelationship;
 		}
 
-
+		@testVisible
 		private Boolean defaultValueIsRequired(Schema.DescribeFieldResult fieldDesc){
 			return !fieldDesc.isDefaultedOnCreate() && !fieldDesc.isNillable() && fieldDesc.isCreateable() && fieldDesc.isUpdateable();
 		}
@@ -475,6 +482,9 @@ public class TDF {
 			}
 			return null;
 		}
+		/**
+		* @description get the default for a picklist
+		*/
 		@testVisible
 		protected String getDefaultPicklistValue(Schema.DescribeFieldResult fieldDesc){
 			if(fieldDesc != null){
@@ -593,9 +603,16 @@ public class TDF {
 			return mapValuesLowerCase;
 		}
 
-		private String toLowerCase(String value){
+		public String toLowerCase(String value){
 			if(value == null) return null;
 			return value.toLowerCase();
+		}
+
+		public Object mergeValue(Object obj, String name, String value){
+			if(obj == null) return null;
+			if(!(obj instanceof String)) return obj;
+			String pattern = '(?i)\\{!'+name+'\\}';
+			return ((String)obj).replaceAll(pattern,value);
 		}
 	}
 
