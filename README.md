@@ -25,4 +25,5 @@ Generate an sObject with all the required fields & relationships auto-filled and
   
   ### More :
 * [Examples](/docs/EXAMPLES.md)
+* [Core Concepts](/docs/CONCEPT.md)
 * [Contributing](/docs/CONTRIBUTE.md)
