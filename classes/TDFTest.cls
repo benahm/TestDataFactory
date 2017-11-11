@@ -124,10 +124,10 @@ private class TDFTest {
 			'Owner.Username' => 'test123456789@mycompanydomain.developer{!index}',
 			'Owner.CommunityNickname' => 'testd{!index}'
 			},true,5);
-/*		List<User> uList = [select Id,ProfileId from User where Username LIKE 'test123456789@mycompanydomain.developer%'];
+		List<User> uList = [select Id,ProfileId from User where Username LIKE 'test123456789@mycompanydomain.developer%'];
 		System.assertNotEquals(null,uList);
 		System.assertEquals(5,uList.size());
-		System.assertEquals(UserInfo.getProfileId(),uList.get(0).ProfileId);*/
+		System.assertEquals(UserInfo.getProfileId(),uList.get(0).ProfileId);
 	}
 	@isTest static void setDefaultValueProviderTest(){
 		System.assertEquals(null,TDF.dvPrvdrOverride);
