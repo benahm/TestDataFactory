@@ -22,10 +22,12 @@
   ```
 
 ##### Create and insert an sObject
+by the default the sObjects created are not inserted, by providing the *doInsert* to true the sObjects will be automatically inserted  
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
-    'FirstName' => 'Doe'
-  },true);
+    'FirstName' => 'Doe',
+    'LastName' => 'John',
+  },true /* <-- doInsert flag */);
   ```
 
 ##### Force to instanciate a related sObject
