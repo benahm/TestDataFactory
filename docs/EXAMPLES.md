@@ -12,7 +12,7 @@
   Contact con = (Contact)TDF.createSObject(Contact.SObjectType);
   ```
 
-##### Create an sObject by providing a map to override some field values in the main and the related sObjects
+##### Create an sObject by providing a map to assign values to fields in the main and the related sObjects
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'FirstName' => 'Doe',
