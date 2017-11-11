@@ -40,7 +40,7 @@ public class TDF {
 	}
 	
 	/**
-	 * @description create a list of sObject
+	 * @description create a list of sObjects
 	 * @return List<SObject> : list of sObject instances
 	 */
 	public static List<SObject> createSObjectList(String sObjectName, Integer numberOfSObjects){
@@ -65,9 +65,9 @@ public class TDF {
 		return createSObjectList(globalDescribe.get(sObjectName),mapValuesOverride,doInsert,numberOfSObjects);
 	}
 	public static List<SObject> createSObjectList(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Boolean doInsert, Integer numberOfSObjects){
-		ISObjectFactory factory = new SObjectFactory(dvPrvdrOverride);
-		List<SObject> listSObjectInstance = factory.getListSObjectInstance(sObjectType, mapValuesOverride, numberOfSObjects);
-		if(doInsert) factory.getSObjectManager().insertAllSObjects();
+		ISObjectFactory sObjFactory = new SObjectFactory(dvPrvdrOverride);
+		List<SObject> listSObjectInstance = sObjFactory.getListSObjectInstance(sObjectType, mapValuesOverride, numberOfSObjects);
+		if(doInsert) sObjFactory.getSObjectManager().insertAllSObjects();
 		return listSObjectInstance;
 	}
 
@@ -92,21 +92,10 @@ public class TDF {
 	}
 
 	/**
-	* @description abstract class ASObjectManager
-	*/
-	private abstract class ASObjectManager implements ISObjectManager{
-		public abstract List<SObject> getMainSObjectList();
-		public abstract void setSObject(Integer index, SObject sObj);
-		public abstract SObject getSObject(Integer index);
-		public abstract void setRelationship(Integer index, String relationshipName, SObject sObj);
-		public abstract SObject getRelationship(Integer index, String relationshipName);
-		public abstract void insertAllSObjects();
-	}
-	/**
 	* @description class SObjectManager
 	*/
 	@testVisible
-	private class SObjectManager extends ASObjectManager{
+	private class SObjectManager implements ISObjectManager{
 		@testVisible
 		private List<SObject> mainSObjectList = new List<SObject>();
 		@testVisible
@@ -115,16 +104,16 @@ public class TDF {
 		private List<String> orderedRelationshipList = new List<String>();
 
 		/**
-		* @description get the main sobject list
+		* @description get the main sObject list
 		*/
-		public override List<SObject> getMainSObjectList(){
+		public List<SObject> getMainSObjectList(){
 			return mainSObjectList;
 		}
 
 		/**
-		* @description set an sobject to the main list in a specific index
+		* @description set an sObject to the main list with a specific index
 		*/
-		public override void setSObject(Integer index,SObject sObj){
+		public void setSObject(Integer index,SObject sObj){
 			if(index < 0) return;
 			if(index < mainSObjectList.size())
 				mainSObjectList.set(index,sObj);
@@ -132,17 +121,17 @@ public class TDF {
 		}
 
 		/**
-		* @description get an sobject from the main list in a specific index
+		* @description get an sObject from the main list with a specific index
 		*/
-		public override SObject getSObject(Integer index){
+		public SObject getSObject(Integer index){
 			if(index >= mainSObjectList.size() || index < 0) return null;
 			return mainSObjectList.get(index);
 		}
 
 		/**
-		* @description set a related sobject in a specific index with the correpondant relationship name
+		* @description set a related sObject with a specific index and relationship name
 		*/
-		public override void setRelationship(Integer index, String relationshipName, SObject sObj){
+		public void setRelationship(Integer index, String relationshipName, SObject sObj){
 			if(index < 0) return;
 			List<SObject> relatedSObjList = relatedSObjMapList.get(relationshipName);
 			if(relatedSObjList == null) relatedSObjList = new List<SObject>();
@@ -154,9 +143,9 @@ public class TDF {
 		}
 
 		/**
-		* @description get a related sobject in a specific relationship name
+		* @description get a related sObject in with specific index and relationship name
 		*/
-		public override SObject getRelationship(Integer index,String relationshipName){
+		public SObject getRelationship(Integer index,String relationshipName){
 			List<SObject> relatedSObjList = relatedSObjMapList.get(relationshipName.toLowerCase());
 			if(relatedSObjList == null) return null;
 			if(index >= relatedSObjList.size() || index < 0) return null;
@@ -166,12 +155,7 @@ public class TDF {
 		/**
 		* @description insert all the sObjects
 		*/
-		public override void insertAllSObjects(){
-			System.debug('orderedRelationshipList '+orderedRelationshipList);
-			System.debug('mainSObjectList '+mainSObjectList);
-			System.debug('relatedSObjMapList '+relatedSObjMapList);
-			String lastRelationshipName = null;
-			Set<String> relationshipSet = new Set<String>(orderedRelationshipList);
+		public void insertAllSObjects(){
 			for(Integer i = 0; i < orderedRelationshipList.size(); i++){
 				String relationshipName = orderedRelationshipList.get(i);
 				List<SObject> sObjParentList = relatedSObjMapList.get(relationshipName);
@@ -195,7 +179,6 @@ public class TDF {
 		private void setChildParentRelationship(List<SObject> sObjChildList, List<SObject> sObjParentList, String relationshipName){
 			if(sObjChildList == null || sObjParentList == null) return;
 			if(sObjChildList.size() != sObjParentList.size()) return;
-			System.debug('relationshipName '+relationshipName);
 			Integer index = 0;
 			for(SObject sObjChild: sObjChildList){
 				sObjChild.put(util.relationshipToFieldName(relationshipName),sObjParentList.get(index).get('Id'));
@@ -204,14 +187,14 @@ public class TDF {
 		}
 
 		/**
-		* @description add relationship name to a list with ordering by the dot notation
+		* @description add relationship name to a list ordered by the dot notation
 		*/
 		@testVisible
 		private void addRelationshipName(String relationshipName){
 			String relationshipNameLowerCase = relationshipName.toLowerCase();
-			if((new Set<String>(orderedRelationshipList)).contains(relationshipNameLowerCase)) return;
 			Integer i=0;
 			for (String rName : orderedRelationshipList) {
+				if(relationshipNameLowerCase == rName) return;
 				if(rName.countMatches('.') < relationshipName.countMatches('.')){
 					orderedRelationshipList.add(i, relationshipNameLowerCase);
 					return;
@@ -240,27 +223,10 @@ public class TDF {
 	}
 
 	/**
-	* @description abstract class ASObjectFactory
-	*/
-	private abstract class ASObjectFactory implements ISObjectFactory{
-
-		public abstract ISObjectManager getSObjectManager();
-		public abstract IDefaultValueProvider getDefaultValueProvider();
-		public abstract SObject getSObjectInstance(String sObjectName);
-		public abstract SObject getSObjectInstance(Schema.SObjectType sObjectType);
-		public abstract SObject getSObjectInstance(String sObjectName, Map<String,Object> mapValuesOverride);
-		public abstract SObject getSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride);
-		public abstract List<SObject> getListSObjectInstance(String sObjectName, Integer numberOfSObjects);
-		public abstract List<SObject> getListSObjectInstance(Schema.SObjectType sObjectType, Integer numberOfSObjects);
-		public abstract List<SObject> getListSObjectInstance(String sObjectName, Map<String,Object> mapValuesOverride, Integer numberOfSObjects);
-		public abstract List<SObject> getListSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Integer numberOfSObjects);
-	}
-
-	/**
 	* @description class SObjectFactory
 	*/
 	@testVisible
-	private class SObjectFactory extends ASObjectFactory{
+	private class SObjectFactory implements ISObjectFactory{
 
 		private ISObjectManager sObjMgr = new SObjectManager();
 		private IDefaultValueProvider dvPrvdr = new DefaultValueProvider();
@@ -271,12 +237,11 @@ public class TDF {
 				this.dvPrvdr = dvPrvdrOverride;
 		}
 
-
-		public override ISObjectManager getSObjectManager(){
+		public ISObjectManager getSObjectManager(){
 			return sObjMgr;
 		}
 
-		public override IDefaultValueProvider getDefaultValueProvider(){
+		public IDefaultValueProvider getDefaultValueProvider(){
 			return dvPrvdr;
 		}
 
@@ -284,16 +249,16 @@ public class TDF {
 		* @description Generate an sObject instance
 		* @return SObject : sObject instance
 		*/
-		public override SObject getSObjectInstance(String sObjectName){
+		public SObject getSObjectInstance(String sObjectName){
 			return getSObjectInstance(globalDescribe.get(sObjectName));
 		}
-		public override SObject getSObjectInstance(Schema.SObjectType sObjectType){
+		public SObject getSObjectInstance(Schema.SObjectType sObjectType){
 			return getSObjectInstance(sObjectType,new Map<String,Object>());
 		}
-		public override SObject getSObjectInstance(String sObjectName, Map<String,Object> mapValuesOverride){
+		public SObject getSObjectInstance(String sObjectName, Map<String,Object> mapValuesOverride){
 			return getSObjectInstance(globalDescribe.get(sObjectName),mapValuesOverride);
 		}		
-		public override SObject getSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride){
+		public SObject getSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride){
 			return getListSObjectInstance(sObjectType, mapValuesOverride,1).get(0);
 		}
 
@@ -301,34 +266,35 @@ public class TDF {
 		* @description Generate a list of sObject instances
 		* @return List<SObject> : list of sObject instances
 		*/
-		public override List<SObject> getListSObjectInstance(String sObjectName, Integer numberOfSObjects){
+		public List<SObject> getListSObjectInstance(String sObjectName, Integer numberOfSObjects){
 			return getListSObjectInstance(globalDescribe.get(sObjectName),numberOfSObjects);
 		}
-		public override List<SObject> getListSObjectInstance(Schema.SObjectType sObjectType, Integer numberOfSObjects){
+		public List<SObject> getListSObjectInstance(Schema.SObjectType sObjectType, Integer numberOfSObjects){
 			return getListSObjectInstance(sObjectType,new Map<String,Object>(),numberOfSObjects);
 		}
-		public override List<SObject> getListSObjectInstance(String sObjectName, Map<String,Object> mapValuesOverride, Integer numberOfSObjects){
+		public List<SObject> getListSObjectInstance(String sObjectName, Map<String,Object> mapValuesOverride, Integer numberOfSObjects){
 			return getListSObjectInstance(globalDescribe.get(sObjectName),mapValuesOverride,numberOfSObjects);
 		}
-		public override List<SObject> getListSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Integer numberOfSObjects){
+		public List<SObject> getListSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Integer numberOfSObjects){
 			Map<String,Object> mapValuesLowerCase = util.mapToLowerCase(mapValuesOverride);
 			Map<String,Object> mapValues = dvPrvdr.getDefaultMap(sObjectType,mapValuesLowerCase.keySet());
 			mapValues.putAll(mapValuesLowerCase);
 			for(Integer i = 0; i < numberOfSObjects; i++) {
-				sObjMgr.setSObject(i,sObjectType.newSObject()); 
 
+				sObjMgr.setSObject(i,sObjectType.newSObject()); 
 				for(String fullyQualifiedFieldName : mapValues.keySet()){
+
+					String fieldName = (DOT+fullyQualifiedFieldName).substringAfterLast(DOT);
 					if(fullyQualifiedFieldName.contains(DOT)){ // field with dot notation
 
 						String firstRelationshipName = fullyQualifiedFieldName.substringBefore(DOT);
 						String fullyQualifiedRelationshipName = fullyQualifiedFieldName.substringBeforeLast(DOT);
-						String fieldName = fullyQualifiedFieldName.substringAfterLast(DOT);
 						SObject relatedSObj = getRelationshipInstance(sObjectType,fullyQualifiedRelationshipName,i);
 						relatedSObj.put(fieldName,util.mergeValue(mapValues.get(fullyQualifiedFieldName),'Index',i.format())); 
 						sObjMgr.getSObject(i).putSObject(firstRelationshipName, sObjMgr.getRelationship(i,firstRelationshipName));
 
 					}else { // field name
-						sObjMgr.getSObject(i).put(fullyQualifiedFieldName,util.mergeValue(mapValues.get(fullyQualifiedFieldName),'Index',i.format()));
+						sObjMgr.getSObject(i).put(fieldName,util.mergeValue(mapValues.get(fieldName),'Index',i.format()));
 					}
 
 				}
@@ -338,24 +304,24 @@ public class TDF {
 		}
 
 		/**
-		* @description Initiate all the related sObjects for a given fully qualified relationship
+		* @description Initiate all the related sObjects for a given fully qualified relationship name
 		* @return SObject
 		*/
 		@testVisible
 		private SObject getRelationshipInstance(Schema.SObjectType sObjectType,String fullyQualifiedRelationshipName, Integer index){
 			SObject sObj = sObjMgr.getRelationship(index,fullyQualifiedRelationshipName);
 			if(sObj != null) return sObj;
-			Schema.SObjectType mainSObjectType = sObjectType;
-			String leafRelationshipName = fullyQualifiedRelationshipName;
+			String leafRelationshipName = (DOT+fullyQualifiedRelationshipName).substringAfterLast(DOT);
 
 			if(fullyQualifiedRelationshipName.contains(DOT)){ // multiple relationships
 				String fullyQualifiedRelationshipNameBefore = fullyQualifiedRelationshipName.substringBeforeLast(DOT);
 				SObject relatedSObj = getRelationshipInstance(sObjectType,fullyQualifiedRelationshipNameBefore,index);
-				mainSObjectType = relatedSObj.getSObjectType();
-				leafRelationshipName = fullyQualifiedRelationshipName.substringAfterLast(DOT);
+				sObj = getRelatedSObjectInstance(relatedSObj.getSObjectType(),util.relationshipToFieldName(leafRelationshipName)); 
+				relatedSObj.putSObject(leafRelationshipName,sObj);
+			}else { // single relationship
+				sObj = getRelatedSObjectInstance(sObjectType,util.relationshipToFieldName(leafRelationshipName)); 
 			}
-			sObj = sObjMgr.getRelationship(index,fullyQualifiedRelationshipName);
-			if(sObj == null) sObj = getRelatedSObjectInstance(mainSObjectType,util.relationshipToFieldName(leafRelationshipName)); 
+
 			sObjMgr.setRelationship(index,fullyQualifiedRelationshipName,sObj);
 			return sObj;
 		}
@@ -411,7 +377,7 @@ public class TDF {
 							defaultValues.put(fullyQualifiedRelationshipName+DOT+'id',null);
 							defaultValues.putAll(getDefaultMap(fieldDesc.getReferenceTo().get(0),setValuesOverride,fullyQualifiedRelationshipName+DOT));
 						}
-					}else { // non relationship field
+					}else { // field
 						Object fieldValue = getDefaultValue(fieldDesc,counter++);
 						defaultValues.put(prefixLowerCase+fieldName.toLowerCase(),fieldValue);
 					}
@@ -436,7 +402,7 @@ public class TDF {
 
 		@testVisible
 		private Boolean defaultValueIsRequired(Schema.DescribeFieldResult fieldDesc){
-			return !fieldDesc.isDefaultedOnCreate() && !fieldDesc.isNillable() && fieldDesc.isCreateable() && fieldDesc.isUpdateable();
+			return !fieldDesc.isDefaultedOnCreate() && !fieldDesc.isNillable() && fieldDesc.isCreateable();
 		}
 
 		/**
@@ -489,7 +455,7 @@ public class TDF {
 			return null;
 		}
 		/**
-		* @description get the default for a picklist
+		* @description get the default value for a picklist
 		*/
 		@testVisible
 		protected String getDefaultPicklistValue(Schema.DescribeFieldResult fieldDesc){
