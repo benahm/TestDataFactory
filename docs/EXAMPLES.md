@@ -37,9 +37,9 @@ For example when creating a contact you can force the Test Data Factory to creat
   });
   ```
 
-##### Provide an Id for required related sObject to avoid instanciation
+##### Provide an Id for a required related sObject to avoid instantiation
 
-You can provide an Id for a required related sObject, to force the use of that Id and prevent the instanciation of a related sObject
+You can provide an Id for a required related sObject, to force the use of that Id and prevent the instantiation of the related sObject
   ```apex
   User u = (User)TDF.createSObject('User', new Map<String,Object>{
     'ProfileId' => UserInfo.profileId()
