@@ -1,6 +1,5 @@
 # Apex Test Data Factory
 
-_Work in progress_
 
 <p align="center"><img src ="/docs/assets/TDF.png" width="500"/></p>
 
