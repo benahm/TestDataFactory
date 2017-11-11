@@ -39,6 +39,16 @@ private class TDFTest {
 		System.assertNotEquals(null,sObj);
 	}
 	@isTest static void createSObjectTest9(){
+		Case cse = (Case)TDF.createSObject('Case', new Map<String,Object>{
+				'Contact.FirstName' => 'test',
+				'Contact.Account.Name' => 'test',
+				'Contact.Account.Parent.Name' => 'test'
+			});
+		System.assertEquals('test',cse.Contact.FirstName);
+		System.assertEquals('test',cse.Contact.Account.Name);
+		System.assertEquals('test',cse.Contact.Account.Parent.Name);
+	}
+	@isTest static void createSObjectTest10(){
 		SObject sObj = TDF.createSObject('Case', new Map<String,Object>{
 				'aCCount.Description' => 'test',
 				'ConTact.FirstName'=> 'test',
@@ -50,7 +60,7 @@ private class TDFTest {
 		Case cse = [select Asset.Parent.Contact.Account.Name from Case limit 1];
 		System.assertEquals('test0',cse.Asset.Parent.Contact.Account.Name);
 	}
-	@isTest static void createSObjectTest10(){
+	@isTest static void createSObjectTest11(){
 		SObject sObj = TDF.createSObject('Account', new Map<String,Object>{
 				'Name'=> 'test',
 				'OwnerId'=> UserInfo.getUserId()
@@ -58,7 +68,7 @@ private class TDFTest {
 		Account acc = [select OwnerId from Account limit 1];
 		System.assertEquals(UserInfo.getUserId(),acc.OwnerId);
 	}
-	@isTest static void createSObjectTest11(){
+	@isTest static void createSObjectTest12(){
 		SObject sObj = TDF.createSObject('Account', new Map<String,Object>{
 			'Owner.ProfileId' => UserInfo.getProfileId(),
 			'Owner.Username' => 'test123456789@mycompanydomain.developer'
