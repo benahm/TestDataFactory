@@ -1,7 +1,7 @@
 
 ## Core concepts 
 
-This Apex Test Data Factory (TDF) uses the [Apex Describe Information](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dynamic_describe_objects_understanding.htm) to automatically detect and fill the required fields of an sObject
+This Apex Test Data Factory (TDF) uses the [Apex Describe Information](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dynamic_describe_objects_understanding.htm) to automatically detect and fill all the required fields of an sObject
 
 ### Overview
 
