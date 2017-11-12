@@ -1,7 +1,50 @@
 
 ## More examples
 
-### Create a single sObject:
+
+#### Methods of the TDF:
+
+
+<table>
+<thead>
+<tr>
+  <th>Method</th>
+  <th>Supported signatures</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>
+  <em>createSObject</em>
+  </td>
+  <td>
+<pre lang='apex'>  
+* createSObject(String sObjectName) // create an sObject with all required fields auto-filled
+* createSObject(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride) // create an sObject with all required fields auto-filled and assign the values defined in the mapValuesOverride
+* createSObject(String sObjectName,Boolean doInsert) // create an sObject with all required fields auto-filled and insert all if the doInsert = true
+* createSObject(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride, Boolean doInsert) // create an sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all if the doInsert = true
+</pre>
+  </td>
+</tr>
+<tr>
+</tr>
+<tr>
+  <td>
+  <em>createSObjectList</em>
+  </td>
+  <td>
+<pre lang='apex'>  
+* createSObjectList(String sObjectName, Integer numberOfSObjects) // create a list of sObject with all required fields auto-filled
+* createSObjectList(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride, Integer numberOfSObjects) // create a list of sObject with all required fields auto-filled and assign the values defined in the mapValuesOverride
+* createSObjectList(String sObjectName, Boolean doInsert, Integer numberOfSObjects) // create a list of sObject with all required fields auto-filled and insert all if the doInsert = true
+* createSObjectList(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride, Boolean doInsert, Integer numberOfSObjects) // create a list of sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all if the doInsert = true
+</pre>
+  </td>
+</tr>
+</table>
+
+
+#### Create a single sObject:
 
 ##### Create an sObject using the sObject name or the sObject type
   ```apex
@@ -48,7 +91,7 @@ You can provide an Id for a required related sObject, to force the use of that I
   });
   ```
 
-### Create a list of sObjects:
+#### Create a list of sObjects:
 
 ##### Create an sObject using the sObject name or the sObject type
   ```apex
