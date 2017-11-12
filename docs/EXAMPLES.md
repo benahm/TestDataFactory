@@ -8,8 +8,8 @@
 <table>
 <thead>
 <tr>
-  <th>Method</th>
-  <th>Supported signatures</th>
+  <th align='left'>Method</th>
+  <th align='left'>Supported signatures</th>
 </tr>
 </thead>
 <tbody>
@@ -23,6 +23,7 @@
 * createSObject(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride) // create an sObject with all required fields auto-filled and assign the values defined in the mapValuesOverride
 * createSObject(String sObjectName,Boolean doInsert) // create an sObject with all required fields auto-filled and insert all if the doInsert = true
 * createSObject(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride, Boolean doInsert) // create an sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all if the doInsert = true
+
 </pre>
   </td>
 </tr>
@@ -38,6 +39,7 @@
 * createSObjectList(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride, Integer numberOfSObjects) // create a list of sObject with all required fields auto-filled and assign the values defined in the mapValuesOverride
 * createSObjectList(String sObjectName, Boolean doInsert, Integer numberOfSObjects) // create a list of sObject with all required fields auto-filled and insert all if the doInsert = true
 * createSObjectList(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride, Boolean doInsert, Integer numberOfSObjects) // create a list of sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all if the doInsert = true
+
 </pre>
   </td>
 </tr>
@@ -56,11 +58,14 @@
   ```
 
 ##### Create an sObject by providing a map to assign values to fields in the main and the related sObjects
+
+You can assign values to the main sObject and any related sObject, all sObjects will be created with the required fields auto-filled 
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'FirstName' => 'Doe',
     'LastName' => 'John',
-    'Account.Description' => 'test'
+    'Account.Description' => 'Description of the related account',
+    'Account.Parent.Name' => 'Name of the parent Account'
   });
   ```
 
