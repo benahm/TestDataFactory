@@ -99,6 +99,8 @@ You can provide an Id for a required related sObject, to force the use of that I
 #### Create a list of sObjects:
 
 ##### Create an sObject using the sObject name or the sObject type
+
+Create 10 contact sObject instances
   ```apex
   // Using sObject name
   List<Contact> conList = TDF.createSObjectList('Contact',10);
