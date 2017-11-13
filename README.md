@@ -26,3 +26,8 @@ Assign values to fields of the main and the related sObjects
 * [Examples](/docs/EXAMPLES.md)
 * [Core Concepts](/docs/CONCEPT.md)
 * [Contributing](/docs/CONTRIBUTE.md)
+
+
+### [License](LICENSE)
+
+Apache 2.0
