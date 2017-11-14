@@ -9,6 +9,28 @@ public class TDF {
 	private static final Util util=new Util();
 	@testVisible
 	private static IDefaultValueProvider dvPrvdrOverride = null;
+	// https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dml_non_dml_objects.htm
+	private static Set<String> ignoredSObjects = new Set<String>{
+								'AccountTerritoryAssignmentRule',
+								'AccountTerritoryAssignmentRuleItem',
+								'ApexComponent',
+								'ApexPage',
+								'BusinessHours',
+								'BusinessProcess',
+								'CategoryNode',
+								'CurrencyType',
+								'DatedConversionRate',
+								'NetworkMember',
+								'ProcessInstance',
+								'Profile',
+								'RecordType',
+								'SelfServiceUser',
+								'StaticResource',
+								'Territory2',
+								'UserAccountTeamMember',
+								'UserTerritory',
+								'WebLink'
+							};
 
 	/**
 	 * @description create an sObject
@@ -374,8 +396,11 @@ public class TDF {
 					if(fieldDesc.getRelationshipName() != null){ // relationship field
 						String fullyQualifiedRelationshipName = prefixLowerCase+fieldDesc.getRelationshipName().toLowerCase();
 						if(!setValuesOverride.contains(fullyQualifiedRelationshipName+'id')){
-							defaultValues.put(fullyQualifiedRelationshipName+DOT+'id',null);
-							defaultValues.putAll(getDefaultMap(fieldDesc.getReferenceTo().get(0),setValuesOverride,fullyQualifiedRelationshipName+DOT));
+							SObjectType refSObjectType = fieldDesc.getReferenceTo().get(0);
+							if(!ignoredSObjects.contains(refSObjectType.getDescribe().getName())){
+								defaultValues.put(fullyQualifiedRelationshipName+DOT+'id',null);
+								defaultValues.putAll(getDefaultMap(refSObjectType,setValuesOverride,fullyQualifiedRelationshipName+DOT));
+							}
 						}
 					}else { // field
 						Object fieldValue = getDefaultValue(fieldDesc,counter++);
@@ -402,7 +427,7 @@ public class TDF {
 
 		@testVisible
 		private Boolean defaultValueIsRequired(Schema.DescribeFieldResult fieldDesc){
-			return !fieldDesc.isDefaultedOnCreate() && !fieldDesc.isNillable() && fieldDesc.isCreateable();
+			return !fieldDesc.isDefaultedOnCreate() && !fieldDesc.isAutoNumber() && !fieldDesc.isNillable() && fieldDesc.isCreateable();
 		}
 
 		/**
