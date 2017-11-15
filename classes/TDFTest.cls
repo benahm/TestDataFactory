@@ -1,7 +1,7 @@
 /**
 * @author benahm
 * @date 2017
-* @description TDF Class
+* @description TDFTest Class
 */
 @isTest
 private class TDFTest {
@@ -77,6 +77,43 @@ private class TDFTest {
 		System.assertNotEquals(null,uList);
 		System.assertEquals(1,uList.size());
 		System.assertEquals(UserInfo.getProfileId(),uList.get(0).ProfileId);
+	}
+	@isTest static void createSObjectTest13(){
+		try{
+			SObject sObj = TDF.createSObject('TEST');
+		}catch(TDF.TestDataFactoryException e){
+			System.assert(true);
+		}	
+	}
+	@isTest static void createSObjectTest14(){
+		try{
+			SObject sObj = TDF.createSObject('Profile');
+		}catch(TDF.TestDataFactoryException e){
+			System.assert(true);
+		}	
+	}
+	@isTest static void createSObjectTest15(){
+		try{
+			SObject sObj = TDF.createSObject('Contact',new Map<String,Object>{
+			'Test' => 'test'
+			});
+		}catch(TDF.TestDataFactoryException e){
+			System.assert(true);
+		}	
+		try{
+			SObject sObj = TDF.createSObject('Contact',new Map<String,Object>{
+			'Account.Test' => 'test'
+			});
+		}catch(TDF.TestDataFactoryException e){
+			System.assert(true);
+		}	
+		try{
+			SObject sObj = TDF.createSObject('Contact',new Map<String,Object>{
+			'Account.Test.Parent.Id' => 'test'
+			});
+		}catch(TDF.TestDataFactoryException e){
+			System.assert(true);
+		}	
 	}
 	@isTest static void createSObjectListTest1(){
 		List<SObject> sObjList = TDF.createSObjectList('Account',5);
@@ -321,9 +358,31 @@ private class TDFTest {
 	}
 	@isTest static void getRelatedSObjectInstanceTest(){
 		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory();
-		SObject sObj = sObjFactory.getRelatedSObjectInstance(Contact.SObjectType,'AccountId');
+		SObject sObj = sObjFactory.getRelatedSObjectInstance(Contact.SObjectType,'Account','');
 		System.assertNotEquals(null,sObj);
 		System.assertEquals(Account.SObjectType,sObj.getSObjectType());
+	}
+	@isTest static void putSObjectTest(){
+		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory();
+		Contact con = new Contact();
+		sObjFactory.putSObject(con,'Account',new Account(Name='Test'),'');
+		System.assertEquals(con.Account.Name,'Test');
+		try{
+			sObjFactory.putSObject(con,'Test',new Account(),'');
+		}catch(TDF.TestDataFactoryException e){
+			System.assert(true);
+		}
+	}
+	@isTest static void putFieldTest(){
+		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory();
+		Contact con = new Contact();
+		sObjFactory.putField(con,'FirstName','Test','');
+		System.assertEquals(con.FirstName,'Test');
+		try{
+			sObjFactory.putField(con,'Test','Test','');
+		}catch(TDF.TestDataFactoryException e){
+			System.assert(true);
+		}
 	}
 	
 	/************************* DefaultValueProvider tests *************************/
@@ -372,48 +431,48 @@ private class TDFTest {
 	}
 	@isTest static void getDefaultValueTest(){
 		TDF.ADefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		System.assertEquals(Blob.valueOf('0'),dvProvider.getDefaultValue(Attachment.fields.Body.getDescribe(),0));
-		System.assertEquals(true,dvProvider.getDefaultValue(Campaign.fields.IsActive.getDescribe(),0));
-		System.assertEquals('0',dvProvider.getDefaultValue(Event.fields.Subject.getDescribe(),0));
-		System.assertEquals('0',dvProvider.getDefaultValue(Lead.fields.AnnualRevenue.getDescribe(),0));
-		System.assertEquals(Date.today(),dvProvider.getDefaultValue(Account.fields.LastActivityDate.getDescribe(),0));
-		System.assertEquals(Datetime.now(),dvProvider.getDefaultValue(Account.fields.CreatedDate.getDescribe(),0));
-		System.assertEquals(0,dvProvider.getDefaultValue(Asset.fields.Quantity.getDescribe(),0));
-		System.assertEquals('test0@email.com',dvProvider.getDefaultValue(Contact.fields.Email.getDescribe(),0));
-		System.assertEquals(null,dvProvider.getDefaultValue(Account.fields.Id.getDescribe(),0));
-		System.assertEquals(0,dvProvider.getDefaultValue(Attachment.fields.BodyLength.getDescribe(),0));
+		System.assertEquals(Blob.valueOf('0'),dvProvider.getDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.Body.getDescribe(),0));
+		System.assertEquals(true,dvProvider.getDefaultValue(Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe(),0));
+		System.assertEquals('0',dvProvider.getDefaultValue(Event.SObjectType.getDescribe(),Event.fields.Subject.getDescribe(),0));
+		System.assertEquals('0',dvProvider.getDefaultValue(Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe(),0));
+		System.assertEquals(Date.today(),dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe(),0));
+		System.assertEquals(Datetime.now(),dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.CreatedDate.getDescribe(),0));
+		System.assertEquals(0,dvProvider.getDefaultValue(Asset.SObjectType.getDescribe(),Asset.fields.Quantity.getDescribe(),0));
+		System.assertEquals('test0@email.com',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe(),0));
+		System.assertEquals(null,dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Id.getDescribe(),0));
+		System.assertEquals(0,dvProvider.getDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.BodyLength.getDescribe(),0));
 		//System.assertNotEquals('',dvProvider.getDefaultValue(Group.fields.Categories.getDescribe(),0));
-		System.assertEquals(0,dvProvider.getDefaultValue(Opportunity.fields.Probability.getDescribe(),0));
-		System.assertEquals('123456789',dvProvider.getDefaultValue(Contact.fields.Phone.getDescribe(),0));
-		System.assertNotEquals('',dvProvider.getDefaultValue(Account.fields.Type.getDescribe(),0));
-		System.assertEquals('test0',dvProvider.getDefaultValue(Contact.fields.FirstName.getDescribe(),0));
-		System.assertEquals('test0',dvProvider.getDefaultValue(Account.fields.Description.getDescribe(),0));
+		System.assertEquals(0,dvProvider.getDefaultValue(Opportunity.SObjectType.getDescribe(),Opportunity.fields.Probability.getDescribe(),0));
+		System.assertEquals('123456789',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Phone.getDescribe(),0));
+		System.assertNotEquals('',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0));
+		System.assertEquals('test0',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.FirstName.getDescribe(),0));
+		System.assertEquals('test0',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Description.getDescribe(),0));
 		// no time field
 		//System.assertEquals('http://test0.com',dvProvider.getDefaultValue(Weblink.fields.URL.getDescribe(),0));
-		System.assertEquals(null,dvProvider.getDefaultValue(null,0));
+		System.assertEquals(null,dvProvider.getDefaultValue(null,null,0));
 	}
 	@isTest static void getTypeDefaultValueTest(){
 		TDF.ADefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		System.assertEquals(Blob.valueOf('0'),dvProvider.getBase64DefaultValue(null,0));
-		System.assertEquals(true,dvProvider.getBooleanDefaultValue(null,0));
-		System.assertEquals('0',dvProvider.getComboboxDefaultValue(null,0));
-		System.assertEquals('0',dvProvider.getCurrencyDefaultValue(null,0));
-		System.assertEquals(Date.today(),dvProvider.getDateDefaultValue(null,0));
-		System.assertEquals(Datetime.now(),dvProvider.getDateTimeDefaultValue(null,0));
-		System.assertEquals(0,dvProvider.getDoubleDefaultValue(null,0));
-		System.assertEquals('test0@email.com',dvProvider.getEmailDefaultValue(null,0));
-		System.assertEquals(null,dvProvider.getIDDefaultValue(null,0));
-		System.assertEquals(0,dvProvider.getIntegerDefaultValue(null,0));
-		System.assertEquals(null,dvProvider.getMultiPicklistDefaultValue(null,0));
-		System.assertNotEquals('',dvProvider.getMultiPicklistDefaultValue(Account.fields.Type.getDescribe(),0));
-		System.assertEquals(0,dvProvider.getPercentDefaultValue(null,0));
-		System.assertEquals('123456789',dvProvider.getPhoneDefaultValue(null,0));
-		System.assertEquals(null,dvProvider.getPicklistDefaultValue(null,0));
-		System.assertNotEquals('',dvProvider.getPicklistDefaultValue(Account.fields.Type.getDescribe(),0));
-		System.assertEquals('test0',dvProvider.getStringDefaultValue(null,0));
-		System.assertEquals('test0',dvProvider.getTextAreaDefaultValue(null,0));
-		System.assertEquals(Time.newInstance(0, 0, 0, 0),dvProvider.getTimeDefaultValue(null,0));
-		System.assertEquals('http://test0.com',dvProvider.getURLDefaultValue(null,0));
+		System.assertEquals(Blob.valueOf('0'),dvProvider.getBase64DefaultValue(null,null,0));
+		System.assertEquals(true,dvProvider.getBooleanDefaultValue(null,null,0));
+		System.assertEquals('0',dvProvider.getComboboxDefaultValue(null,null,0));
+		System.assertEquals('0',dvProvider.getCurrencyDefaultValue(null,null,0));
+		System.assertEquals(Date.today(),dvProvider.getDateDefaultValue(null,null,0));
+		System.assertEquals(Datetime.now(),dvProvider.getDateTimeDefaultValue(null,null,0));
+		System.assertEquals(0,dvProvider.getDoubleDefaultValue(null,null,0));
+		System.assertEquals('test0@email.com',dvProvider.getEmailDefaultValue(null,null,0));
+		System.assertEquals(null,dvProvider.getIDDefaultValue(null,null,0));
+		System.assertEquals(0,dvProvider.getIntegerDefaultValue(null,null,0));
+		System.assertEquals(null,dvProvider.getMultiPicklistDefaultValue(null,null,0));
+		System.assertNotEquals('',dvProvider.getMultiPicklistDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0));
+		System.assertEquals(0,dvProvider.getPercentDefaultValue(null,null,0));
+		System.assertEquals('123456789',dvProvider.getPhoneDefaultValue(null,null,0));
+		System.assertEquals(null,dvProvider.getPicklistDefaultValue(null,null,0));
+		System.assertNotEquals('',dvProvider.getPicklistDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0));
+		System.assertEquals('test0',dvProvider.getStringDefaultValue(null,null,0));
+		System.assertEquals('test0',dvProvider.getTextAreaDefaultValue(null,null,0));
+		System.assertEquals(Time.newInstance(0, 0, 0, 0),dvProvider.getTimeDefaultValue(null,null,0));
+		System.assertEquals('http://test0.com',dvProvider.getURLDefaultValue(null,null,0));
 	}
 
 	/************************* Util tests *************************/
