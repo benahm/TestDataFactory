@@ -252,6 +252,12 @@ public class TDF {
 
 		private ISObjectManager sObjMgr = new SObjectManager();
 		private IDefaultValueProvider dvPrvdr = new DefaultValueProvider();
+		// Error Messages 
+		private String ERR_NOT_FOUND_SOBJECT = 'Unable to find the sObject';
+		private String ERR_UNSUPPORTED_SOBJECT = 'DML Operations are not supported on "{0}"';
+		private String ERR_FIELDNAME_NOT_EXIST = 'The field "{0}" does not exist on "{1}"';
+		private String ERR_RELATIONSHIPNAME_NOT_EXIST = 'The relationship "{0}" does not exist on "{1}"';
+
 
 		public SObjectFactory(){}
 		public SObjectFactory(IDefaultValueProvider dvPrvdrOverride){
@@ -298,9 +304,14 @@ public class TDF {
 			return getListSObjectInstance(globalDescribe.get(sObjectName),mapValuesOverride,numberOfSObjects);
 		}
 		public List<SObject> getListSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Integer numberOfSObjects){
-			Map<String,Object> mapValuesLowerCase = util.mapToLowerCase(mapValuesOverride);
-			Map<String,Object> mapValues = dvPrvdr.getDefaultMap(sObjectType,mapValuesLowerCase.keySet());
-			mapValues.putAll(mapValuesLowerCase);
+			if(sObjectType == null) 
+				throw new TestDataFactoryException(util.formatErrorMessage(ERR_NOT_FOUND_SOBJECT,new List<String>{}));
+				String sObjectName = sObjectType.getDescribe().getName();
+			if(ignoredSObjects.contains(sObjectName)) 
+				throw new TestDataFactoryException(util.formatErrorMessage(ERR_UNSUPPORTED_SOBJECT,new List<String>{sObjectName}));
+			Map<String,Object> mapValuesOverrideLowerCase = util.mapToLowerCase(mapValuesOverride);
+			Map<String,Object> mapValues = dvPrvdr.getDefaultMap(sObjectType,mapValuesOverrideLowerCase.keySet());
+			mapValues.putAll(mapValuesOverrideLowerCase);
 			for(Integer i = 0; i < numberOfSObjects; i++) {
 
 				sObjMgr.setSObject(i,sObjectType.newSObject()); 
@@ -312,11 +323,11 @@ public class TDF {
 						String firstRelationshipName = fullyQualifiedFieldName.substringBefore(DOT);
 						String fullyQualifiedRelationshipName = fullyQualifiedFieldName.substringBeforeLast(DOT);
 						SObject relatedSObj = getRelationshipInstance(sObjectType,fullyQualifiedRelationshipName,i);
-						relatedSObj.put(fieldName,util.mergeValue(mapValues.get(fullyQualifiedFieldName),'Index',i.format())); 
-						sObjMgr.getSObject(i).putSObject(firstRelationshipName, sObjMgr.getRelationship(i,firstRelationshipName));
+						putField(relatedSObj,fieldName,util.mergeValue(mapValues.get(fullyQualifiedFieldName),'Index',i.format()),sObjectName+DOT+fullyQualifiedRelationshipName);
+						putSObject(sObjMgr.getSObject(i),firstRelationshipName,sObjMgr.getRelationship(i,firstRelationshipName),sObjectName);
 
 					}else { // field name
-						sObjMgr.getSObject(i).put(fieldName,util.mergeValue(mapValues.get(fieldName),'Index',i.format()));
+						putField(sObjMgr.getSObject(i),fieldName,util.mergeValue(mapValues.get(fieldName),'Index',i.format()),sObjectName);
 					}
 
 				}
@@ -333,15 +344,16 @@ public class TDF {
 		private SObject getRelationshipInstance(Schema.SObjectType sObjectType,String fullyQualifiedRelationshipName, Integer index){
 			SObject sObj = sObjMgr.getRelationship(index,fullyQualifiedRelationshipName);
 			if(sObj != null) return sObj;
+			String sObjectName = sObjectType.getDescribe().getName();
 			String leafRelationshipName = (DOT+fullyQualifiedRelationshipName).substringAfterLast(DOT);
 
 			if(fullyQualifiedRelationshipName.contains(DOT)){ // multiple relationships
 				String fullyQualifiedRelationshipNameBefore = fullyQualifiedRelationshipName.substringBeforeLast(DOT);
 				SObject relatedSObj = getRelationshipInstance(sObjectType,fullyQualifiedRelationshipNameBefore,index);
-				sObj = getRelatedSObjectInstance(relatedSObj.getSObjectType(),util.relationshipToFieldName(leafRelationshipName)); 
-				relatedSObj.putSObject(leafRelationshipName,sObj);
+				sObj = getRelatedSObjectInstance(relatedSObj.getSObjectType(),leafRelationshipName,sObjectName+DOT+fullyQualifiedRelationshipNameBefore); 
+				relatedSObj = putSObject(relatedSObj,leafRelationshipName,sObj,sObjectName+DOT+fullyQualifiedRelationshipNameBefore);
 			}else { // single relationship
-				sObj = getRelatedSObjectInstance(sObjectType,util.relationshipToFieldName(leafRelationshipName)); 
+				sObj = getRelatedSObjectInstance(sObjectType,leafRelationshipName,sObjectName); 
 			}
 
 			sObjMgr.setRelationship(index,fullyQualifiedRelationshipName,sObj);
@@ -352,11 +364,35 @@ public class TDF {
 		* @return SObject
 		*/
 		@testVisible
-		private SObject getRelatedSObjectInstance(Schema.SObjectType sObjectType, String fieldName){
+		private SObject getRelatedSObjectInstance(Schema.SObjectType sObjectType, String relationshipName, String prefix){
 			Map<String, Schema.SObjectField> fieldMap = sObjectType.getDescribe().fields.getMap();
-			Schema.DescribeFieldResult fieldDesc = fieldMap.get(fieldName).getDescribe();
+			Schema.DescribeFieldResult fieldDesc;
+			try{
+				fieldDesc = fieldMap.get(util.relationshipToFieldName(relationshipName)).getDescribe();
+			}catch(Exception e){
+				throw new TestDataFactoryException(util.formatErrorMessage(ERR_RELATIONSHIPNAME_NOT_EXIST,new List<String>{relationshipName,prefix}));
+			}
 			return  fieldDesc.getReferenceTo().get(0).newSObject();
 		}
+		@testVisible
+		private SObject putSObject(SObject sObj, String name, sObject value, String prefix){
+			try{
+				sObj.putSObject(name,value);
+			}catch(Exception e){
+				throw new TestDataFactoryException(util.formatErrorMessage(ERR_RELATIONSHIPNAME_NOT_EXIST,new List<String>{name,prefix}));
+			}
+			return sObj;
+		}		
+		@testVisible
+		private SObject putField(SObject sObj, String name, Object value, String prefix){
+			try{
+				sObj.put(name,value);
+			}catch(Exception e){
+				throw new TestDataFactoryException(util.formatErrorMessage(ERR_FIELDNAME_NOT_EXIST,new List<String>{name,prefix}));
+			}
+			return sObj;
+		}
+
 	}
 
 	/**
@@ -403,7 +439,7 @@ public class TDF {
 							}
 						}
 					}else { // field
-						Object fieldValue = getDefaultValue(fieldDesc,counter++);
+						Object fieldValue = getDefaultValue(sObjectType.getDescribe(),fieldDesc,counter++);
 						defaultValues.put(prefixLowerCase+fieldName.toLowerCase(),fieldValue);
 					}
 				}
@@ -437,44 +473,44 @@ public class TDF {
 		* @return Object : default value
 		*/
 		@testVisible
-		private Object getDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		private Object getDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			if(fieldDesc != null){
 				if(fieldDesc.getType() == Schema.DisplayType.Base64){
-					return getBase64DefaultValue(fieldDesc,counter);
+					return getBase64DefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Boolean){
-					return getBooleanDefaultValue(fieldDesc,counter);
+					return getBooleanDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Combobox){
-					return getComboboxDefaultValue(fieldDesc,counter);
+					return getComboboxDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Currency){
-					return getCurrencyDefaultValue(fieldDesc,counter);
+					return getCurrencyDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Date){
-					return getDateDefaultValue(fieldDesc,counter);
+					return getDateDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Datetime){
-					return getDateTimeDefaultValue(fieldDesc,counter);
+					return getDateTimeDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Double){
-					return getDoubleDefaultValue(fieldDesc,counter);
+					return getDoubleDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Email){
-					return getEmailDefaultValue(fieldDesc,counter);
+					return getEmailDefaultValue(objectDesc,fieldDesc,counter);
 				}else if(fieldDesc.getType() == Schema.DisplayType.ID){
-					return getIDDefaultValue(fieldDesc,counter);
+					return getIDDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Integer){
-					return getIntegerDefaultValue(fieldDesc,counter);
+					return getIntegerDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.MultiPicklist){
-					return getMultiPicklistDefaultValue(fieldDesc,counter);
+					return getMultiPicklistDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Percent){
-					return getPercentDefaultValue(fieldDesc,counter);
+					return getPercentDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Phone){
-					return getPhoneDefaultValue(fieldDesc,counter);
+					return getPhoneDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Picklist){
-					return getPicklistDefaultValue(fieldDesc,counter);
+					return getPicklistDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.String){
-					return getStringDefaultValue(fieldDesc,counter);
+					return getStringDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.TextArea){
-					return getTextAreaDefaultValue(fieldDesc,counter);
+					return getTextAreaDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Time){
-					return getTimeDefaultValue(fieldDesc,counter);
+					return getTimeDefaultValue(objectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.URL){
-					return getURLDefaultValue(fieldDesc,counter);
+					return getURLDefaultValue(objectDesc,fieldDesc,counter);
 				}
 			}
 			return null;
@@ -497,24 +533,24 @@ public class TDF {
 			return null;
 		}
 
-		public abstract Blob getBase64DefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Boolean getBooleanDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getComboboxDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getCurrencyDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Date getDateDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Datetime getDateTimeDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Double getDoubleDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getEmailDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract ID getIDDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Integer getIntegerDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getMultiPicklistDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Decimal getPercentDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getPhoneDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getPicklistDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getStringDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getTextAreaDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Time getTimeDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getURLDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract Blob getBase64DefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract Boolean getBooleanDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract String getComboboxDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract String getCurrencyDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract Date getDateDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract Datetime getDateTimeDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract Double getDoubleDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract String getEmailDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract ID getIDDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract Integer getIntegerDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract Decimal getPercentDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract String getPhoneDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract String getPicklistDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract String getStringDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract String getTextAreaDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract Time getTimeDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract String getURLDefaultValue(Schema.DescribeSObjectResult objectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
 	}
 
 	/**
@@ -523,58 +559,58 @@ public class TDF {
 	@testVisible
 	private class DefaultValueProvider extends ADefaultValueProvider{
 
-		public override Blob getBase64DefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override Blob getBase64DefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return Blob.valueOf(counter.format());
 		}
-		public override Boolean getBooleanDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override Boolean getBooleanDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return true;
 		}
-		public override String getComboboxDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override String getComboboxDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return counter.format();
 		}
-		public override String getCurrencyDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override String getCurrencyDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return counter.format();
 		}
-		public override Date getDateDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override Date getDateDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return Date.today();
 		}
-		public override Datetime getDateTimeDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override Datetime getDateTimeDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return DateTime.now();
 		}
-		public override Double getDoubleDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override Double getDoubleDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return counter;
 		}
-		public override String getEmailDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override String getEmailDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return 'test'+counter.format()+'@email.com';
 		}
-		public override ID getIDDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override ID getIDDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return null;
 		}
-		public override Integer getIntegerDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override Integer getIntegerDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return counter;
 		}
-		public override String getMultiPicklistDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return getDefaultPicklistValue(fieldDesc);
 		}
-		public override Decimal getPercentDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override Decimal getPercentDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return counter;
 		}
-		public override String getPhoneDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override String getPhoneDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return '123456789';
 		}
-		public override String getPicklistDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override String getPicklistDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return getDefaultPicklistValue(fieldDesc);
 		}
-		public override String getStringDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override String getStringDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return 'test'+counter.format();
 		}
-		public override String getTextAreaDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override String getTextAreaDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return 'test'+counter.format();
 		}
-		public override Time getTimeDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override Time getTimeDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return Time.newInstance(0, 0, 0, 0);
 		}
-		public override String getURLDefaultValue(Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override String getURLDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return 'http://test' + counter + '.com';
 		}
 	}
@@ -595,7 +631,8 @@ public class TDF {
 		public Map<String,Object> mapToLowerCase(Map<String,Object> mapValues){
 			Map<String,Object> mapValuesLowerCase = new Map<String,Object>();
 			for(String name : mapValues.keySet()){
-				mapValuesLowerCase.put(name.toLowerCase(),mapValues.get(name));
+				if(name != null)
+					mapValuesLowerCase.put(name.toLowerCase(),mapValues.get(name));
 			}
 			return mapValuesLowerCase;
 		}
@@ -610,6 +647,10 @@ public class TDF {
 			if(!(obj instanceof String)) return obj;
 			String pattern = '(?i)\\{!'+name+'\\}';
 			return ((String)obj).replaceAll(pattern,value);
+		}
+
+		public String formatErrorMessage(String message, List<String> mergeValues){
+			 return String.format(message,mergeValues);
 		}
 	}
 
