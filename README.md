@@ -29,8 +29,7 @@ Assign values to fields of the main and the related sObjects
 
 
 
-### [Release History](https://github.com/benahm/TDF/releases)
-
+### [Releases](https://github.com/benahm/TDF/releases)
 ### [License](LICENSE)
 
 Apache 2.0
