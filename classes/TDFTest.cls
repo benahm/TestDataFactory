@@ -293,59 +293,13 @@ private class TDFTest {
 	}
 	@isTest static void getSObjectInstanceTest1(){
 		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory();
-		SObject sObj = sObjFactory.getSObjectInstance('Account');
-		System.assertNotEquals(null,sObj);
-		System.assertEquals(Account.SObjectType,sObj.getSObjectType());
-	}
-	@isTest static void getSObjectInstanceTest2(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory();
-		SObject sObj = sObjFactory.getSObjectInstance(Account.SObjectType);
-		System.assertNotEquals(null,sObj);
-		System.assertEquals(Account.SObjectType,sObj.getSObjectType());
-	}
-	@isTest static void getSObjectInstanceTest3(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory();
-		SObject sObj = sObjFactory.getSObjectInstance('Account', new Map<String,Object>());
-		System.assertNotEquals(null,sObj);
-		System.assertEquals(Account.SObjectType,sObj.getSObjectType());
-	}
-	@isTest static void getSObjectInstanceTest4(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory();
-		SObject sObj = sObjFactory.getSObjectInstance(Account.SObjectType, new Map<String,Object>());
+		SObject sObj = sObjFactory.getSObjectInstance(Account.SObjectType, new Map<String,Object>(),false);
 		System.assertNotEquals(null,sObj);
 		System.assertEquals(Account.SObjectType,sObj.getSObjectType());
 	}
 	@isTest static void getListSObjectInstanceTest1(){
 		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory();
-		List<SObject> sObjList = sObjFactory.getListSObjectInstance('Account',5);
-		System.assertNotEquals(null,sObjList);
-		System.assertEquals(5,sObjList.size());
-		System.assertEquals(Account.SObjectType,sObjList.get(0).getSObjectType());
-	}
-	@isTest static void getListSObjectInstanceTest2(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory();
-		List<SObject> sObjList = sObjFactory.getListSObjectInstance(Account.SObjectType,5);
-		System.assertNotEquals(null,sObjList);
-		System.assertEquals(5,sObjList.size());
-		System.assertEquals(Account.SObjectType,sObjList.get(0).getSObjectType());
-	}
-	@isTest static void getListSObjectInstanceTest3(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory();
-		List<SObject> sObjList = sObjFactory.getListSObjectInstance('Account',new Map<String,Object>(),5);
-		System.assertNotEquals(null,sObjList);
-		System.assertEquals(5,sObjList.size());
-		System.assertEquals(Account.SObjectType,sObjList.get(0).getSObjectType());
-	}
-	@isTest static void getListSObjectInstanceTest4(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory();
-		List<SObject> sObjList = sObjFactory.getListSObjectInstance(Account.SObjectType,new Map<String,Object>(),5);
-		System.assertNotEquals(null,sObjList);
-		System.assertEquals(5,sObjList.size());
-		System.assertEquals(Account.SObjectType,sObjList.get(0).getSObjectType());
-	}
-	@isTest static void getListSObjectInstanceTest5(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory();
-		List<SObject> sObjList = sObjFactory.getListSObjectInstance(Contact.SObjectType,new Map<String,Object>{'Account.Description' => 'test'},5);
+		List<SObject> sObjList = sObjFactory.getListSObjectInstance(Contact.SObjectType,new Map<String,Object>{'Account.Description' => 'test'},false,5);
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
 		System.assertEquals(Contact.SObjectType,sObjList.get(0).getSObjectType());
@@ -388,27 +342,27 @@ private class TDFTest {
 	/************************* DefaultValueProvider tests *************************/
 	@isTest static void getDefaultMapTest1(){
 		TDF.IDefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,Object> mapValues = dvProvider.getDefaultMap(Opportunity.SObjectType,new Set<String>());
+		Map<String,Object> mapValues = dvProvider.getDefaultMap(Opportunity.SObjectType,new Set<String>(),0);
 		System.assertEquals('test0',mapValues.get('name'));
 		System.assertNotEquals('',mapValues.get('stagename'));
 		System.assertEquals(Date.today(),mapValues.get('closedate'));
 	}
 	@isTest static void getDefaultMapTest2(){
 		TDF.IDefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,Object> mapValues = dvProvider.getDefaultMap('Opportunity',new Set<String>());
+		Map<String,Object> mapValues = dvProvider.getDefaultMap('Opportunity',new Set<String>(),0);
 		System.assertEquals('test0',mapValues.get('name'));
 		System.assertNotEquals('',mapValues.get('stagename'));
 		System.assertEquals(Date.today(),mapValues.get('closedate'));
 	}
 	@isTest static void getDefaultMapTest3(){
 		TDF.IDefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,Object> mapValues = dvProvider.getDefaultMap(Contract.SObjectType,new Set<String>());
+		Map<String,Object> mapValues = dvProvider.getDefaultMap(Contract.SObjectType,new Set<String>(),0);
 		System.assertEquals(null,mapValues.get('account.id'));
 		System.assertEquals('test0',mapValues.get('account.name'));
 	}
 	@isTest static void getDefaultMapTest4(){
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,Object> mapValues = dvProvider.getDefaultMap(Contract.SObjectType,new Set<String>(),'');
+		Map<String,Object> mapValues = dvProvider.getDefaultMap(Contract.SObjectType,new Set<String>(),0,'');
 		System.assertEquals(null,mapValues.get('account.id'));
 		System.assertEquals('test0',mapValues.get('account.name'));
 	}
