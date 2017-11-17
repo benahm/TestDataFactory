@@ -6,8 +6,8 @@
 public class TDF {
 	// Org config
 	// ========================================
-	private static final Boolean PERSON_ACCOUNT_IS_ENABLED = false;
-	private static final ID PERSON_ACCOUNT_RECORDTYPE_ID = null;
+	private static final Boolean PERSON_ACCOUNT_IS_ENABLED = true;
+	private static final ID PERSON_ACCOUNT_RECORDTYPE_ID = '012240000000pqHAAQ';
 	// ========================================
 
 	private static final String DOT = '.';
@@ -115,7 +115,7 @@ public class TDF {
 		SObject getSObject(Integer index);
 		void setRelationship(Integer index, String relationshipName, SObject sObj);
 		SObject getRelationship(Integer index, String relationshipName);
-		void insertAllSObjects();
+		void insertAll();
 	}
 
 	/**
@@ -126,6 +126,8 @@ public class TDF {
 
 		// Error Messages 
 		private String ERR_NAME_ON_PERSONACCOUNT = 'You can not set the name field for a person account';
+		private String ERR_CONTACT_TO_PERSONACCOUNT = 'You can not set an AccountId of a contact to a person account';
+		private String ERR_REQUIRED_FOR_ASSET = 'An AccountId or ContactId is required for an Asset';
 
 		@testVisible
 		private List<SObject> mainSObjectList = new List<SObject>();
@@ -186,11 +188,11 @@ public class TDF {
 		/**
 		* @description insert all the sObjects
 		*/
-		public void insertAllSObjects(){
+		public void insertAll(){
 			for(Integer i = 0; i < orderedRelationshipList.size(); i++){
 				String relationshipName = orderedRelationshipList.get(i);
 				List<SObject> sObjParentList = relatedSObjMapList.get(relationshipName);
-				insert validate(sObjParentList);
+				insertList(validateList(relationshipName,sObjParentList));
 				if(relationshipName.contains(DOT)){
 					String childRelationshipName = relationshipName.substringBeforeLast(DOT);
 					List<SObject> sObjChildList = relatedSObjMapList.get(childRelationshipName);
@@ -200,7 +202,7 @@ public class TDF {
 				}
 			}
 
-			insert validate(mainSObjectList);
+			insertList(validateList('',mainSObjectList));
 		}
 
 		/**
@@ -236,9 +238,18 @@ public class TDF {
 		}
 
 		/**
-		* @description validate sObject list before insert
+		* @description insert a list of sObjects
 		*/
-		private List<SObject> validate(List<SObject> sObjList){
+		@testVisible
+		private void insertList(List<SObject> sObjList){
+			insert sObjList;
+		}
+
+		/**
+		* @description validate a list of  sObjects
+		*/
+		@testVisible
+		private List<sObject> validateList(String relationshipName,List<SObject> sObjList){
 			Integer counter = 0;
 			for(SObject sObj : sObjList){
 				if(sObj.getSObjectType() == Account.SObjectType){
@@ -248,14 +259,20 @@ public class TDF {
 						if(sObj.get('RecordTypeId') == PERSON_ACCOUNT_RECORDTYPE_ID) {
 							if(nameIsSet) throw new TestDataFactoryException(util.formatErrorMessage(ERR_NAME_ON_PERSONACCOUNT,new List<String>{}));
 							sObj.put('Lastname',(dvPrvdrOverride == null)?'test'+counter:dvPrvdrOverride.getStringDefaultValue(accountDesc,accountDesc.fields.getMap().get('Lastname').getDescribe(),counter));
-							// TODO check if Contact.Account
+							// TODO test check if Contact.Account
+							if(relationshipName.substringBeforeLast(DOT) == 'contact'){
+								throw new TestDataFactoryException(util.formatErrorMessage(ERR_CONTACT_TO_PERSONACCOUNT,new List<String>{}));
+							}
 						}else{
 							if(!nameIsSet)
 								sObj.put('Name',(dvPrvdrOverride == null)?'test'+counter:dvPrvdrOverride.getStringDefaultValue(accountDesc,Account.fields.Name.getDescribe(),counter));
 						}
 					}
 				}else if(sObj.getSObjectType() == Asset.SObjectType){
-					// TODO Asset AccountId or ContactId is required
+					// TODO test Asset AccountId or ContactId is required
+					if(sObj.get('AccountId') == null && sObj.get('ContactId') == null){
+						throw new TestDataFactoryException(util.formatErrorMessage(ERR_REQUIRED_FOR_ASSET,new List<String>{}));
+					}
 				}
 				counter++;
 			}
@@ -329,11 +346,14 @@ public class TDF {
 				initSObjectInstance(sObjectType,mapValuesOverrideLowerCase,i);
 			}
 
-			if(doInsert) sObjMgr.insertAllSObjects();
+			if(doInsert) sObjMgr.insertAll();
 
 			return sObjMgr.getMainSObjectList();
 		}
 
+		/**
+		* @description Initiate an sObject
+		*/
 		private void initSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Integer counter){
 			String sObjectName = sObjectType.getDescribe().getName();
 			Map<String,Object> mapValues = dvPrvdr.getDefaultMap(sObjectType,mapValuesOverride.keySet(),counter);
