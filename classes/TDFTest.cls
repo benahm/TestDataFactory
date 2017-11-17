@@ -227,7 +227,7 @@ private class TDFTest {
 		System.assertNotEquals(null,sObjManager.getRelationship(0,'contact'));
 		System.assertNotEquals(null,sObjManager.getRelationship(0,'ConTacT'));
 	}
-	@isTest static void insertAllSObjectsTest(){
+	@isTest static void insertAllTest(){
 		TDF.SObjectManager sObjManager = new TDF.SObjectManager();
 		Account acc = new Account(Name='test');
 		Contact con = new Contact(LastName='test');
@@ -235,7 +235,7 @@ private class TDFTest {
 		sObjManager.relatedSObjMapList.put('account',new List<SObject>{acc});
 		sObjManager.orderedRelationshipList.add('account');
 		try {
-			sObjManager.insertAllSObjects();
+			sObjManager.insertAll();
 		}catch(DmlException e){
 			System.debug(e);
 			System.assert(true); // if missing required fields
@@ -272,6 +272,27 @@ private class TDFTest {
 		System.assertEquals(2,sObjManager.orderedRelationshipList.size());
 		System.assertEquals('contact.account',sObjManager.orderedRelationshipList.get(0));
 		System.assertEquals('contact',sObjManager.orderedRelationshipList.get(1));
+	}
+	@isTest static void insertListTest(){
+		TDF.SObjectManager sObjManager = new TDF.SObjectManager();
+		List<Account> accList = new List<Account>{new Account(Name='test')};
+		try {
+			sObjManager.insertList(accList);
+		}catch(DmlException e){
+			System.debug(e);
+			System.assert(true); // if missing required fields
+		}
+		System.assertNotEquals(null,accList.get(0).Id);
+	}
+	@isTest static void validateListTest(){
+		TDF.SObjectManager sObjManager = new TDF.SObjectManager();
+		List<Asset> assetList = new List<Asset>{new Asset()};
+		try{
+			sObjManager.validateList('',assetList);
+		}catch(TDF.TestDataFactoryException e){
+			System.assert(true);
+		}	
+		// TODO add more tests
 	}
 
 	/************************* SObjectFactory tests *************************/
