@@ -3,6 +3,7 @@
 * @date 2017
 * @description TDF Class
 */
+@testVisible
 public class TDF {
 	// Org config
 	// ========================================
@@ -13,7 +14,6 @@ public class TDF {
 	private static final String DOT = '.';
 	private static final Map<String, Schema.SObjectType> globalDescribe = Schema.getGlobalDescribe();
 	private static final Util util=new Util();
-	@testVisible
 	private static ADefaultValueProvider dvPrvdrOverride = null;
 	// sObjects That Don’t Support DML Operations https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dml_non_dml_objects.htm
 	private static Set<String> ignoredSObjects = new Set<String>{
