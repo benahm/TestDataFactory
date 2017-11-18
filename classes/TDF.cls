@@ -6,8 +6,8 @@
 public class TDF {
 	// Org config
 	// ========================================
-	private static final Boolean PERSON_ACCOUNT_IS_ENABLED = false;
-	private static final ID PERSON_ACCOUNT_RECORDTYPE_ID = null;
+	private static final Boolean PERSON_ACCOUNT_IS_ENABLED = true;
+	private static final ID PERSON_ACCOUNT_RECORDTYPE_ID = '012240000000pqHAAQ';
 	// ========================================
 
 	private static final String DOT = '.';
@@ -127,7 +127,7 @@ public class TDF {
 		// Error Messages 
 		private String ERR_NAME_ON_PERSONACCOUNT = 'You can not set the name field for a person account';
 		private String ERR_CONTACT_TO_PERSONACCOUNT = 'You can not set an AccountId of a contact to a person account';
-		private String ERR_REQUIRED_FOR_ASSET = 'An AccountId or ContactId is required for an Asset';
+		private String ERR_REQUIRED_FOR_ASSET = 'AccountId or ContactId is required for an Asset';
 
 		@testVisible
 		private List<SObject> mainSObjectList = new List<SObject>();
@@ -259,7 +259,6 @@ public class TDF {
 						if(sObj.get('RecordTypeId') == PERSON_ACCOUNT_RECORDTYPE_ID) {
 							if(nameIsSet) throw new TestDataFactoryException(util.formatErrorMessage(ERR_NAME_ON_PERSONACCOUNT,new List<String>{}));
 							sObj.put('Lastname',(dvPrvdrOverride == null)?'test'+counter:dvPrvdrOverride.getStringDefaultValue(accountDesc,accountDesc.fields.getMap().get('Lastname').getDescribe(),counter));
-							// TODO test check if Contact.Account
 							if(relationshipName.substringBeforeLast(DOT) == 'contact'){
 								throw new TestDataFactoryException(util.formatErrorMessage(ERR_CONTACT_TO_PERSONACCOUNT,new List<String>{}));
 							}
@@ -269,7 +268,6 @@ public class TDF {
 						}
 					}
 				}else if(sObj.getSObjectType() == Asset.SObjectType){
-					// TODO test Asset AccountId or ContactId is required
 					if(sObj.get('AccountId') == null && sObj.get('ContactId') == null){
 						throw new TestDataFactoryException(util.formatErrorMessage(ERR_REQUIRED_FOR_ASSET,new List<String>{}));
 					}
