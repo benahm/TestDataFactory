@@ -292,7 +292,20 @@ private class TDFTest {
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}	
-		// TODO add more tests
+		if(TDF.PERSON_ACCOUNT_IS_ENABLED){
+			List<Account> accountList1 = new List<Account>{new Account(RecordTypeId=TDF.PERSON_ACCOUNT_RECORDTYPE_ID)};
+			try{
+				sObjManager.validateList('contact.account',accountList1);
+			}catch(TDF.TestDataFactoryException e){
+				System.assert(true);
+			}	
+			List<Account> accountList2 = new List<Account>{new Account(Name='test',RecordTypeId=TDF.PERSON_ACCOUNT_RECORDTYPE_ID)};
+			try{
+				sObjManager.validateList('',accountList2);
+			}catch(TDF.TestDataFactoryException e){
+				System.assert(true);
+			}
+		}
 	}
 
 	/************************* SObjectFactory tests *************************/
