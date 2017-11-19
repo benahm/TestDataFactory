@@ -50,15 +50,17 @@ private class TDFTest {
 	}
 	@isTest static void createSObjectTest10(){
 		SObject sObj = TDF.createSObject('Case', new Map<String,Object>{
+				'id' => null,
 				'aCCount.Description' => 'test',
 				'ConTact.FirstName'=> 'test',
 				'Description' => 'test',
 				'asset.accounT.Name' => 'test',
 				'asset.contact.account.Description' => 'test',
-				'asset.Parent.contact.account.Description' => 'test'
+				'asset.Parent.contact.account.Description' => TDF.DEFAULT_VALUE
 			},true);
-		Case cse = [select Asset.Parent.Contact.Account.Name from Case limit 1];
+		Case cse = [select Asset.Parent.Contact.Account.Name, Asset.Parent.Contact.Account.Description from Case limit 1];
 		System.assertEquals('test0',cse.Asset.Parent.Contact.Account.Name);
+		System.assertEquals('test0',cse.Asset.Parent.Contact.Account.Description);
 	}
 	@isTest static void createSObjectTest11(){
 		SObject sObj = TDF.createSObject('Account', new Map<String,Object>{
@@ -81,6 +83,7 @@ private class TDFTest {
 	@isTest static void createSObjectTest13(){
 		try{
 			SObject sObj = TDF.createSObject('TEST');
+			System.assert(false);
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}	
@@ -88,6 +91,7 @@ private class TDFTest {
 	@isTest static void createSObjectTest14(){
 		try{
 			SObject sObj = TDF.createSObject('Profile');
+			System.assert(false);
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}	
@@ -97,6 +101,7 @@ private class TDFTest {
 			SObject sObj = TDF.createSObject('Contact',new Map<String,Object>{
 			'Test' => 'test'
 			});
+			System.assert(false);
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}	
@@ -104,6 +109,7 @@ private class TDFTest {
 			SObject sObj = TDF.createSObject('Contact',new Map<String,Object>{
 			'Account.Test' => 'test'
 			});
+			System.assert(false);
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}	
@@ -111,51 +117,70 @@ private class TDFTest {
 			SObject sObj = TDF.createSObject('Contact',new Map<String,Object>{
 			'Account.Test.Parent.Id' => 'test'
 			});
+			System.assert(false);
+		}catch(TDF.TestDataFactoryException e){
+			System.assert(true);
+		}	
+		try{
+			SObject sObj = TDF.createSObject('Contact',new Map<String,Object>{
+			'Description' => Date.today()
+			});
+			System.assert(false);
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}	
 	}
 	@isTest static void createSObjectListTest1(){
-		List<SObject> sObjList = TDF.createSObjectList('Account',5);
+		List<SObject> sObjList = TDF.createSObjectList('Contact',5);
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
 	}
 	@isTest static void createSObjectListTest2(){
-		List<SObject> sObjList = TDF.createSObjectList(Account.SObjectType,5);
+		List<SObject> sObjList = TDF.createSObjectList(Contact.SObjectType,5);
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
 	}
 	@isTest static void createSObjectListTest3(){
-		List<SObject> sObjList = TDF.createSObjectList('Account',new Map<String,Object>(),5);
+		List<SObject> sObjList = TDF.createSObjectList('Contact',new Map<String,Object>(),5);
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
 	}
 	@isTest static void createSObjectListTest4(){
-		List<SObject> sObjList = TDF.createSObjectList(Account.SObjectType,new Map<String,Object>(),5);
+		List<SObject> sObjList = TDF.createSObjectList(Contact.SObjectType,new Map<String,Object>(),5);
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
 	}
 	@isTest static void createSObjectListTest5(){
-		List<SObject> sObjList = TDF.createSObjectList('Account',false,5);
+		List<SObject> sObjList = TDF.createSObjectList('Contact',false,5);
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
 	}
 	@isTest static void createSObjectListTest6(){
-		List<SObject> sObjList = TDF.createSObjectList(Account.SObjectType,false,5);
+		List<SObject> sObjList = TDF.createSObjectList(Contact.SObjectType,false,5);
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
 	}	
 	@isTest static void createSObjectListTest7(){
-		List<SObject> sObjList = TDF.createSObjectList('Account',new Map<String,Object>(),false,5);
+		List<SObject> sObjList = TDF.createSObjectList('Contact',new Map<String,Object>(),false,5);
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
 	}
 	@isTest static void createSObjectListTest8(){
-		List<SObject> sObjList = TDF.createSObjectList(Account.SObjectType,new Map<String,Object>(),false,5);
+		List<SObject> sObjList = TDF.createSObjectList(Contact.SObjectType,new Map<String,Object>(),false,5);
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
 	}
 	@isTest static void createSObjectListTest9(){
+		List<Contact> sObjList = TDF.createSObjectList(Contact.SObjectType,new Map<String,Object>(),false,5);
+		System.assertNotEquals(null,sObjList);
+		System.assertEquals(5,sObjList.size());
+		System.assertEquals('test0',sObjList.get(0).Lastname);
+		System.assertEquals('test1',sObjList.get(1).Lastname);
+		System.assertEquals('test2',sObjList.get(2).Lastname);
+		System.assertEquals('test3',sObjList.get(3).Lastname);
+		System.assertEquals('test4',sObjList.get(4).Lastname);
+	}
+	@isTest static void createSObjectListTest10(){
 		List<SObject> sObjList = TDF.createSObjectList('Account', new Map<String,Object>{
 			'Owner.ProfileId' => UserInfo.getProfileId(),
 			'Owner.Username' => 'test123456789@mycompanydomain.developer{!index}',
@@ -167,11 +192,11 @@ private class TDFTest {
 		System.assertEquals(UserInfo.getProfileId(),uList.get(0).ProfileId);
 	}
 	@isTest static void setDefaultValueProviderTest(){
-		System.assertEquals(null,TDF.dvPrvdrOverride);
+		System.assertNotEquals(null,TDF.dvProvider);
 		TDF.setDefaultValueProvider(null);
-		System.assertEquals(null,TDF.dvPrvdrOverride);
+		System.assertNotEquals(null,TDF.dvProvider);
 		TDF.setDefaultValueProvider(new TDF.DefaultValueProvider());
-		System.assertNotEquals(null,TDF.dvPrvdrOverride);
+		System.assertNotEquals(null,TDF.dvProvider);
 	}
 
 	/************************* SObjectManager tests *************************/
@@ -237,7 +262,6 @@ private class TDFTest {
 		try {
 			sObjManager.insertAll();
 		}catch(DmlException e){
-			System.debug(e);
 			System.assert(true); // if missing required fields
 		}
 		List<Contact> conList = [select LastName, Account.Name from Contact limit 1];
@@ -254,7 +278,6 @@ private class TDFTest {
 			insert accList;
 			sObjManager.setChildParentRelationship(conList,accList,'Account');
 		}catch(DmlException e){
-			System.debug(e);
 			System.assert(true); // if missing required fields
 		}
 		System.assertNotEquals(null,conList.get(0).AccountId);
@@ -279,7 +302,6 @@ private class TDFTest {
 		try {
 			sObjManager.insertList(accList);
 		}catch(DmlException e){
-			System.debug(e);
 			System.assert(true); // if missing required fields
 		}
 		System.assertNotEquals(null,accList.get(0).Id);
@@ -289,6 +311,7 @@ private class TDFTest {
 		List<Asset> assetList = new List<Asset>{new Asset()};
 		try{
 			sObjManager.validateList('',assetList);
+			System.assert(false);
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}	
@@ -296,12 +319,14 @@ private class TDFTest {
 			List<Account> accountList1 = new List<Account>{new Account(RecordTypeId=TDF.PERSON_ACCOUNT_RECORDTYPE_ID)};
 			try{
 				sObjManager.validateList('contact.account',accountList1);
+				System.assert(false);
 			}catch(TDF.TestDataFactoryException e){
 				System.assert(true);
 			}	
 			List<Account> accountList2 = new List<Account>{new Account(Name='test',RecordTypeId=TDF.PERSON_ACCOUNT_RECORDTYPE_ID)};
 			try{
 				sObjManager.validateList('',accountList2);
+				System.assert(false);
 			}catch(TDF.TestDataFactoryException e){
 				System.assert(true);
 			}
@@ -311,8 +336,6 @@ private class TDFTest {
 	/************************* SObjectFactory tests *************************/
 	@isTest static void sObjectManagerInstanceTest(){
 		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory();
-		System.assertNotEquals(null,sObjFactory.getDefaultValueProvider());
-		sObjFactory = new TDF.SObjectFactory(null);
 		System.assertNotEquals(null,sObjFactory.getDefaultValueProvider());
 		sObjFactory = new TDF.SObjectFactory(new TDF.DefaultValueProvider());
 		System.assertNotEquals(null,sObjFactory.getDefaultValueProvider());
@@ -357,6 +380,7 @@ private class TDFTest {
 		System.assertEquals(con.Account.Name,'Test');
 		try{
 			sObjFactory.putSObject(con,'Test',new Account(),'');
+			System.assert(false);
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}
@@ -368,6 +392,7 @@ private class TDFTest {
 		System.assertEquals(con.FirstName,'Test');
 		try{
 			sObjFactory.putField(con,'Test','Test','');
+			System.assert(false);
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}
@@ -376,35 +401,54 @@ private class TDFTest {
 	/************************* DefaultValueProvider tests *************************/
 	@isTest static void getDefaultMapTest1(){
 		TDF.IDefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,Object> mapValues = dvProvider.getDefaultMap(Opportunity.SObjectType,new Set<String>(),0);
+		Map<String,Object> mapValues = dvProvider.getDefaultMap(Opportunity.SObjectType,new Map<String,Object>(),0);
 		System.assertEquals('test0',mapValues.get('name'));
 		System.assertNotEquals('',mapValues.get('stagename'));
 		System.assertEquals(Date.today(),mapValues.get('closedate'));
 	}
 	@isTest static void getDefaultMapTest2(){
 		TDF.IDefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,Object> mapValues = dvProvider.getDefaultMap('Opportunity',new Set<String>(),0);
-		System.assertEquals('test0',mapValues.get('name'));
-		System.assertNotEquals('',mapValues.get('stagename'));
-		System.assertEquals(Date.today(),mapValues.get('closedate'));
+		Map<String,Object> mapValues = dvProvider.getDefaultMap(Contract.SObjectType,new Map<String,Object>(),0);
+		System.assertEquals(null,mapValues.get('account.id'));
+		System.assertEquals('test0',mapValues.get('account.name'));
 	}
 	@isTest static void getDefaultMapTest3(){
-		TDF.IDefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,Object> mapValues = dvProvider.getDefaultMap(Contract.SObjectType,new Set<String>(),0);
+		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		Map<String,Object> mapValues = dvProvider.getDefaultMap(Contract.SObjectType,new Map<String,Object>(),0,'');
 		System.assertEquals(null,mapValues.get('account.id'));
 		System.assertEquals('test0',mapValues.get('account.name'));
 	}
 	@isTest static void getDefaultMapTest4(){
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,Object> mapValues = dvProvider.getDefaultMap(Contract.SObjectType,new Set<String>(),0,'');
-		System.assertEquals(null,mapValues.get('account.id'));
-		System.assertEquals('test0',mapValues.get('account.name'));
+		Map<String,Object> mapValues = dvProvider.getDefaultMap(Case.SObjectType,new Map<String,Object>{
+			'contact.id' => null
+			},0,'');
+		System.assertEquals('test0',mapValues.get('contact.lastname'));
 	}
-	@isTest static void getSetOverrideRelationshipTest(){
+	@isTest static void getDefaultMapTest5(){
+		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		Map<String,Object> mapValues = dvProvider.getDefaultMap(Case.SObjectType,new Map<String,Object>{
+			'contact.description' => TDF.DEFAULT_VALUE,
+			'subject' => TDF.DEFAULT_VALUE
+			},0,'');
+		System.assertEquals('test0',mapValues.get('contact.lastname'));
+		System.assertEquals('test0',mapValues.get('contact.description'));
+		System.assertEquals('test0',mapValues.get('subject'));
+	}
+	@isTest static void getDefaultMapTest6(){
+		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		Map<String,Object> mapValues = dvProvider.getDefaultMap(Contact.SObjectType,new Map<String,Object>{
+			'contact.description' => TDF.DEFAULT_VALUE,
+			'subject' => TDF.DEFAULT_VALUE
+			},0,'contact.');
+		System.assertEquals('test0',mapValues.get('contact.lastname'));
+		System.assertEquals('test0',mapValues.get('contact.description'));
+	}
+	@isTest static void getRelationshipKeySetTest(){
 		TDF.ADefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		System.assertEquals(new Set<String>{'contact'},dvProvider.getSetOverrideRelationship(new Set<String>{'Contact.AccountId','Contact.Account.ParentId'},''));
-		System.assertEquals(new Set<String>{'account'},dvProvider.getSetOverrideRelationship(new Set<String>{'Contact.Account.Id','Contact.Account.ParentId','Contact.AccountId'},'Contact.'));
-		System.assertEquals(new Set<String>{'parent','user'},dvProvider.getSetOverrideRelationship(new Set<String>{'Contact.Account.User.Id','Contact.Account.Parent.Id','Contact.AccountId'},'Contact.Account.'));
+		System.assertEquals(new Set<String>{'contact'},dvProvider.getRelationshipKeySet(new Set<String>{'Contact.AccountId','Contact.Account.ParentId'},''));
+		System.assertEquals(new Set<String>{'account'},dvProvider.getRelationshipKeySet(new Set<String>{'Contact.Account.Id','Contact.Account.ParentId','Contact.AccountId'},'Contact.'));
+		System.assertEquals(new Set<String>{'parent','user'},dvProvider.getRelationshipKeySet(new Set<String>{'Contact.Account.User.Id','Contact.Account.Parent.Id','Contact.Account.Description'},'Contact.Account.'));
 	}
 	@isTest static void getDefaultPicklistValueTest(){
 		TDF.ADefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
@@ -463,6 +507,30 @@ private class TDFTest {
 		System.assertEquals('http://test0.com',dvProvider.getURLDefaultValue(null,null,0));
 	}
 
+	/************************* FieldDefaultValueProvider tests *************************/
+	@isTest static void getFieldDefaultValueTest(){
+		TDF.IFieldDefaultValueProvider dvProvider = new TDF.FieldDefaultValueProvider(new TDF.DefaultValueProvider());
+		System.assertEquals(Blob.valueOf('0'),dvProvider.getFieldDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.Body.getDescribe(),0));
+		System.assertEquals(true,dvProvider.getFieldDefaultValue(Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe(),0));
+		System.assertEquals('0',dvProvider.getFieldDefaultValue(Event.SObjectType.getDescribe(),Event.fields.Subject.getDescribe(),0));
+		System.assertEquals('0',dvProvider.getFieldDefaultValue(Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe(),0));
+		System.assertEquals(Date.today(),dvProvider.getFieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe(),0));
+		System.assertEquals(Datetime.now(),dvProvider.getFieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.CreatedDate.getDescribe(),0));
+		System.assertEquals(0,dvProvider.getFieldDefaultValue(Asset.SObjectType.getDescribe(),Asset.fields.Quantity.getDescribe(),0));
+		System.assertEquals('test0@email.com',dvProvider.getFieldDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe(),0));
+		System.assertEquals(null,dvProvider.getFieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Id.getDescribe(),0));
+		System.assertEquals(0,dvProvider.getFieldDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.BodyLength.getDescribe(),0));
+		//System.assertNotEquals('',dvProvider.getFieldDefaultValue(Group.fields.Categories.getDescribe(),0));
+		System.assertEquals(0,dvProvider.getFieldDefaultValue(Opportunity.SObjectType.getDescribe(),Opportunity.fields.Probability.getDescribe(),0));
+		System.assertEquals('123456789',dvProvider.getFieldDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Phone.getDescribe(),0));
+		System.assertNotEquals('',dvProvider.getFieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0));
+		System.assertEquals('test0',dvProvider.getFieldDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.FirstName.getDescribe(),0));
+		System.assertEquals('test0',dvProvider.getFieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Description.getDescribe(),0));
+		// no time field
+		//System.assertEquals('http://test0.com',dvProvider.getDefaultValue(Weblink.fields.URL.getDescribe(),0));
+		System.assertEquals(null,dvProvider.getFieldDefaultValue(null,null,0));
+	}
+
 	/************************* Util tests *************************/
 	@isTest static void relationshipToFieldNameTest(){
 		TDF.Util util = new TDF.Util();
@@ -477,11 +545,6 @@ private class TDFTest {
 			};
 		System.assert(util.mapToLowerCase(mapTest).keySet().contains('test'));
 		System.assert(util.mapToLowerCase(mapTest).keySet().contains('toto'));
-	}
-	@isTest static void toLowerCaseTest(){
-		TDF.Util util = new TDF.Util();
-		System.assertEquals(null,util.toLowerCase(null));
-		System.assertEquals('test',util.toLowerCase('TeSt'));
 	}
 	@isTest static void mergeValueTest(){
 		TDF.Util util = new TDF.Util();
