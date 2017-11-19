@@ -23,6 +23,7 @@ Assign values to fields of the main and the related sObjects
   
   
   ### More :
+* [Usage](/docs/USAGE.md)
 * [Examples](/docs/EXAMPLES.md)
 * [Core Concepts](/docs/CONCEPT.md)
 * [Contributing](/docs/CONTRIBUTE.md)
