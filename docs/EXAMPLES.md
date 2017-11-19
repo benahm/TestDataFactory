@@ -78,6 +78,16 @@ By default the created sObjects are not inserted, by providing the *doInsert* to
   },true /* <-- doInsert flag */);
   ```
 
+##### Auto generate value for non required fields
+
+You can auto generate a value for non required field by assigning the TDF.DEFAULT_VALUE
+  ```apex
+  Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
+    'Description' => TDF.DEFAULT_VALUE,
+    'Account.Phone' => TDF.DEFAULT_VALUE
+  });
+  ```
+
 ##### Force to instanciate a related sObject
 
 For example when creating a contact you can force the Test Data Factory to create a related account event if an account is not required
