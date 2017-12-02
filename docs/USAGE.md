@@ -23,3 +23,7 @@ public class TDF {
 	private static final ID PERSON_ACCOUNT_RECORDTYPE_ID = null;
 	// ==========================================================================
   ```
+
+## Next
+
+* [Examples](EXAMPLES.md) 
