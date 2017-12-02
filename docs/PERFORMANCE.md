@@ -91,7 +91,7 @@ Create 10 instances of the Contact sObject and its related Account sObjects
 LIMIT_USAGE_… Number of query rows: 0 out of 50000<br/>
 LIMIT_USAGE_… Number of SOSL queries: 0 out of 20<br/>
 LIMIT_USAGE_… **Number of DML statements: 2 out of 150**<br/>
-LIMIT_USAGE_… **Number of DML rows: 2 out of 10000**<br/>
+LIMIT_USAGE_… **Number of DML rows: 20 out of 10000**<br/>
 LIMIT_USAGE_… Maximum CPU time: 0 out of 10000<br/>
 LIMIT_USAGE_… Maximum heap size: 0 out of 6000000<br/>
 LIMIT_USAGE_… Number of callouts: 0 out of 100<br/>
