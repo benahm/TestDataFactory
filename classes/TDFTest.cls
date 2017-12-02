@@ -508,8 +508,14 @@ private class TDFTest {
 		System.assertEquals('http://test0.com',dvProvider.getURLDefaultValue(null,null,0));
 	}
 
-	/************************* FieldDefaultValueProvider tests *************************/
-	@isTest static void getFieldDefaultValueTest(){
+	/************************* AutoFieldDefaultValue tests *************************/
+	@isTest static void getValueTest1(){
+		TDF.IFieldDefaultValue autoFieldDV = new TDF.AutoFieldDefaultValue();
+		System.assertEquals(null,autoFieldDV.getValue(0));
+	}
+
+	/************************* FieldDefaultValue tests *************************/
+	@isTest static void getValueTest2(){
 		TDF.IFieldDefaultValue fieldDV1 = new TDF.FieldDefaultValue(null);
 		System.assertEquals(null,(new TDF.FieldDefaultValue(null)).getValue(0));
 		TDF.IFieldDefaultValue fieldDV2 = new TDF.FieldDefaultValue('test');
