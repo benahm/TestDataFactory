@@ -11,7 +11,7 @@ Implement all the methods ``get{Type}DefaultValue``
   ```apex
   public class MyDefaultValueProvider extends TDF.ADefaultValueProvider{
   ...
-    public override String getEmailDefaultValue(Schema.DescribeSObjectResult objectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+    public override String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
       return 'mycustomtestemail'+counter.format()+'@gmail.com';
     }
   ...
