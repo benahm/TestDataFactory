@@ -1,6 +1,6 @@
 ## Performance
 
-Tests made in a Developer Org, without any active automations(Worfklow rules/Process Builder/Flow), Triggers or Validations rules on the Case, Contact and Account objects
+Performance tests made in a Developer Org, without any active automations(Worfklow rules/Process Builder/Flow), Triggers or Validations rules on the Case, Contact and Account objects
 
 #### Test #1
 
