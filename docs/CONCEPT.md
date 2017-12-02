@@ -18,7 +18,8 @@ TDF internal classes list
 |-------------------------------|--------------------------------------------------------|
 | **TDF**                       | The containing class                                   |
 | **ObjectFactory**             | Instantiate the sObject and all the related sObjects   |
-| **ObjectManager**             | Contains all the sObjects instances, insert all method |
+| **ObjectManager**             | Contains all the sObjects instances, insertAll method  |
 | **DefaultValueProvider**      | Provide all default field values                       |
-| **FieldDefaultValueProvider** | Provide a default value for a field                    |
+| **FieldDefaultValue**         | Wrapper of field default value                         |
+| **AutoFieldDefaultValue**     | Wrapper of DefaultValueProvider field value            |
 | **Util**                      | Contains utility methods                               |
