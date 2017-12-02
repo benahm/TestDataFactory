@@ -128,7 +128,7 @@ The following code creates 10 users with different usernames and nicknames
     'Username' => 'test{!index}@mytestdomain.developer',
     'CommunityNickname' => 'test{!index}'
   },10);
-
+  ```
 
 ## Next
 
