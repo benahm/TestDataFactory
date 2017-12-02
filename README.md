@@ -27,6 +27,7 @@ Assign values to fields of the main and the related sObjects
 * [Examples](/docs/EXAMPLES.md)
 * [Core Concepts](/docs/CONCEPT.md)
 * [Performance](/docs/PERFORMANCE.md)
+* [Customize](/docs/CUSTOMIZE.md)
 * [Contributing](/docs/CONTRIBUTE.md)
 
 
