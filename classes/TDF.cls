@@ -748,7 +748,7 @@ public class TDF {
 		public Object mergeValue(String text, String name, String value){
 			if(text == null) return null;
 			String pattern = '(?i)\\{!'+name+'\\}';
-			return ((String)text).replaceAll(pattern,value);
+			return text.replaceAll(pattern,value);
 		}
 
 		/**
