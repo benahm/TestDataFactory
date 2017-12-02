@@ -4,7 +4,9 @@ You can customize the auto-generated data of the Test Data Factory
 
 #### Customize all the auto-generated data
 
-Create a default value provider class by extending the ``TDF.ADefaultValueProvider``
+Create a default value provider class by extending the ``TDF.ADefaultValueProvider`` 
+
+Implement all the methods ``get{Type}DefaultValue``
 
   ```apex
   public class MyDefaultValueProvider extends TDF.ADefaultValueProvider{
@@ -25,6 +27,7 @@ Create a default value provider class by extending the ``TDF.ADefaultValueProvid
   
  #### Customize the auto-generated data for some specific fields
  
+ Create a class that implements ``TDF.IFieldDefaultValue``
   
   ```apex
   public class MyFieldDefaultValue implements TDF.IFieldDefaultValue{
@@ -43,6 +46,7 @@ Create a default value provider class by extending the ``TDF.ADefaultValueProvid
     }
   }
   ```
+  Provide the instance of your field default value in the map override ``TDF.createSObject`` or ``TDF.createSObjectList``
   
   ```apex
   List<Contact> conList = TDF.createSObjectList('Contact', new Map<String,Object>{
