@@ -34,9 +34,9 @@ Create a default value provider class by extending the ``TDF.ADefaultValueProvid
       this.fieldName = fieldName;
     }
     public Object getValue(Integer counter){
-      if(fieldName = 'Contact.Lastname')
+      if(fieldName == 'Contact.Lastname')
         return 'MyContactLastName'+counter.format();
-      else if(fieldName = 'Account.Name')
+      else if(fieldName == 'Account.Name')
         return 'MyAccountName'+counter.format();
       return 'test'+counter.format();
     }
