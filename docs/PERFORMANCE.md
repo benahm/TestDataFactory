@@ -2,6 +2,9 @@
 
 Tests made in a Developer Org, without any active automations(Worfklow rules/Process Builder/Flow), Triggers or Validations rules on the Case, Contact and Account objects
 
+#### Test #1
+
+Create one instance of the Contact sObject
 
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact',true);
@@ -23,6 +26,10 @@ LIMIT_USAGE_… Number of Mobile Apex push calls: 0 out of 10
   
 ---
 
+#### Test #2
+
+Create 10 instances of the Contact sObject
+
   ```apex
   List<Contact> conList = TDF.createSObjectList('Contact',true,10);
   ```
@@ -42,6 +49,10 @@ LIMIT_USAGE_… Number of queueable jobs added to the queue: 0 out of 50<br/>
 LIMIT_USAGE_… Number of Mobile Apex push calls: 0 out of 10
 
 ----
+
+#### Test #3
+
+Create one instance of the Contact sObject and its related Account sObject
 
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact',new Map<String,Object>{
@@ -64,6 +75,10 @@ LIMIT_USAGE_… Number of queueable jobs added to the queue: 0 out of 50<br/>
 LIMIT_USAGE_… Number of Mobile Apex push calls: 0 out of 10
 
 ----
+
+#### Test #4
+
+Create 10 instances of the Contact sObject and its related Account sObjects
 
   ```apex
   List<Contact> conList = TDF.createSObjectList('Contact',new Map<String,Object>{
