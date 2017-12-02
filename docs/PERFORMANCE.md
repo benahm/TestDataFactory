@@ -21,7 +21,7 @@ LIMIT_USAGE_… Number of Mobile Apex push calls: 0 out of 10
 ---
 
   ```apex
-  List<Contact> con = TDF.createSObjectList('Contact',true,10);
+  List<Contact> conList = TDF.createSObjectList('Contact',true,10);
   ```
 
 
@@ -63,7 +63,7 @@ LIMIT_USAGE_… Number of Mobile Apex push calls: 0 out of 10
 ----
 
   ```apex
-  List<Contact> con = TDF.createSObjectList('Contact',new Map<String,Object>{
+  List<Contact> conList = TDF.createSObjectList('Contact',new Map<String,Object>{
     'Account.Description' => 'Create the related Account'
   },true,10);
   ```
