@@ -12,8 +12,9 @@ public class TDF {
 	private static final ID PERSON_ACCOUNT_RECORDTYPE_ID = null;
 	// ==========================================================================
 
+	public static final IFieldDefaultValue DEFAULT_VALUE = new AutoFieldDefaultValue();
+	
 	private static ADefaultValueProvider dvProvider = new DefaultValueProvider();
-	public static final IFieldDefaultValueProvider DEFAULT_VALUE = new FieldDefaultValueProvider(dvProvider);
 	private static final String DOT = '.';
 	private static final Map<String, Schema.SObjectType> globalDescribe = Schema.getGlobalDescribe();
 	private static final Util util=new Util();
@@ -96,7 +97,7 @@ public class TDF {
 		return createSObjectList(globalDescribe.get(sObjectName),mapValuesOverride,doInsert,numberOfSObjects);
 	}
 	public static List<SObject> createSObjectList(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Boolean doInsert, Integer numberOfSObjects){
-		ISObjectFactory sObjFactory = new SObjectFactory(dvProvider);
+		ISObjectFactory sObjFactory = new SObjectFactory();
 		List<SObject> listSObjectInstance = sObjFactory.getListSObjectInstance(sObjectType, mapValuesOverride, doInsert, numberOfSObjects);
 		return listSObjectInstance;
 	}
@@ -104,9 +105,9 @@ public class TDF {
 	/**
 	 * @description set the default value provider 
 	 */
-	public static void setDefaultValueProvider(ADefaultValueProvider dvPrvdrOverride){
-		if(dvPrvdrOverride != null)
-			dvProvider = dvPrvdrOverride;
+	public static void setDefaultValueProvider(ADefaultValueProvider dvProviderOverride){
+		if(dvProviderOverride != null)
+			dvProvider = dvProviderOverride;
 	}
 
 
@@ -130,7 +131,7 @@ public class TDF {
 
 		// Error Messages 
 		private String ERR_NAME_ON_PERSONACCOUNT = 'You can not set the name field for a person account';
-		private String ERR_CONTACT_TO_PERSONACCOUNT = 'You can not set an AccountId of a contact to a person account';
+		private String ERR_CONTACT_TO_PERSONACCOUNT = 'You cannot set an AccountId of a contact to a person account';
 		private String ERR_REQUIRED_FOR_ASSET = 'AccountId or ContactId is required for an Asset';
 
 		@testVisible
@@ -288,7 +289,6 @@ public class TDF {
 	public interface ISObjectFactory{
 
 		ISObjectManager getSObjectManager();
-		IDefaultValueProvider getDefaultValueProvider();
 		SObject getSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Boolean doInsert);
 		List<SObject> getListSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Boolean doInsert, Integer numberOfSObjects);
 	}
@@ -300,7 +300,7 @@ public class TDF {
 	private class SObjectFactory implements ISObjectFactory{
 
 		private ISObjectManager sObjMgr = new SObjectManager();
-		private IDefaultValueProvider dvPrvdr = null;
+
 		// Error Messages 
 		private String ERR_NOT_FOUND_SOBJECT = 'Unable to find the sObject';
 		private String ERR_UNSUPPORTED_SOBJECT = 'DML Operations are not supported on "{0}"';
@@ -308,19 +308,11 @@ public class TDF {
 		private String ERR_RELATIONSHIP_NOT_EXIST = 'The relationship "{0}" does not exist on "{1}"';
 
 
-		public SObjectFactory(){
-			this(new DefaultValueProvider());
-		}
-		public SObjectFactory(IDefaultValueProvider dvPrvdrOverride){
-			this.dvPrvdr = dvPrvdrOverride;
-		}
-
+		/**
+		* @description Get SObject Manager instance
+		*/
 		public ISObjectManager getSObjectManager(){
 			return sObjMgr;
-		}
-
-		public IDefaultValueProvider getDefaultValueProvider(){
-			return dvPrvdr;
 		}
 
 		/**
@@ -342,11 +334,11 @@ public class TDF {
 			if(ignoredSObjects.contains(sObjectName)) 
 				throw new TestDataFactoryException(util.formatErrorMessage(ERR_UNSUPPORTED_SOBJECT,new List<String>{sObjectName},''));
 
-			Map<String,Object> mapValuesOverrideLowerCase = util.mapToLowerCase(mapValuesOverride);
+			Map<String,IFieldDefaultValue> mapValues = dvProvider.getDefaultMap(sObjectType,mapValuesOverride);
 
 			for(Integer i = 0; i < numberOfSObjects; i++) {
 				sObjMgr.setSObject(i,sObjectType.newSObject()); 
-				initSObjectInstance(sObjectType,mapValuesOverrideLowerCase,i);
+				initSObjectInstance(sObjectType,mapValues,i);
 			}
 
 			if(doInsert) sObjMgr.insertAll();
@@ -357,9 +349,8 @@ public class TDF {
 		/**
 		* @description Initiate an sObject
 		*/
-		private void initSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Integer counter){
+		private void initSObjectInstance(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapValues, Integer counter){
 			String sObjectName = sObjectType.getDescribe().getName();
-			Map<String,Object> mapValues = dvPrvdr.getDefaultMap(sObjectType,mapValuesOverride,counter);
 			for(String fullyQualifiedFieldName : mapValues.keySet()){
 
 				String fieldName = (DOT+fullyQualifiedFieldName).substringAfterLast(DOT);
@@ -368,11 +359,11 @@ public class TDF {
 					String firstRelationshipName = fullyQualifiedFieldName.substringBefore(DOT);
 					String fullyQualifiedRelationshipName = fullyQualifiedFieldName.substringBeforeLast(DOT);
 					SObject relatedSObj = getRelationshipInstance(sObjectType,fullyQualifiedRelationshipName,counter);
-					putField(relatedSObj,fieldName,mapValues.get(fullyQualifiedFieldName),sObjectName+DOT+fullyQualifiedRelationshipName);
+					putField(relatedSObj,fieldName,mapValues.get(fullyQualifiedFieldName).getValue(counter),sObjectName+DOT+fullyQualifiedRelationshipName);
 					putSObject(sObjMgr.getSObject(counter),firstRelationshipName,sObjMgr.getRelationship(counter,firstRelationshipName),sObjectName);
 
 				}else { // field name
-					putField(sObjMgr.getSObject(counter),fieldName,mapValues.get(fieldName),sObjectName);
+					putField(sObjMgr.getSObject(counter),fieldName,mapValues.get(fieldName).getValue(counter),sObjectName);
 				}
 
 			}
@@ -416,6 +407,9 @@ public class TDF {
 			}
 			return  fieldDesc.getReferenceTo().get(0).newSObject();
 		}
+		/**
+		* @description put a related sObject to an sObject
+		*/
 		@testVisible
 		private SObject putSObject(SObject sObj, String name, sObject value, String prefix){
 			try{
@@ -425,6 +419,9 @@ public class TDF {
 			}
 			return sObj;
 		}		
+		/**
+		* @description put a field value to an sObject
+		*/
 		@testVisible
 		private SObject putField(SObject sObj, String name, Object value, String prefix){
 			try{
@@ -441,7 +438,7 @@ public class TDF {
 	* @description interface IDefaultValueProvider
 	*/
 	public interface IDefaultValueProvider{
-		Map<String,Object> getDefaultMap(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Integer counter);
+		Map<String,IFieldDefaultValue> getDefaultMap(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride);
 		Object getDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter);
 	}
 
@@ -452,15 +449,15 @@ public class TDF {
 
 		/**
 		* @description get the default map values
-		* @return Map<String,Object> : map values
+		* @return Map<String,IFieldDefaultValue> : map values
 		*/
-		public Map<String,Object> getDefaultMap(Schema.SObjectType sObjectType, Map<String,Object> mapValues, Integer counter){
+		public Map<String,IFieldDefaultValue> getDefaultMap(Schema.SObjectType sObjectType, Map<String,Object> mapValues){
 			if(mapValues == null)
-				return getDefaultMap(sObjectType,new Map<String,Object>(),counter,'');
-			return getDefaultMap(sObjectType,new Map<String,Object>(mapValues),counter,'');
+				return getDefaultMap(sObjectType,new Map<String,IFieldDefaultValue>(),'');
+			return getDefaultMap(sObjectType,new Map<String,IFieldDefaultValue>(convertMap(mapValues)),'');
 		}
 		@testVisible
-		private Map<String,Object> getDefaultMap(Schema.SObjectType sObjectType, Map<String,Object> mapValues, Integer counter, String prefix){
+		private Map<String,IFieldDefaultValue> getDefaultMap(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapValues, String prefix){
 			Map<String, Schema.SObjectField> fieldMap = sObjectType.getDescribe().fields.getMap();
 			String prefixLowerCase = prefix.toLowerCase();
 			Schema.DescribeFieldResult fieldDesc;
@@ -471,11 +468,8 @@ public class TDF {
 				String fullyQualifiedFieldName = prefixLowerCase+fieldName.toLowerCase();
 				Object initialFieldValue = mapValues.get(fullyQualifiedFieldName);
 				if(initialFieldValue != null){
-					if(initialFieldValue instanceof IFieldDefaultValueProvider) {
-						Object fieldValue = ((IFieldDefaultValueProvider)initialFieldValue).getFieldDefaultValue(sObjectType.getDescribe(),fieldDesc,counter);
-						mapValues.put(fullyQualifiedFieldName,fieldValue);
-					}else if(initialFieldValue instanceof String){
-						mapValues.put(fullyQualifiedFieldName,util.mergeValue(initialFieldValue,'Index',counter.format()));
+					if(initialFieldValue instanceof AutoFieldDefaultValue) {
+							mapValues.put(fullyQualifiedFieldName,new FieldDefaultValue(sObjectType.getDescribe(),fieldDesc));
 					}
 				}else {
 					if(defaultValueIsRequired(fieldDesc) || relationshipKeySet.contains((fieldDesc.getRelationshipName()+'').toLowerCase())){
@@ -483,12 +477,11 @@ public class TDF {
 							String fullyQualifiedRelationshipName = prefixLowerCase+fieldDesc.getRelationshipName().toLowerCase();
 							SObjectType refSObjectType = fieldDesc.getReferenceTo().get(0);
 							if(!ignoredSObjects.contains(refSObjectType.getDescribe().getName())){
-								mapValues.put(fullyQualifiedRelationshipName+DOT+'id',null);
-								getDefaultMap(refSObjectType,mapValues,counter,fullyQualifiedRelationshipName+DOT);
+								mapValues.put(fullyQualifiedRelationshipName+DOT+'id',new FieldDefaultValue(null));
+								getDefaultMap(refSObjectType,mapValues,fullyQualifiedRelationshipName+DOT);
 							}
 						}else { // field
-							Object fieldValue = getDefaultValue(sObjectType.getDescribe(),fieldDesc,counter);
-							mapValues.put(fullyQualifiedFieldName,fieldValue);
+							mapValues.put(fullyQualifiedFieldName,new FieldDefaultValue(sObjectType.getDescribe(),fieldDesc));
 						}
 					}
 				}
@@ -512,6 +505,24 @@ public class TDF {
 				}
 			}
 			return relationshipKeySet;
+		}
+
+		/**
+		* @description Convert Map<String,Object> to Map<String,IFieldDefaultValue>
+		*/
+		@testVisible
+		private Map<String,IFieldDefaultValue> convertMap(Map<String,Object> mapValues){
+			Map<String,IFieldDefaultValue> convertedMap = new Map<String,IFieldDefaultValue>();
+			for(String name : mapValues.keySet()){
+				if(name != null){
+					Object value = mapValues.get(name);
+					if(value instanceof IFieldDefaultValue)
+							convertedMap.put(name.trim().toLowerCase(),(IFieldDefaultValue)value);
+					else 
+							convertedMap.put(name.trim().toLowerCase(),new FieldDefaultValue(value));
+				}
+			}
+			return convertedMap;
 		}
 
 		/**
@@ -671,25 +682,47 @@ public class TDF {
 	}
 
 	/**
-	* @description interface IFieldDefaultValueProvider
+	* @description interface IFieldDefaultValue
 	*/
-	public interface IFieldDefaultValueProvider{
-		Object getFieldDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+	public interface IFieldDefaultValue{
+		Object getValue(Integer counter);
 	}
 
 	/**
-	* @description class FieldDefaultValueProvider
+	* @description class AutoFieldDefaultValue
 	*/
 	@testVisible
-	private class FieldDefaultValueProvider implements IFieldDefaultValueProvider{
-		private IDefaultValueProvider dvPrvdr = null;
+	private class AutoFieldDefaultValue implements IFieldDefaultValue{
+		public Object getValue(Integer counter){
+			return null;
+		}
+	}
 
-		public FieldDefaultValueProvider(IDefaultValueProvider dvPrvdrOverride){
-			this.dvPrvdr = dvPrvdrOverride;
+	/**
+	* @description class FieldDefaultValue
+	*/
+	@testVisible
+	private class FieldDefaultValue implements IFieldDefaultValue{
+		private Object value = null;
+		private Schema.DescribeSObjectResult sObjectDesc = null;
+		private Schema.DescribeFieldResult fieldDesc = null;
+
+		public FieldDefaultValue(Object value){
+			this.value = value;
+		}		
+
+		public FieldDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc){
+			this.sObjectDesc = sObjectDesc;
+			this.fieldDesc = fieldDesc;
 		}
 
-		public Object getFieldDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter){
-			return dvPrvdr.getDefaultValue(sObjectDesc,fieldDesc,counter);
+		public Object getValue(Integer counter){
+			if(value != null){
+				if(value instanceof String)
+					return util.mergeValue((String)value,'Index',counter.format());
+				else return value;
+			} 
+			return dvProvider.getDefaultValue(sObjectDesc,fieldDesc,counter);
 		}
 	}
 
@@ -698,7 +731,10 @@ public class TDF {
 	*/
 	@testVisible
 	private class Util {
-		
+
+		/**
+		* @description get field name from a relationship name
+		*/
 		public String relationshipToFieldName(String relationshipName){
 			String relationshipNameLowerCase = relationshipName.toLowerCase();
 			if(relationshipNameLowerCase.contains('__r')) // custom relationship 
@@ -706,22 +742,18 @@ public class TDF {
 			return relationshipNameLowerCase+'id'; // standard relationship
 		}
 
-		public Map<String,Object> mapToLowerCase(Map<String,Object> mapValues){
-			Map<String,Object> mapValuesLowerCase = new Map<String,Object>();
-			for(String name : mapValues.keySet()){
-				if(name != null)
-					mapValuesLowerCase.put(name.toLowerCase(),mapValues.get(name));
-			}
-			return mapValuesLowerCase;
-		}
-
-		public Object mergeValue(Object obj, String name, String value){
-			if(obj == null) return null;
-			if(!(obj instanceof String)) return obj;
+		/**
+		* @description merge value in a string
+		*/
+		public Object mergeValue(String text, String name, String value){
+			if(text == null) return null;
 			String pattern = '(?i)\\{!'+name+'\\}';
-			return ((String)obj).replaceAll(pattern,value);
+			return ((String)text).replaceAll(pattern,value);
 		}
 
+		/**
+		* @description format an error message
+		*/
 		public String formatErrorMessage(String message, List<String> mergeValues, String originalMessage){
 			String errorMessage = String.format(message,mergeValues);
 			if(!String.isBlank(originalMessage)) errorMessage +='\n'+'Original error message : '+originalMessage;
@@ -733,6 +765,5 @@ public class TDF {
 	* @description Exceptions
 	*/
 	public class TestDataFactoryException extends Exception {}
-
 
 }
