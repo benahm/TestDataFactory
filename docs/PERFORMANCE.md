@@ -140,7 +140,7 @@ Create 1000 instances of the Case sObject and its related Account, Contact and C
     'Account.Description' => 'Create the related Account',
     'Contact.Description' => 'Create the related Contact',
     'Contact.Account.Description' => 'Create the related Account for the related Contact'
-  },true,200);
+  },true,1000);
   ```
 
 
