@@ -46,6 +46,6 @@ Create a default value provider class by extending the ``TDF.ADefaultValueProvid
   ```apex
   List<Contact> conList = TDF.createSObjectList('Contact', new Map<String,Object>{
     'Lastname' => new MyFieldDefaultValue('Contact.Lastname'),
-    'Account.Name' => new MyFieldDefaultValue('Account.Name'),
+    'Account.Name' => new MyFieldDefaultValue('Account.Name')
   },10);
   ```
