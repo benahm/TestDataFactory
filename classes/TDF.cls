@@ -97,8 +97,8 @@ public class TDF {
 		return createSObjectList(globalDescribe.get(sObjectName),mapValuesOverride,doInsert,numberOfSObjects);
 	}
 	public static List<SObject> createSObjectList(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Boolean doInsert, Integer numberOfSObjects){
-		ISObjectFactory sObjFactory = new SObjectFactory();
-		List<SObject> listSObjectInstance = sObjFactory.getListSObjectInstance(sObjectType, mapValuesOverride, doInsert, numberOfSObjects);
+		ISObjectFactory sObjFactory = new SObjectFactory(sObjectType);
+		List<SObject> listSObjectInstance = sObjFactory.getListSObjectInstance(mapValuesOverride, doInsert, numberOfSObjects);
 		return listSObjectInstance;
 	}
 
@@ -111,6 +111,9 @@ public class TDF {
 	}
 
 
+	/****************************************************************************************/
+	/*			         Inner Interfaces & Classes			        */
+	/****************************************************************************************/
 	/**
 	* @description interface ISObjectManager
 	*/
@@ -129,17 +132,24 @@ public class TDF {
 	@testVisible
 	private class SObjectManager implements ISObjectManager{
 
-		// Error Messages 
-		private String ERR_NAME_ON_PERSONACCOUNT = 'You can not set the name field for a person account';
-		private String ERR_CONTACT_TO_PERSONACCOUNT = 'You cannot set an AccountId of a contact to a person account';
-		private String ERR_REQUIRED_FOR_ASSET = 'AccountId or ContactId is required for an Asset';
-
+		private String sObjectName = null;
 		@testVisible
 		private List<SObject> mainSObjectList = new List<SObject>();
 		@testVisible
 		private Map<String,List<SObject>> relatedSObjMapList = new Map<String,List<SObject>>();
 		@testVisible
 		private List<String> orderedRelationshipList = new List<String>();
+
+		// Error Messages 
+		private String ERR_NAME_ON_PERSONACCOUNT = 'You can not set the name field for a person account';
+		private String ERR_CONTACT_TO_PERSONACCOUNT = 'You cannot set an AccountId of a contact to a person account';
+		private String ERR_REQUIRED_FOR_ASSET = 'AccountId or ContactId is required for an Asset';
+		private String ERR_INSERT_SOBJECT = 'Unable to insert the "{0}" sObject';
+		
+
+		public SObjectManager(String sObjectName){
+			this.sObjectName = sObjectName;
+		}
 
 		/**
 		* @description get the main sObject list
@@ -197,7 +207,7 @@ public class TDF {
 			for(Integer i = 0; i < orderedRelationshipList.size(); i++){
 				String relationshipName = orderedRelationshipList.get(i);
 				List<SObject> sObjParentList = relatedSObjMapList.get(relationshipName);
-				insertList(validateList(relationshipName,sObjParentList));
+				insertList(DOT+relationshipName,validateList(relationshipName,sObjParentList));
 				if(relationshipName.contains(DOT)){
 					String childRelationshipName = relationshipName.substringBeforeLast(DOT);
 					List<SObject> sObjChildList = relatedSObjMapList.get(childRelationshipName);
@@ -207,7 +217,7 @@ public class TDF {
 				}
 			}
 
-			insertList(validateList('',mainSObjectList));
+			insertList('',validateList('',mainSObjectList));
 		}
 
 		/**
@@ -246,15 +256,19 @@ public class TDF {
 		* @description insert a list of sObjects
 		*/
 		@testVisible
-		private void insertList(List<SObject> sObjList){
-			insert sObjList;
+		private void insertList(String dotRelationshipName, List<SObject> sObjList){
+			try{
+				insert sObjList;
+			}catch(Exception e){
+				throw new TestDataFactoryException(util.formatErrorMessage(ERR_INSERT_SOBJECT,new List<String>{sObjectName+dotRelationshipName},e.getMessage()));
+			}
 		}
 
 		/**
-		* @description validate a list of  sObjects
+		* @description validate a list of sObjects before insert
 		*/
 		@testVisible
-		private List<sObject> validateList(String relationshipName,List<SObject> sObjList){
+		private List<sObject> validateList(String relationshipName, List<SObject> sObjList){
 			Integer counter = 0;
 			for(SObject sObj : sObjList){
 				if(sObj.getSObjectType() == Account.SObjectType){
@@ -289,8 +303,8 @@ public class TDF {
 	public interface ISObjectFactory{
 
 		ISObjectManager getSObjectManager();
-		SObject getSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Boolean doInsert);
-		List<SObject> getListSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Boolean doInsert, Integer numberOfSObjects);
+		SObject getSObjectInstance(Map<String,Object> mapValuesOverride, Boolean doInsert);
+		List<SObject> getListSObjectInstance(Map<String,Object> mapValuesOverride, Boolean doInsert, Integer numberOfSObjects);
 	}
 
 	/**
@@ -299,7 +313,8 @@ public class TDF {
 	@testVisible
 	private class SObjectFactory implements ISObjectFactory{
 
-		private ISObjectManager sObjMgr = new SObjectManager();
+		private Schema.SObjectType sObjectType = null;
+		private ISObjectManager sObjMgr = null;
 
 		// Error Messages 
 		private String ERR_NOT_FOUND_SOBJECT = 'Unable to find the sObject';
@@ -307,6 +322,12 @@ public class TDF {
 		private String ERR_FIELD_NOT_EXIST = 'The field "{0}" does not exist on "{1} or the value type provided is incorrect"';
 		private String ERR_RELATIONSHIP_NOT_EXIST = 'The relationship "{0}" does not exist on "{1}"';
 
+
+		public SObjectFactory(Schema.SObjectType sObjectType){
+			validateSObjectType(sObjectType);
+			this.sObjectType = sObjectType;
+			this.sObjMgr = new SObjectManager(sObjectType.getDescribe().getName());
+		}
 
 		/**
 		* @description Get SObject Manager instance
@@ -319,26 +340,20 @@ public class TDF {
 		* @description Generate an sObject instance
 		* @return SObject : sObject instance
 		*/
-		public SObject getSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Boolean doInsert){
-			return getListSObjectInstance(sObjectType, mapValuesOverride,doInsert,1).get(0);
+		public SObject getSObjectInstance(Map<String,Object> mapValuesOverride, Boolean doInsert){
+			return getListSObjectInstance(mapValuesOverride,doInsert,1).get(0);
 		}
 
 		/**
 		* @description Generate a list of sObject instances
 		* @return List<SObject> : list of sObject instances
 		*/
-		public List<SObject> getListSObjectInstance(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Boolean doInsert, Integer numberOfSObjects){
-			if(sObjectType == null) 
-				throw new TestDataFactoryException(util.formatErrorMessage(ERR_NOT_FOUND_SOBJECT,new List<String>{},''));
-				String sObjectName = sObjectType.getDescribe().getName();
-			if(ignoredSObjects.contains(sObjectName)) 
-				throw new TestDataFactoryException(util.formatErrorMessage(ERR_UNSUPPORTED_SOBJECT,new List<String>{sObjectName},''));
-
+		public List<SObject> getListSObjectInstance(Map<String,Object> mapValuesOverride, Boolean doInsert, Integer numberOfSObjects){
 			Map<String,IFieldDefaultValue> mapValues = dvProvider.getDefaultMap(sObjectType,mapValuesOverride);
 
 			for(Integer i = 0; i < numberOfSObjects; i++) {
 				sObjMgr.setSObject(i,sObjectType.newSObject()); 
-				initSObjectInstance(sObjectType,mapValues,i);
+				initSObjectInstance(mapValues,i);
 			}
 
 			if(doInsert) sObjMgr.insertAll();
@@ -349,7 +364,7 @@ public class TDF {
 		/**
 		* @description Initiate an sObject
 		*/
-		private void initSObjectInstance(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapValues, Integer counter){
+		private void initSObjectInstance(Map<String,IFieldDefaultValue> mapValues, Integer counter){
 			String sObjectName = sObjectType.getDescribe().getName();
 			for(String fullyQualifiedFieldName : mapValues.keySet()){
 
@@ -430,6 +445,14 @@ public class TDF {
 				throw new TestDataFactoryException(util.formatErrorMessage(ERR_FIELD_NOT_EXIST,new List<String>{name,prefix},e.getMessage()));
 			}
 			return sObj;
+		}
+
+		private void validateSObjectType(Schema.SObjectType sObjectType){
+			if(sObjectType == null) 
+				throw new TestDataFactoryException(util.formatErrorMessage(ERR_NOT_FOUND_SOBJECT,new List<String>{},''));
+			String sObjectName = sObjectType.getDescribe().getName();
+			if(ignoredSObjects.contains(sObjectName)) 
+				throw new TestDataFactoryException(util.formatErrorMessage(ERR_UNSUPPORTED_SOBJECT,new List<String>{sObjectName},''));
 		}
 
 	}
