@@ -1,23 +1,23 @@
 /**
-* @author benahm
+* @author Ahmed BENSAAD
 * @date 2017
-* @description TDF Class
+* @description SGA_COM_TestDataFactory Class
 */
-@testVisible
-public class TDF {
+@isTest
+public class SGA_COM_TestDataFactory {
 
 	// Org config
 	// ==========================================================================
-	private static final Boolean PERSON_ACCOUNT_IS_ENABLED = false;
-	private static final ID PERSON_ACCOUNT_RECORDTYPE_ID = null;
+	private static final Boolean PERSON_ACCOUNT_IS_ENABLED = true;
 	// ==========================================================================
 
 	public static final IFieldDefaultValue DEFAULT_VALUE = new AutoFieldDefaultValue();
 	
 	private static ADefaultValueProvider dvProvider = new DefaultValueProvider();
-	private static final String DOT = '.';
+
 	private static final Map<String, Schema.SObjectType> globalDescribe = Schema.getGlobalDescribe();
 	private static final Util util=new Util();
+	private static final String DOT = '.';
 
 	// sObjects That Don’t Support DML Operations => https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dml_non_dml_objects.htm
 	private static Set<String> ignoredSObjects = new Set<String>{
@@ -142,9 +142,9 @@ public class TDF {
 
 		// Error Messages 
 		private String ERR_NAME_ON_PERSONACCOUNT = 'You can not set the name field for a person account';
-		private String ERR_CONTACT_TO_PERSONACCOUNT = 'You cannot set an AccountId of a contact to a person account';
+		private String ERR_CONTACT_TO_PERSONACCOUNT = 'You cannot set the AccountId of a contact to a person account';
 		private String ERR_REQUIRED_FOR_ASSET = 'AccountId or ContactId is required for an Asset';
-		private String ERR_INSERT_SOBJECT = 'Unable to insert the "{0}" sObject';
+		private String ERR_INSERT_SOBJECT = 'Unable to insert "{0}"';
 		
 
 		public SObjectManager(String sObjectName){
@@ -275,7 +275,7 @@ public class TDF {
 					if(PERSON_ACCOUNT_IS_ENABLED){
 						Boolean nameIsSet = sObj.get('Name') != null;
 						Schema.DescribeSObjectResult accountDesc = Account.SObjectType.getDescribe();
-						if(sObj.get('RecordTypeId') == PERSON_ACCOUNT_RECORDTYPE_ID) {
+						if(sObj.get('IsPersonAccount') == true) {
 							if(nameIsSet) throw new TestDataFactoryException(util.formatErrorMessage(ERR_NAME_ON_PERSONACCOUNT,new List<String>{},''));
 							sObj.put('Lastname',dvProvider.getStringDefaultValue(accountDesc,accountDesc.fields.getMap().get('Lastname').getDescribe(),counter));
 							if(relationshipName.substringBeforeLast(DOT) == 'contact'){
@@ -301,7 +301,6 @@ public class TDF {
 	* @description interface ISObjectFactory
 	*/
 	public interface ISObjectFactory{
-
 		ISObjectManager getSObjectManager();
 		SObject getSObjectInstance(Map<String,Object> mapValuesOverride, Boolean doInsert);
 		List<SObject> getListSObjectInstance(Map<String,Object> mapValuesOverride, Boolean doInsert, Integer numberOfSObjects);
@@ -446,7 +445,10 @@ public class TDF {
 			}
 			return sObj;
 		}
-
+		/**
+		* @description validate sObjectType
+		*/
+		@testVisible
 		private void validateSObjectType(Schema.SObjectType sObjectType){
 			if(sObjectType == null) 
 				throw new TestDataFactoryException(util.formatErrorMessage(ERR_NOT_FOUND_SOBJECT,new List<String>{},''));
