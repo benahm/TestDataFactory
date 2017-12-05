@@ -1,14 +1,14 @@
 /**
-* @author Ahmed BENSAAD
+* @author benahm
 * @date 2017
-* @description SGA_COM_TestDataFactory Class
+* @description TDF Class
 */
-@isTest
-public class SGA_COM_TestDataFactory {
+@testVisible
+public class TDF {
 
 	// Org config
 	// ==========================================================================
-	private static final Boolean PERSON_ACCOUNT_IS_ENABLED = true;
+	private static final Boolean PERSON_ACCOUNT_IS_ENABLED = false;
 	// ==========================================================================
 
 	public static final IFieldDefaultValue DEFAULT_VALUE = new AutoFieldDefaultValue();
