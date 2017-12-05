@@ -315,22 +315,6 @@ private class TDFTest {
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}	
-		if(TDF.PERSON_ACCOUNT_IS_ENABLED){
-			List<Account> accountList1 = new List<Account>{new Account(RecordTypeId=TDF.PERSON_ACCOUNT_RECORDTYPE_ID)};
-			try{
-				sObjManager.validateList('contact.account',accountList1);
-				System.assert(false);
-			}catch(TDF.TestDataFactoryException e){
-				System.assert(true);
-			}	
-			List<Account> accountList2 = new List<Account>{new Account(Name='test',RecordTypeId=TDF.PERSON_ACCOUNT_RECORDTYPE_ID)};
-			try{
-				sObjManager.validateList('',accountList2);
-				System.assert(false);
-			}catch(TDF.TestDataFactoryException e){
-				System.assert(true);
-			}
-		}
 	}
 
 	/************************* SObjectFactory tests *************************/
@@ -386,6 +370,23 @@ private class TDFTest {
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}
+	}
+	@isTest static void validateSObjectTypeTest(){
+		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory(Contact.SObjectType);
+		try{
+			sObjFactory.validateSObjectType(null);
+			System.assert(false);
+		}catch(TDF.TestDataFactoryException e){
+			System.assert(true);
+		}
+		try{
+			sObjFactory.validateSObjectType(Profile.sObjectType);
+			System.assert(false);
+		}catch(TDF.TestDataFactoryException e){
+			System.assert(true);
+		}
+		sObjFactory.validateSObjectType(Account.sObjectType);
+		System.assert(true);
 	}
 	
 	/************************* DefaultValueProvider tests *************************/
