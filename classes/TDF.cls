@@ -1,4 +1,16 @@
 /**
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+ *  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
+ *  THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+ *  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**/
+
+
+/**
 * @author benahm
 * @date 2017
 * @description TDF Class
@@ -15,8 +27,7 @@ public class TDF {
 	
 	private static ADefaultValueProvider dvProvider = new DefaultValueProvider();
 
-	private static final Map<String, Schema.SObjectType> globalDescribe = Schema.getGlobalDescribe();
-	private static final Util util=new Util();
+	private static final Util util = new Util();
 	private static final String DOT = '.';
 
 	// sObjects That Don’t Support DML Operations => https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dml_non_dml_objects.htm
@@ -41,6 +52,25 @@ public class TDF {
 								'UserTerritory',
 								'WebLink'
 							};
+  
+  /* ===========================  Properties =========================== */
+	private static Map<String, Schema.SObjectType> globalDescribe{
+		get{
+			if(globalDescribe == null){
+		 		globalDescribe = Schema.getGlobalDescribe();
+			}
+			return globalDescribe;
+		}
+	} 
+	private static Set<Id> personAccountRecordTypes{ 
+		get{
+			if(personAccountRecordTypes == null){
+				String account = 'Account';
+				personAccountRecordTypes = new Map<Id,SObject>(Database.query('select Id from RecordType where SObjectType=:account and isPersonType=true')).keySet();
+			}
+			return personAccountRecordTypes;
+		}
+	}
 
 	/**
 	 * @description create an sObject
@@ -141,6 +171,7 @@ public class TDF {
 		private List<String> orderedRelationshipList = new List<String>();
 
 		// Error Messages 
+		private String ERR_RECORDTYPE_REQUIRED_FOR_ACCOUNT = 'RecordTypeId is required to create an account';
 		private String ERR_NAME_ON_PERSONACCOUNT = 'You can not set the name field for a person account';
 		private String ERR_CONTACT_TO_PERSONACCOUNT = 'You cannot set the AccountId of a contact to a person account';
 		private String ERR_REQUIRED_FOR_ASSET = 'AccountId or ContactId is required for an Asset';
@@ -273,15 +304,17 @@ public class TDF {
 			for(SObject sObj : sObjList){
 				if(sObj.getSObjectType() == Account.SObjectType){
 					if(PERSON_ACCOUNT_IS_ENABLED){
-						Boolean nameIsSet = sObj.get('Name') != null;
+						Id recorTypeId = (Id)sObj.get('RecordTypeId');
+						if(recorTypeId == null) throw new TestDataFactoryException(util.formatErrorMessage(ERR_RECORDTYPE_REQUIRED_FOR_ACCOUNT,new List<String>{},''));
+						Boolean nameIsSet = (sObj.get('Name') != null);
 						Schema.DescribeSObjectResult accountDesc = Account.SObjectType.getDescribe();
-						if(sObj.get('IsPersonAccount') == true) {
+						if(personAccountRecordTypes.contains(recorTypeId)) { // Person Account
 							if(nameIsSet) throw new TestDataFactoryException(util.formatErrorMessage(ERR_NAME_ON_PERSONACCOUNT,new List<String>{},''));
 							sObj.put('Lastname',dvProvider.getStringDefaultValue(accountDesc,accountDesc.fields.getMap().get('Lastname').getDescribe(),counter));
 							if(relationshipName.substringBeforeLast(DOT) == 'contact'){
 								throw new TestDataFactoryException(util.formatErrorMessage(ERR_CONTACT_TO_PERSONACCOUNT,new List<String>{},''));
 							}
-						}else{
+						}else{ // Business Account
 							if(!nameIsSet)
 								sObj.put('Name',dvProvider.getStringDefaultValue(accountDesc,Account.fields.Name.getDescribe(),counter));
 						}
@@ -497,16 +530,18 @@ public class TDF {
 							mapValues.put(fullyQualifiedFieldName,new FieldDefaultValue(sObjectType.getDescribe(),fieldDesc));
 					}
 				}else {
-					if(defaultValueIsRequired(fieldDesc) || relationshipKeySet.contains((fieldDesc.getRelationshipName()+'').toLowerCase())){
-						if(fieldDesc.getRelationshipName() != null){ // relationship 
+					Boolean defaultValueIsRequired = defaultValueIsRequired(fieldDesc);
+					if(fieldDesc.getRelationshipName() == null){ // field
+						if(defaultValueIsRequired)
+							mapValues.put(fullyQualifiedFieldName,new FieldDefaultValue(sObjectType.getDescribe(),fieldDesc));
+					}else { // relationship
+						if(defaultValueIsRequired || relationshipKeySet.contains((fieldDesc.getRelationshipName()+'').toLowerCase())){
 							String fullyQualifiedRelationshipName = prefixLowerCase+fieldDesc.getRelationshipName().toLowerCase();
 							SObjectType refSObjectType = fieldDesc.getReferenceTo().get(0);
 							if(!ignoredSObjects.contains(refSObjectType.getDescribe().getName())){
 								mapValues.put(fullyQualifiedRelationshipName+DOT+'id',new FieldDefaultValue(null));
 								getDefaultMap(refSObjectType,mapValues,fullyQualifiedRelationshipName+DOT);
 							}
-						}else { // field
-							mapValues.put(fullyQualifiedFieldName,new FieldDefaultValue(sObjectType.getDescribe(),fieldDesc));
 						}
 					}
 				}
