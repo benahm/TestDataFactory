@@ -1,6 +1,13 @@
 ## Performance
 
-Performance tests made in a Developer Org, without any active automations(Worfklow rules/Process Builder/Flow), Triggers or Validations rules on the Case, Contact and Account objects
+Performance tests executed in a Developer Org
+
+* without any active automations(Worfklow rules/Process Builder/Flow), Triggers or Validations rules on the Case, Contact and Account objects
+
+* Person Account is not enabled 
+
+**Note** : in an org where Person Account is enabled a SOQL query per transation is made by the TDF class to get the list of person account record types  
+
 
 #### Test #1
 
