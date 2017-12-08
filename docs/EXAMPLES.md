@@ -74,7 +74,7 @@ By default the created sObjects are not inserted, by providing the *doInsert* se
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'FirstName' => 'Doe',
-    'LastName' => 'John',
+    'LastName' => 'John'
   },true /* <-- doInsert flag */);
   ```
 
