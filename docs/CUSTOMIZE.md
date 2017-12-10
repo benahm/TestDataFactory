@@ -1,5 +1,8 @@
 ## Customize
 
+* [Extend TDF.ADefaultValueProvider class](#customize-all-the-auto-generated-data)
+* [Implement TDF.IFieldDefaultValue interface](#customize-the-auto-generated-data-for-some-specific-fields)
+
 You can customize the auto-generated data of the Test Data Factory 
 
 #### Customize all the auto-generated data
