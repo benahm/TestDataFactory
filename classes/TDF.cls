@@ -52,8 +52,9 @@ public class TDF {
 								'UserTerritory',
 								'WebLink'
 							};
-  
-  /* ===========================  Properties =========================== */
+
+
+	/* ===========================  Properties =========================== */
 	private static Map<String, Schema.SObjectType> globalDescribe{
 		get{
 			if(globalDescribe == null){
@@ -310,13 +311,13 @@ public class TDF {
 						Schema.DescribeSObjectResult accountDesc = Account.SObjectType.getDescribe();
 						if(personAccountRecordTypes.contains(recorTypeId)) { // Person Account
 							if(nameIsSet) throw new TestDataFactoryException(util.formatErrorMessage(ERR_NAME_ON_PERSONACCOUNT,new List<String>{},''));
-							sObj.put('Lastname',dvProvider.getStringDefaultValue(accountDesc,accountDesc.fields.getMap().get('Lastname').getDescribe(),counter));
+							sObj.put('Lastname',dvProvider.getTextDefaultValue(accountDesc,accountDesc.fields.getMap().get('Lastname').getDescribe(),counter));
 							if(relationshipName.substringBeforeLast(DOT) == 'contact'){
 								throw new TestDataFactoryException(util.formatErrorMessage(ERR_CONTACT_TO_PERSONACCOUNT,new List<String>{},''));
 							}
 						}else{ // Business Account
 							if(!nameIsSet)
-								sObj.put('Name',dvProvider.getStringDefaultValue(accountDesc,Account.fields.Name.getDescribe(),counter));
+								sObj.put('Name',dvProvider.getTextDefaultValue(accountDesc,Account.fields.Name.getDescribe(),counter));
 						}
 					}
 				}else if(sObj.getSObjectType() == Asset.SObjectType){
@@ -601,36 +602,39 @@ public class TDF {
 		*/
 		public Object getDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			if(fieldDesc != null){
+				// DisplayType Enum -> https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_enum_Schema_DisplayType.htm
 				if(fieldDesc.getType() == Schema.DisplayType.Base64){
 					return getBase64DefaultValue(sObjectDesc,fieldDesc,counter);
-				} else if(fieldDesc.getType() == Schema.DisplayType.Boolean){
-					return getBooleanDefaultValue(sObjectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Combobox){
 					return getComboboxDefaultValue(sObjectDesc,fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Address){
+					return getAddressDefaultValue(sObjectDesc,fieldDesc,counter);
+				}else if(fieldDesc.getType() == Schema.DisplayType.Reference){
+					return getLookupDefaultValue(sObjectDesc,fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Boolean){
+					return getCheckboxDefaultValue(sObjectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Currency){
 					return getCurrencyDefaultValue(sObjectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Date){
 					return getDateDefaultValue(sObjectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Datetime){
 					return getDateTimeDefaultValue(sObjectDesc,fieldDesc,counter);
-				} else if(fieldDesc.getType() == Schema.DisplayType.Double){
-					return getDoubleDefaultValue(sObjectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Email){
 					return getEmailDefaultValue(sObjectDesc,fieldDesc,counter);
-				}else if(fieldDesc.getType() == Schema.DisplayType.ID){
-					return getIDDefaultValue(sObjectDesc,fieldDesc,counter);
-				} else if(fieldDesc.getType() == Schema.DisplayType.Integer){
-					return getIntegerDefaultValue(sObjectDesc,fieldDesc,counter);
-				} else if(fieldDesc.getType() == Schema.DisplayType.MultiPicklist){
-					return getMultiPicklistDefaultValue(sObjectDesc,fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Location){
+					return getGeolocationDefaultValue(sObjectDesc,fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.Integer || fieldDesc.getType() == Schema.DisplayType.Double){
+					return getNumberDefaultValue(sObjectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Percent){
 					return getPercentDefaultValue(sObjectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Phone){
 					return getPhoneDefaultValue(sObjectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Picklist){
 					return getPicklistDefaultValue(sObjectDesc,fieldDesc,counter);
+				} else if(fieldDesc.getType() == Schema.DisplayType.MultiPicklist){
+					return getMultiPicklistDefaultValue(sObjectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.String){
-					return getStringDefaultValue(sObjectDesc,fieldDesc,counter);
+					return getTextDefaultValue(sObjectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.TextArea){
 					return getTextAreaDefaultValue(sObjectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Time){
@@ -660,20 +664,21 @@ public class TDF {
 		}
 
 		public abstract Blob getBase64DefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Boolean getBooleanDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
 		public abstract String getComboboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract Address getAddressDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract ID getLookupDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract Boolean getCheckboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
 		public abstract String getCurrencyDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
 		public abstract Date getDateDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
 		public abstract Datetime getDateTimeDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Double getDoubleDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
 		public abstract String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract ID getIDDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Integer getIntegerDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract Location getGeolocationDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract Decimal getNumberDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
 		public abstract Decimal getPercentDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
 		public abstract String getPhoneDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
 		public abstract String getPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getStringDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
+		public abstract String getTextDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
 		public abstract String getTextAreaDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
 		public abstract Time getTimeDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
 		public abstract String getURLDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
@@ -688,11 +693,17 @@ public class TDF {
 		public override Blob getBase64DefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return Blob.valueOf(counter.format());
 		}
-		public override Boolean getBooleanDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
-			return true;
-		}
 		public override String getComboboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return counter.format();
+		}
+		public override Address getAddressDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+			return new Address();
+		}		
+		public override ID getLookupDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+			return null;
+		}
+		public override Boolean getCheckboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+			return true;
 		}
 		public override String getCurrencyDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return counter.format();
@@ -703,20 +714,14 @@ public class TDF {
 		public override Datetime getDateTimeDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return DateTime.now();
 		}
-		public override Double getDoubleDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
-			return counter;
-		}
 		public override String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return 'test'+counter.format()+'@email.com';
 		}
-		public override ID getIDDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
-			return null;
+		public override Location getGeolocationDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+			return Location.newInstance(0,0);
 		}
-		public override Integer getIntegerDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override Decimal getNumberDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return counter;
-		}
-		public override String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
-			return getDefaultPicklistValue(fieldDesc);
 		}
 		public override Decimal getPercentDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return counter;
@@ -727,7 +732,10 @@ public class TDF {
 		public override String getPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return getDefaultPicklistValue(fieldDesc);
 		}
-		public override String getStringDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public override String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+			return getDefaultPicklistValue(fieldDesc);
+		}
+		public override String getTextDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return 'test'+counter.format();
 		}
 		public override String getTextAreaDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
