@@ -483,45 +483,49 @@ private class TDFTest {
 	}
 	@isTest static void getDefaultValueTest(){
 		TDF.ADefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		System.assertEquals(Blob.valueOf('0'),dvProvider.getDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.Body.getDescribe(),0));
-		System.assertEquals(true,dvProvider.getDefaultValue(Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe(),0));
-		System.assertEquals('0',dvProvider.getDefaultValue(Event.SObjectType.getDescribe(),Event.fields.Subject.getDescribe(),0));
-		System.assertEquals('0',dvProvider.getDefaultValue(Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe(),0));
-		System.assertEquals(Date.today(),dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe(),0));
-		System.assertEquals(Datetime.now(),dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.CreatedDate.getDescribe(),0));
-		System.assertEquals(0,dvProvider.getDefaultValue(Asset.SObjectType.getDescribe(),Asset.fields.Quantity.getDescribe(),0));
-		System.assertEquals('test0@email.com',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe(),0));
-		System.assertEquals(null,dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Id.getDescribe(),0));
-		System.assertEquals(0,dvProvider.getDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.BodyLength.getDescribe(),0));
-		//System.assertNotEquals('',dvProvider.getDefaultValue(Group.fields.Categories.getDescribe(),0));
-		System.assertEquals(0,dvProvider.getDefaultValue(Opportunity.SObjectType.getDescribe(),Opportunity.fields.Probability.getDescribe(),0));
-		System.assertEquals('123456789',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Phone.getDescribe(),0));
-		System.assertNotEquals('',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0));
-		System.assertEquals('test0',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.FirstName.getDescribe(),0));
-		System.assertEquals('test0',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Description.getDescribe(),0));
-		// no time field
-		//System.assertEquals('http://test0.com',dvProvider.getDefaultValue(Weblink.fields.URL.getDescribe(),0));
+		System.assertEquals(Blob.valueOf('0'),dvProvider.getDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.Body.getDescribe(),0)); // base64
+		System.assertEquals('0',dvProvider.getDefaultValue(Event.SObjectType.getDescribe(),Event.fields.Subject.getDescribe(),0)); // combobox
+		System.assertNotEquals(null,dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.BillingAddress.getDescribe(),0)); // address
+		System.assertEquals(null,dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.AccountId.getDescribe(),0)); // lookup
+ 		System.assertEquals(true,dvProvider.getDefaultValue(Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe(),0)); // checkbox
+		System.assertEquals('0',dvProvider.getDefaultValue(Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe(),0)); // currency
+		System.assertEquals(Date.today(),dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe(),0)); // date
+		System.assertEquals(Datetime.now(),dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.CreatedDate.getDescribe(),0)); // datetime
+		System.assertEquals('test0@email.com',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe(),0)); // email
+		// no standard geolocation field
+		System.assertEquals(0,dvProvider.getDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.BodyLength.getDescribe(),0)); // number
+		System.assertEquals(0,dvProvider.getDefaultValue(Asset.SObjectType.getDescribe(),Asset.fields.Quantity.getDescribe(),0)); // number
+		System.assertEquals(0,dvProvider.getDefaultValue(Opportunity.SObjectType.getDescribe(),Opportunity.fields.Probability.getDescribe(),0)); // percent
+		System.assertEquals('123456789',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Phone.getDescribe(),0)); // phone
+		System.assertNotEquals('',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0)); //  picklist
+		// no standard multipicklist field
+		System.assertEquals('test0',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.FirstName.getDescribe(),0));  // text
+		System.assertEquals('test0',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Description.getDescribe(),0)); // textarea
+		// no standard time field
+		System.assertEquals('http://test0.com',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Website.getDescribe(),0));
 		System.assertEquals(null,dvProvider.getDefaultValue(null,null,0));
 	}
 	@isTest static void getTypeDefaultValueTest(){
 		TDF.ADefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
 		System.assertEquals(Blob.valueOf('0'),dvProvider.getBase64DefaultValue(null,null,0));
-		System.assertEquals(true,dvProvider.getBooleanDefaultValue(null,null,0));
 		System.assertEquals('0',dvProvider.getComboboxDefaultValue(null,null,0));
+		System.assertNotEquals(null,dvProvider.getAddressDefaultValue(null,null,0));
+		System.assertEquals(null,dvProvider.getLookupDefaultValue(null,null,0));
+		System.assertEquals(true,dvProvider.getCheckboxDefaultValue(null,null,0));
 		System.assertEquals('0',dvProvider.getCurrencyDefaultValue(null,null,0));
 		System.assertEquals(Date.today(),dvProvider.getDateDefaultValue(null,null,0));
 		System.assertEquals(Datetime.now(),dvProvider.getDateTimeDefaultValue(null,null,0));
-		System.assertEquals(0,dvProvider.getDoubleDefaultValue(null,null,0));
 		System.assertEquals('test0@email.com',dvProvider.getEmailDefaultValue(null,null,0));
-		System.assertEquals(null,dvProvider.getIDDefaultValue(null,null,0));
-		System.assertEquals(0,dvProvider.getIntegerDefaultValue(null,null,0));
-		System.assertEquals(null,dvProvider.getMultiPicklistDefaultValue(null,null,0));
-		System.assertNotEquals('',dvProvider.getMultiPicklistDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0));
+		System.assertNotEquals(null,dvProvider.getGeolocationDefaultValue(null,null,0));
+		System.assertEquals(0,dvProvider.getNumberDefaultValue(null,null,0));
 		System.assertEquals(0,dvProvider.getPercentDefaultValue(null,null,0));
 		System.assertEquals('123456789',dvProvider.getPhoneDefaultValue(null,null,0));
 		System.assertEquals(null,dvProvider.getPicklistDefaultValue(null,null,0));
 		System.assertNotEquals('',dvProvider.getPicklistDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0));
-		System.assertEquals('test0',dvProvider.getStringDefaultValue(null,null,0));
+		System.assertEquals('test0',dvProvider.getTextDefaultValue(null,null,0));
+		System.assertEquals(null,dvProvider.getMultiPicklistDefaultValue(null,null,0));
+		System.assertNotEquals('',dvProvider.getMultiPicklistDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0));
+		System.assertEquals('test0',dvProvider.getTextDefaultValue(null,null,0));
 		System.assertEquals('test0',dvProvider.getTextAreaDefaultValue(null,null,0));
 		System.assertEquals(Time.newInstance(0, 0, 0, 0),dvProvider.getTimeDefaultValue(null,null,0));
 		System.assertEquals('http://test0.com',dvProvider.getURLDefaultValue(null,null,0));
