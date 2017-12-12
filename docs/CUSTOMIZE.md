@@ -20,7 +20,31 @@ Implement all the methods ``get{Type}DefaultValue``
   ...
   }
   ```
-  
+ 
+ Here is the list of support datatypes and the method that defines the default value for each type
+
+| Salesforce    Datatype | Method                       |
+|------------------------|------------------------------|
+| Base64                 | getBase64DefaultValue        |
+| Combobox               | getComboboxDefaultValue      |
+| Address                | getAddressDefaultValue       |
+| Reference              | getLookupDefaultValue        |
+| Checkbox               | getCheckboxDefaultValue      |
+| Currency               | getCurrencyDefaultValue      |
+| Date                   | getDateDefaultValue          |
+| DateTime               | getDateTimeDefaultValue      |
+| Email                  | getEmailDefaultValue         |
+| Geolocation            | getGeolocationDefaultValue   |
+| Number                 | getNumberDefaultValue        |
+| Percent                | getPercentDefaultValue       |
+| Phone                  | getPhoneDefaultValue         |
+| Picklist               | getPicklistDefaultValue      |
+| MultiPicklist          | getMultiPicklistDefaultValue |
+| Text                   | getTextDefaultValue          |
+| TextArea               | getTextAreaDefaultValue      |
+| Time                   | getTimeDefaultValue          |
+| URL                    | getURLDefaultValue           |
+ 
   Set the TDF value provider in your test class 
   
   ```apex
