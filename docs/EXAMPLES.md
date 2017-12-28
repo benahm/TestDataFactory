@@ -102,7 +102,7 @@ For example when creating a contact you can force the Test Data Factory to creat
 You can provide an Id for a required related sObject, to force the use of that Id and prevent the instantiation of the related sObject
   ```apex
   User u = (User)TDF.createSObject('User', new Map<String,Object>{
-    'ProfileId' => UserInfo.profileId()
+    'ProfileId' => UserInfo.getProfileId()
   });
   ```
 
@@ -124,7 +124,7 @@ Create 10 contact sObject instances
 The following code creates 10 users with different usernames and nicknames 
   ```apex
   List<User> uList = TDF.createSObjectList('User', new Map<String,Object>{
-    'ProfileId' => UserInfo.profileId(),
+    'ProfileId' => UserInfo.getProfileId(),
     'Username' => 'test{!index}@mytestdomain.developer',
     'CommunityNickname' => 'test{!index}'
   },10);
