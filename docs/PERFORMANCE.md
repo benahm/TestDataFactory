@@ -6,7 +6,7 @@ Performance tests executed in a Developer Org
 
 * Person Account is not enabled 
 
-**Note** : in an org where Person Account is enabled a SOQL query per transation is made by the TDF class to get the list of person account record types  
+**Note** : in an org where Person Account is enabled a SOQL query per transaction is made by the TDF class to get the list of person account record types  
 
 
 #### Test #1
