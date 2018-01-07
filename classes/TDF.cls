@@ -202,6 +202,7 @@ public class TDF {
 
 		/**
 		* @description get an sObject from the main list with a specific index
+		* @return SObject : sObject instance
 		*/
 		public SObject getSObject(Integer index){
 			if(index >= mainSObjectList.size() || index < 0) return null;
@@ -224,6 +225,7 @@ public class TDF {
 
 		/**
 		* @description get a related sObject with a specific index and relationship name
+		* @return SObject : sObject instance
 		*/
 		public SObject getRelationship(Integer index,String relationshipName){
 			List<SObject> relatedSObjList = relatedSObjMapList.get(relationshipName.toLowerCase());
@@ -298,6 +300,7 @@ public class TDF {
 
 		/**
 		* @description validate a list of sObjects before insert
+		* @return List<SObject> : list of sObject instances
 		*/
 		@testVisible
 		private List<sObject> validateList(String relationshipName, List<SObject> sObjList){
@@ -364,6 +367,7 @@ public class TDF {
 
 		/**
 		* @description Get SObject Manager instance
+	  * @return ISObjectManager : sObjectManager instance
 		*/
 		public ISObjectManager getSObjectManager(){
 			return sObjMgr;
@@ -419,7 +423,7 @@ public class TDF {
 
 		/**
 		* @description Initiate all the related sObjects for a given fully qualified relationship name
-		* @return SObject
+		* @return SObject : sObject instance
 		*/
 		@testVisible
 		private SObject getRelationshipInstance(Schema.SObjectType sObjectType,String fullyQualifiedRelationshipName, Integer index){
@@ -442,7 +446,7 @@ public class TDF {
 		}
 		/**
 		* @description get related sObject 
-		* @return SObject
+		* @return SObject : sObject instance
 		*/
 		@testVisible
 		private SObject getRelatedSObjectInstance(Schema.SObjectType sObjectType, String relationshipName, String prefix){
@@ -457,6 +461,7 @@ public class TDF {
 		}
 		/**
 		* @description put a related sObject to an sObject
+		* @return SObject : sObject instance
 		*/
 		@testVisible
 		private SObject putSObject(SObject sObj, String name, sObject value, String prefix){
@@ -469,6 +474,7 @@ public class TDF {
 		}		
 		/**
 		* @description put a field value to an sObject
+		* @return SObject : sObject instance
 		*/
 		@testVisible
 		private SObject putField(SObject sObj, String name, Object value, String prefix){
@@ -552,6 +558,7 @@ public class TDF {
 
 		/**
 		* @description get relationship names key set after a given prefix
+		* @return Set<String> : Set of relationship names
 		*/
 		@testVisible
 		private Set<String> getRelationshipKeySet(Set<String> keySetOverride, String prefix){
@@ -570,6 +577,7 @@ public class TDF {
 
 		/**
 		* @description Convert Map<String,Object> to Map<String,IFieldDefaultValue>
+		* @return Map<String,IFieldDefaultValue> : converted map
 		*/
 		@testVisible
 		private Map<String,IFieldDefaultValue> convertMap(Map<String,Object> mapValues){
@@ -588,6 +596,7 @@ public class TDF {
 
 		/**
 		* @description test if a field requires a default value
+		* @return Boolean : is default value required
 		*/
 		@testVisible
 		private Boolean defaultValueIsRequired(Schema.DescribeFieldResult fieldDesc){
@@ -647,6 +656,7 @@ public class TDF {
 		}
 		/**
 		* @description get the default value for a picklist
+		* @return String : picklist default value
 		*/
 		@testVisible
 		protected String getDefaultPicklistValue(Schema.DescribeFieldResult fieldDesc){
@@ -784,6 +794,10 @@ public class TDF {
 			this.fieldDesc = fieldDesc;
 		}
 
+		/**
+		* @description get encapsulated value
+		* @return Object : value
+		*/
 		public Object getValue(Integer counter){
 			if(value != null){
 				if(value instanceof String)
@@ -802,6 +816,7 @@ public class TDF {
 
 		/**
 		* @description get field name from a relationship name
+		* @return String : field name 
 		*/
 		public String relationshipToFieldName(String relationshipName){
 			String relationshipNameLowerCase = relationshipName.toLowerCase();
@@ -812,8 +827,9 @@ public class TDF {
 
 		/**
 		* @description merge value in a string
+		* @return String : merged value
 		*/
-		public Object mergeValue(String text, String name, String value){
+		public String mergeValue(String text, String name, String value){
 			if(text == null) return null;
 			String pattern = '(?i)\\{!'+name+'\\}';
 			return text.replaceAll(pattern,value);
@@ -821,6 +837,7 @@ public class TDF {
 
 		/**
 		* @description format an error message
+		* @return String : error message
 		*/
 		public String formatErrorMessage(String message, List<String> mergeValues, String originalMessage){
 			String errorMessage = String.format(message,mergeValues);
