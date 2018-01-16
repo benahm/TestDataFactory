@@ -25,33 +25,10 @@ public class TDF {
 
 	public static final IFieldDefaultValue DEFAULT_VALUE = new AutoFieldDefaultValue();
 	
-	private static ADefaultValueProvider dvProvider = new DefaultValueProvider();
+	private static DefaultValueProvider dvProvider = new DefaultValueProvider();
 
 	private static final Util util = new Util();
 	private static final String DOT = '.';
-
-	// sObjects That Don’t Support DML Operations => https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dml_non_dml_objects.htm
-	private static Set<String> ignoredSObjects = new Set<String>{
-								'AccountTerritoryAssignmentRule',
-								'AccountTerritoryAssignmentRuleItem',
-								'ApexComponent',
-								'ApexPage',
-								'BusinessHours',
-								'BusinessProcess',
-								'CategoryNode',
-								'CurrencyType',
-								'DatedConversionRate',
-								'NetworkMember',
-								'ProcessInstance',
-								'Profile',
-								'RecordType',
-								'SelfServiceUser',
-								'StaticResource',
-								'Territory2',
-								'UserAccountTeamMember',
-								'UserTerritory',
-								'WebLink'
-							};
 
 
 	/* ===========================  Properties =========================== */
@@ -75,68 +52,62 @@ public class TDF {
 
 	/**
 	 * @description create an sObject
+	 * @param sObjectName : name of the sObject
 	 * @return SObject : sObject instance
 	 */
 	public static SObject createSObject(String sObjectName){
-		return createSObject(globalDescribe.get(sObjectName));
+		return createSObject(sObjectName,new Map<String,Object>());
 	}
-	public static SObject createSObject(Schema.SObjectType sObjectType){
-		return createSObject(sObjectType,new Map<String,Object>());
-	}		
-	public static SObject createSObject(String sObjectName, Map<String,Object> mapValuesOverride){
-		return createSObject(globalDescribe.get(sObjectName),mapValuesOverride);
+
+	/**
+	 * @description create an sObject
+	 * @param sObjectName : name of the sObject
+	 * @param Map<String,Object> : map of values 
+	 * @return SObject : sObject instance
+	 */
+	public static SObject createSObject(String sObjectName, Map<String,Object> mapOfValuesOverride){
+		return createSObject(sObjectName,mapOfValuesOverride,false);
 	}
-	public static SObject createSObject(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride){
-		return createSObject(sObjectType,mapValuesOverride,false);
-	}	
 	public static SObject createSObject(String sObjectName, Boolean doInsert){
-		return createSObject(globalDescribe.get(sObjectName),doInsert);
+		return createSObject(sObjectName,new Map<String,Object>(),doInsert);
 	}
-	public static SObject createSObject(Schema.SObjectType sObjectType, Boolean doInsert){
-		return createSObjectList(sObjectType,new Map<String,Object>(),doInsert,1).get(0);
-	}	
-	public static SObject createSObject(String sObjectName, Map<String,Object> mapValuesOverride, Boolean doInsert){
-		return createSObject(globalDescribe.get(sObjectName),mapValuesOverride,doInsert);
-	}
-	public static SObject createSObject(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Boolean doInsert){
-		return createSObjectList(sObjectType,mapValuesOverride,doInsert,1).get(0);
+	public static SObject createSObject(String sObjectName, Map<String,Object> mapOfValuesOverride, Boolean doInsert){
+		return createSObjectList(sObjectName,mapOfValuesOverride,doInsert,1).get(0);
 	}
 	
 	/**
 	 * @description create a list of sObjects
+	 * @param sObjectName : name of the sObject
+	 * @param numberOfSObjects : number of sObjects
 	 * @return List<SObject> : list of sObject instances
 	 */
 	public static List<SObject> createSObjectList(String sObjectName, Integer numberOfSObjects){
-		return createSObjectList(globalDescribe.get(sObjectName),numberOfSObjects);
+		return createSObjectList(sObjectName,new Map<String,Object>(),numberOfSObjects);
 	}		
-	public static List<SObject> createSObjectList(Schema.SObjectType sObjectType, Integer numberOfSObjects){
-		return createSObjectList(sObjectType,new Map<String,Object>(),numberOfSObjects);
+	/**
+	 * @description create a list of sObjects
+	 * @param sObjectName : name of the sObject
+	 * @param Map<String,Object> : map of values
+	 * @param numberOfSObjects : number of sObjects
+	 * @return List<SObject> : list of sObject instances
+	 */
+	public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Integer numberOfSObjects){
+		return createSObjectList(sObjectName,mapOfValuesOverride,false,numberOfSObjects);
 	}	
-	public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapValuesOverride, Integer numberOfSObjects){
-		return createSObjectList(globalDescribe.get(sObjectName),mapValuesOverride,numberOfSObjects);
-	}	
-	public static List<SObject> createSObjectList(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Integer numberOfSObjects){
-		return createSObjectList(sObjectType,mapValuesOverride,false,numberOfSObjects);
-	}
 	public static List<SObject> createSObjectList(String sObjectName, Boolean doInsert, Integer numberOfSObjects){
-		return createSObjectList(globalDescribe.get(sObjectName),doInsert,numberOfSObjects);
+		return createSObjectList(sObjectName,new Map<String,Object>(),doInsert,numberOfSObjects);
 	}
-	public static List<SObject> createSObjectList(Schema.SObjectType sObjectType, Boolean doInsert, Integer numberOfSObjects){
-		return createSObjectList(sObjectType,new Map<String,Object>(),doInsert,numberOfSObjects);
-	}
-	public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapValuesOverride, Boolean doInsert, Integer numberOfSObjects){
-		return createSObjectList(globalDescribe.get(sObjectName),mapValuesOverride,doInsert,numberOfSObjects);
-	}
-	public static List<SObject> createSObjectList(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride, Boolean doInsert, Integer numberOfSObjects){
+	public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Boolean doInsert, Integer numberOfSObjects){
+		Schema.SObjectType sObjectType = globalDescribe.get(sObjectName); 
 		ISObjectFactory sObjFactory = new SObjectFactory(sObjectType);
-		List<SObject> listSObjectInstance = sObjFactory.getListSObjectInstance(mapValuesOverride, doInsert, numberOfSObjects);
+		List<SObject> listSObjectInstance = sObjFactory.getListSObjectInstance(mapOfValuesOverride, doInsert, numberOfSObjects);
 		return listSObjectInstance;
 	}
 
 	/**
 	 * @description set the default value provider 
 	 */
-	public static void setDefaultValueProvider(ADefaultValueProvider dvProviderOverride){
+	public static void setDefaultValueProvider(DefaultValueProvider dvProviderOverride){
 		if(dvProviderOverride != null)
 			dvProvider = dvProviderOverride;
 	}
@@ -339,8 +310,8 @@ public class TDF {
 	*/
 	public interface ISObjectFactory{
 		ISObjectManager getSObjectManager();
-		SObject getSObjectInstance(Map<String,Object> mapValuesOverride, Boolean doInsert);
-		List<SObject> getListSObjectInstance(Map<String,Object> mapValuesOverride, Boolean doInsert, Integer numberOfSObjects);
+		SObject getSObjectInstance(Map<String,Object> mapOfValuesOverride, Boolean doInsert);
+		List<SObject> getListSObjectInstance(Map<String,Object> mapOfValuesOverride, Boolean doInsert, Integer numberOfSObjects);
 	}
 
 	/**
@@ -354,7 +325,6 @@ public class TDF {
 
 		// Error Messages 
 		private String ERR_NOT_FOUND_SOBJECT = 'Unable to find the sObject';
-		private String ERR_UNSUPPORTED_SOBJECT = 'DML Operations are not supported on "{0}"';
 		private String ERR_FIELD_NOT_EXIST = 'The field "{0}" does not exist on "{1} or the value type provided is incorrect"';
 		private String ERR_RELATIONSHIP_NOT_EXIST = 'The relationship "{0}" does not exist on "{1}"';
 
@@ -377,20 +347,20 @@ public class TDF {
 		* @description Generate an sObject instance
 		* @return SObject : sObject instance
 		*/
-		public SObject getSObjectInstance(Map<String,Object> mapValuesOverride, Boolean doInsert){
-			return getListSObjectInstance(mapValuesOverride,doInsert,1).get(0);
+		public SObject getSObjectInstance(Map<String,Object> mapOfValuesOverride, Boolean doInsert){
+			return getListSObjectInstance(mapOfValuesOverride,doInsert,1).get(0);
 		}
 
 		/**
 		* @description Generate a list of sObject instances
 		* @return List<SObject> : list of sObject instances
 		*/
-		public List<SObject> getListSObjectInstance(Map<String,Object> mapValuesOverride, Boolean doInsert, Integer numberOfSObjects){
-			Map<String,IFieldDefaultValue> mapValues = dvProvider.getDefaultMap(sObjectType,mapValuesOverride);
+		public List<SObject> getListSObjectInstance(Map<String,Object> mapOfValuesOverride, Boolean doInsert, Integer numberOfSObjects){
+			Map<String,IFieldDefaultValue> mapOfValues = dvProvider.getDefaultMap(sObjectType,mapOfValuesOverride);
 
 			for(Integer i = 0; i < numberOfSObjects; i++) {
 				sObjMgr.setSObject(i,sObjectType.newSObject()); 
-				initSObjectInstance(mapValues,i);
+				initSObjectInstance(mapOfValues,i);
 			}
 
 			if(doInsert) sObjMgr.insertAll();
@@ -401,9 +371,9 @@ public class TDF {
 		/**
 		* @description Initiate an sObject
 		*/
-		private void initSObjectInstance(Map<String,IFieldDefaultValue> mapValues, Integer counter){
+		private void initSObjectInstance(Map<String,IFieldDefaultValue> mapOfValues, Integer counter){
 			String sObjectName = sObjectType.getDescribe().getName();
-			for(String fullyQualifiedFieldName : mapValues.keySet()){
+			for(String fullyQualifiedFieldName : mapOfValues.keySet()){
 
 				String fieldName = (DOT+fullyQualifiedFieldName).substringAfterLast(DOT);
 				if(fullyQualifiedFieldName.contains(DOT)){ // field with dot notation
@@ -411,11 +381,11 @@ public class TDF {
 					String firstRelationshipName = fullyQualifiedFieldName.substringBefore(DOT);
 					String fullyQualifiedRelationshipName = fullyQualifiedFieldName.substringBeforeLast(DOT);
 					SObject relatedSObj = getRelationshipInstance(sObjectType,fullyQualifiedRelationshipName,counter);
-					putField(relatedSObj,fieldName,mapValues.get(fullyQualifiedFieldName).getValue(counter),sObjectName+DOT+fullyQualifiedRelationshipName);
+					putField(relatedSObj,fieldName,mapOfValues.get(fullyQualifiedFieldName).getValue(counter),sObjectName+DOT+fullyQualifiedRelationshipName);
 					putSObject(sObjMgr.getSObject(counter),firstRelationshipName,sObjMgr.getRelationship(counter,firstRelationshipName),sObjectName);
 
 				}else { // field name
-					putField(sObjMgr.getSObject(counter),fieldName,mapValues.get(fieldName).getValue(counter),sObjectName);
+					putField(sObjMgr.getSObject(counter),fieldName,mapOfValues.get(fieldName).getValue(counter),sObjectName);
 				}
 
 			}
@@ -450,10 +420,10 @@ public class TDF {
 		*/
 		@testVisible
 		private SObject getRelatedSObjectInstance(Schema.SObjectType sObjectType, String relationshipName, String prefix){
-			Map<String, Schema.SObjectField> fieldMap = sObjectType.getDescribe().fields.getMap();
+			Map<String, Schema.SObjectField> fieldsMap = sObjectType.getDescribe().fields.getMap();
 			Schema.DescribeFieldResult fieldDesc;
 			try{
-				fieldDesc = fieldMap.get(util.relationshipToFieldName(relationshipName)).getDescribe();
+				fieldDesc = fieldsMap.get(util.relationshipToFieldName(relationshipName)).getDescribe();
 			}catch(Exception e){
 				throw new TestDataFactoryException(util.formatErrorMessage(ERR_RELATIONSHIP_NOT_EXIST,new List<String>{relationshipName,prefix},e.getMessage()));
 			}
@@ -492,9 +462,6 @@ public class TDF {
 		private void validateSObjectType(Schema.SObjectType sObjectType){
 			if(sObjectType == null) 
 				throw new TestDataFactoryException(util.formatErrorMessage(ERR_NOT_FOUND_SOBJECT,new List<String>{},''));
-			String sObjectName = sObjectType.getDescribe().getName();
-			if(ignoredSObjects.contains(sObjectName)) 
-				throw new TestDataFactoryException(util.formatErrorMessage(ERR_UNSUPPORTED_SOBJECT,new List<String>{sObjectName},''));
 		}
 
 	}
@@ -503,61 +470,90 @@ public class TDF {
 	* @description interface IDefaultValueProvider
 	*/
 	public interface IDefaultValueProvider{
-		Map<String,IFieldDefaultValue> getDefaultMap(Schema.SObjectType sObjectType, Map<String,Object> mapValuesOverride);
+		Map<String,IFieldDefaultValue> getDefaultMap(Schema.SObjectType sObjectType, Map<String,Object> mapOfValuesOverride);
 		Object getDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter);
 	}
 
 	/**
-	* @description abstract class ADefaultValueProvider
+	* @description virtual class DefaultValueProvider
 	*/
-	public abstract class ADefaultValueProvider implements IDefaultValueProvider{
+	public virtual class DefaultValueProvider implements IDefaultValueProvider{
 
 		/**
 		* @description get the default map values
+		* @param Schema.SObjectType : sObject Type
+		* @param Map<String,Object> : mapOfValuesOverride
 		* @return Map<String,IFieldDefaultValue> : map values
 		*/
-		public Map<String,IFieldDefaultValue> getDefaultMap(Schema.SObjectType sObjectType, Map<String,Object> mapValues){
-			if(mapValues == null)
-				return getDefaultMap(sObjectType,new Map<String,IFieldDefaultValue>(),'');
-			return getDefaultMap(sObjectType,new Map<String,IFieldDefaultValue>(convertMap(mapValues)),'');
+		public Map<String,IFieldDefaultValue> getDefaultMap(Schema.SObjectType sObjectType, Map<String,Object> mapOfValuesOverride){
+			Map<String,IFieldDefaultValue> mapOfValues = new Map<String,IFieldDefaultValue>(convertMap(mapOfValuesOverride));
+			generateDefaultMap(sObjectType,mapOfValues,'');
+			return mapOfValues;
 		}
+
+		/**
+		* @description generate the default map values
+		* @param Schema.SObjectType : sObject Type
+		* @param Map<String,Object> : mapOfValuesOverride
+		* @param String : prefix (example : Contact.Account.)
+		* @return Map<String,IFieldDefaultValue> : map values
+		*/
 		@testVisible
-		private Map<String,IFieldDefaultValue> getDefaultMap(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapValues, String prefix){
-			Map<String, Schema.SObjectField> fieldMap = sObjectType.getDescribe().fields.getMap();
-			String prefixLowerCase = prefix.toLowerCase();
-			Schema.DescribeFieldResult fieldDesc;
-			Set<String> keySetOverride = mapValues.keySet();
-			Set<String> relationshipKeySet = getRelationshipKeySet(keySetOverride,prefixLowerCase);
-			for(String fieldName : fieldMap.keySet()){
-				fieldDesc = fieldMap.get(fieldName).getDescribe();
-				String fullyQualifiedFieldName = prefixLowerCase+fieldName.toLowerCase();
-				Object initialFieldValue = mapValues.get(fullyQualifiedFieldName);
-				if(initialFieldValue != null){
-					if(initialFieldValue instanceof AutoFieldDefaultValue) {
-							mapValues.put(fullyQualifiedFieldName,new FieldDefaultValue(sObjectType.getDescribe(),fieldDesc));
+		private void generateDefaultMap(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapOfValues, String prefix){
+			Schema.DescribeSObjectResult sObjectDesc = sObjectType.getDescribe();
+			Map<String, Schema.SObjectField> fieldsMap = sObjectDesc.fields.getMap(); // get the fields map
+			Set<String> keySetOverride = mapOfValues.keySet();
+			Set<String> relationshipKeySet = getRelationshipKeySet(keySetOverride,prefix);
+			// loop through fields map
+			for(String fieldName : fieldsMap.keySet()){
+				Schema.DescribeFieldResult fieldDesc = fieldsMap.get(fieldName).getDescribe(); // get field describe
+				String fullyQualifiedFieldName = prefix+fieldName.toLowerCase();
+				Object overrideFieldValue = mapOfValues.get(fullyQualifiedFieldName);
+				if(overrideFieldValue != null){ // override value provided in mapOfValues
+					if(overrideFieldValue instanceof AutoFieldDefaultValue) { // auto generate a field value
+							if(fieldDesc.getRelationshipName() == null){ // field
+								mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(sObjectDesc,fieldDesc));
+							}else { // relationship
+								putRelationship(mapOfValues,fieldDesc,prefix);
+								mapOfValues.remove(fullyQualifiedFieldName);
+							} 
 					}
-				}else {
+				}else { // no override value provided
 					Boolean defaultValueIsRequired = defaultValueIsRequired(fieldDesc);
 					if(fieldDesc.getRelationshipName() == null){ // field
 						if(defaultValueIsRequired)
-							mapValues.put(fullyQualifiedFieldName,new FieldDefaultValue(sObjectType.getDescribe(),fieldDesc));
+							mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(sObjectDesc,fieldDesc));
 					}else { // relationship
-						if(defaultValueIsRequired || relationshipKeySet.contains((fieldDesc.getRelationshipName()+'').toLowerCase())){
-							String fullyQualifiedRelationshipName = prefixLowerCase+fieldDesc.getRelationshipName().toLowerCase();
-							SObjectType refSObjectType = fieldDesc.getReferenceTo().get(0);
-							if(!ignoredSObjects.contains(refSObjectType.getDescribe().getName())){
-								mapValues.put(fullyQualifiedRelationshipName+DOT+'id',new FieldDefaultValue(null));
-								getDefaultMap(refSObjectType,mapValues,fullyQualifiedRelationshipName+DOT);
-							}
+						String relationshipName = fieldDesc.getRelationshipName().toLowerCase();
+						if(defaultValueIsRequired || relationshipKeySet.contains(relationshipName)){ // relationship required or mentioned in the mapOfValues
+							putRelationship(mapOfValues,fieldDesc,prefix);
 						}
 					}
 				}
 			}
-			return mapValues;
 		}
 
 		/**
-		* @description get relationship names key set after a given prefix
+		* @description put a relationship to the mapOfValues
+		* @param Map<String,IFieldDefaultValue> : map of values
+		* @return Schema.DescribeFieldResult : field describe
+		* @param String : prefix (example : Contact.Account.)
+		*/
+		@testVisible
+		private void putRelationship(Map<String,IFieldDefaultValue> mapOfValues, Schema.DescribeFieldResult fieldDesc, String prefix){
+			String relationshipName = fieldDesc.getRelationshipName().toLowerCase();
+			String fullyQualifiedRelationshipName = prefix+relationshipName;
+			// at least add (fullyQualifiedRelationshipName.id,null) to force the instantiation of the related sObject
+			mapOfValues.put(fullyQualifiedRelationshipName+DOT+'id',new FieldDefaultValue(null));
+			SObjectType refSObjectType = fieldDesc.getReferenceTo().get(0);
+			// generate a map for the related sObject
+			generateDefaultMap(refSObjectType,mapOfValues,fullyQualifiedRelationshipName+DOT);
+		}
+
+		/**
+		* @description get relationship names keyset that starts with a given prefix
+		* @param Set<String> : keySet of fully qualified field names
+		* @param String : prefix (example : Contact.Account.)
 		* @return Set<String> : Set of relationship names
 		*/
 		@testVisible
@@ -577,14 +573,16 @@ public class TDF {
 
 		/**
 		* @description Convert Map<String,Object> to Map<String,IFieldDefaultValue>
+		* @param Map<String,Object> mapOfValues : map of values
 		* @return Map<String,IFieldDefaultValue> : converted map
 		*/
 		@testVisible
-		private Map<String,IFieldDefaultValue> convertMap(Map<String,Object> mapValues){
+		private Map<String,IFieldDefaultValue> convertMap(Map<String,Object> mapOfValues){
 			Map<String,IFieldDefaultValue> convertedMap = new Map<String,IFieldDefaultValue>();
-			for(String name : mapValues.keySet()){
+			if(mapOfValues == null) return convertedMap;
+			for(String name : mapOfValues.keySet()){
 				if(name != null){
-					Object value = mapValues.get(name);
+					Object value = mapOfValues.get(name);
 					if(value instanceof IFieldDefaultValue)
 							convertedMap.put(name.trim().toLowerCase(),(IFieldDefaultValue)value);
 					else 
@@ -596,6 +594,7 @@ public class TDF {
 
 		/**
 		* @description test if a field requires a default value
+		* @param Schema.DescribeFieldResult : field describe
 		* @return Boolean : is default value required
 		*/
 		@testVisible
@@ -656,6 +655,7 @@ public class TDF {
 		}
 		/**
 		* @description get the default value for a picklist
+		* @param Schema.DescribeFieldResult : field description
 		* @return String : picklist default value
 		*/
 		@testVisible
@@ -667,94 +667,67 @@ public class TDF {
 				        return pickVal.getValue();
 				    }    
 				}
-				// if no default value is set
+				// if no default value is set, return the first value
 				return pickVals.get(0).getValue();
 			}
 			return null;
 		}
 
-		public abstract Blob getBase64DefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getComboboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Address getAddressDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract ID getLookupDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Boolean getCheckboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getCurrencyDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Date getDateDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Datetime getDateTimeDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Location getGeolocationDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Decimal getNumberDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Decimal getPercentDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getPhoneDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getTextDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getTextAreaDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract Time getTimeDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-		public abstract String getURLDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Integer counter);
-	}
-
-	/**
-	* @description class DefaultValueProvider
-	*/
-	@testVisible
-	private class DefaultValueProvider extends ADefaultValueProvider{
-
-		public override Blob getBase64DefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual Blob getBase64DefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return Blob.valueOf(counter.format());
 		}
-		public override String getComboboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual String getComboboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return counter.format();
 		}
-		public override Address getAddressDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual Address getAddressDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return new Address();
 		}		
-		public override ID getLookupDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual ID getLookupDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return null;
 		}
-		public override Boolean getCheckboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual Boolean getCheckboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return true;
 		}
-		public override String getCurrencyDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual String getCurrencyDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return counter.format();
 		}
-		public override Date getDateDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual Date getDateDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return Date.today();
 		}
-		public override Datetime getDateTimeDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual Datetime getDateTimeDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return DateTime.now();
 		}
-		public override String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return 'test'+counter.format()+'@email.com';
 		}
-		public override Location getGeolocationDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual Location getGeolocationDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return Location.newInstance(0,0);
 		}
-		public override Decimal getNumberDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual Decimal getNumberDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return counter;
 		}
-		public override Decimal getPercentDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual Decimal getPercentDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return counter;
 		}
-		public override String getPhoneDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual String getPhoneDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return '123456789';
 		}
-		public override String getPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual String getPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return getDefaultPicklistValue(fieldDesc);
 		}
-		public override String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return getDefaultPicklistValue(fieldDesc);
 		}
-		public override String getTextDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual String getTextDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return 'test'+counter.format();
 		}
-		public override String getTextAreaDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual String getTextAreaDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return 'test'+counter.format();
 		}
-		public override Time getTimeDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual Time getTimeDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return Time.newInstance(0, 0, 0, 0);
 		}
-		public override String getURLDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		public virtual String getURLDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return 'http://test' + counter + '.com';
 		}
 	}
