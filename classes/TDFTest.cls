@@ -504,9 +504,6 @@ private class TDFTest {
 	@isTest static void getDefaultValueTest(){
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
 		System.assertEquals(Blob.valueOf('0'),dvProvider.getDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.Body.getDescribe(),0)); // base64
-		System.assertEquals('0',dvProvider.getDefaultValue(Event.SObjectType.getDescribe(),Event.fields.Subject.getDescribe(),0)); // combobox
-		System.assertNotEquals(null,dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.BillingAddress.getDescribe(),0)); // address
-		System.assertEquals(null,dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.AccountId.getDescribe(),0)); // lookup
  		System.assertEquals(true,dvProvider.getDefaultValue(Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe(),0)); // checkbox
 		System.assertEquals('0',dvProvider.getDefaultValue(Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe(),0)); // currency
 		System.assertEquals(Date.today(),dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe(),0)); // date
@@ -528,9 +525,6 @@ private class TDFTest {
 	@isTest static void getTypeDefaultValueTest(){
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
 		System.assertEquals(Blob.valueOf('0'),dvProvider.getBase64DefaultValue(null,null,0));
-		System.assertEquals('0',dvProvider.getComboboxDefaultValue(null,null,0));
-		System.assertNotEquals(null,dvProvider.getAddressDefaultValue(null,null,0));
-		System.assertEquals(null,dvProvider.getLookupDefaultValue(null,null,0));
 		System.assertEquals(true,dvProvider.getCheckboxDefaultValue(null,null,0));
 		System.assertEquals('0',dvProvider.getCurrencyDefaultValue(null,null,0));
 		System.assertEquals(Date.today(),dvProvider.getDateDefaultValue(null,null,0));
@@ -567,32 +561,30 @@ private class TDFTest {
 		System.assertEquals(Blob.valueOf('0'),fieldDV3.getValue(0));		
 		TDF.IFieldDefaultValue fieldDV4 = new TDF.FieldDefaultValue(Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe());
 		System.assertEquals(true,fieldDV4.getValue(0));
-		TDF.IFieldDefaultValue fieldDV5 = new TDF.FieldDefaultValue(Event.SObjectType.getDescribe(),Event.fields.Subject.getDescribe());
+		TDF.IFieldDefaultValue fieldDV5 = new TDF.FieldDefaultValue(Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe());
 		System.assertEquals('0',fieldDV5.getValue(0));
-		TDF.IFieldDefaultValue fieldDV6 = new TDF.FieldDefaultValue(Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe());
-		System.assertEquals('0',fieldDV6.getValue(0));
-		TDF.IFieldDefaultValue fieldDV7 = new TDF.FieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe());
-		System.assertEquals(Date.today(),fieldDV7.getValue(0));
-		TDF.IFieldDefaultValue fieldDV8 = new TDF.FieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.CreatedDate.getDescribe());
-		System.assertEquals(Datetime.now(),fieldDV8.getValue(0));
-		TDF.IFieldDefaultValue fieldDV9 = new TDF.FieldDefaultValue(Asset.SObjectType.getDescribe(),Asset.fields.Quantity.getDescribe());
-		System.assertEquals(0,fieldDV9.getValue(0));
-		TDF.IFieldDefaultValue fieldDV10 = new TDF.FieldDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe());
-		System.assertEquals('test0@email.com',fieldDV10.getValue(0));
-		TDF.IFieldDefaultValue fieldDV11 = new TDF.FieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Id.getDescribe());
-		System.assertEquals(null,fieldDV11.getValue(0));
-		TDF.IFieldDefaultValue fieldDV12 = new TDF.FieldDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.BodyLength.getDescribe());
+		TDF.IFieldDefaultValue fieldDV6 = new TDF.FieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe());
+		System.assertEquals(Date.today(),fieldDV6.getValue(0));
+		TDF.IFieldDefaultValue fieldDV7 = new TDF.FieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.CreatedDate.getDescribe());
+		System.assertEquals(Datetime.now(),fieldDV7.getValue(0));
+		TDF.IFieldDefaultValue fieldDV8 = new TDF.FieldDefaultValue(Asset.SObjectType.getDescribe(),Asset.fields.Quantity.getDescribe());
+		System.assertEquals(0,fieldDV8.getValue(0));
+		TDF.IFieldDefaultValue fieldDV9 = new TDF.FieldDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe());
+		System.assertEquals('test0@email.com',fieldDV9.getValue(0));
+		TDF.IFieldDefaultValue fieldDV10 = new TDF.FieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Id.getDescribe());
+		System.assertEquals(null,fieldDV10.getValue(0));
+		TDF.IFieldDefaultValue fieldDV11 = new TDF.FieldDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.BodyLength.getDescribe());
+		System.assertEquals(0,fieldDV11.getValue(0));
+		TDF.IFieldDefaultValue fieldDV12 = new TDF.FieldDefaultValue(Opportunity.SObjectType.getDescribe(),Opportunity.fields.Probability.getDescribe());
 		System.assertEquals(0,fieldDV12.getValue(0));
-		TDF.IFieldDefaultValue fieldDV13 = new TDF.FieldDefaultValue(Opportunity.SObjectType.getDescribe(),Opportunity.fields.Probability.getDescribe());
-		System.assertEquals(0,fieldDV13.getValue(0));
-		TDF.IFieldDefaultValue fieldDV14 = new TDF.FieldDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Phone.getDescribe());
-		System.assertEquals('123456789',fieldDV14.getValue(0));
-		TDF.IFieldDefaultValue fieldDV15 = new TDF.FieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe());
-		System.assertNotEquals('',fieldDV15.getValue(0));
-		TDF.IFieldDefaultValue fieldDV16 = new TDF.FieldDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.FirstName.getDescribe());
+		TDF.IFieldDefaultValue fieldDV13 = new TDF.FieldDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Phone.getDescribe());
+		System.assertEquals('123456789',fieldDV13.getValue(0));
+		TDF.IFieldDefaultValue fieldDV14 = new TDF.FieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe());
+		System.assertNotEquals('',fieldDV14.getValue(0));
+		TDF.IFieldDefaultValue fieldDV15 = new TDF.FieldDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.FirstName.getDescribe());
+		System.assertEquals('test0',fieldDV15.getValue(0));
+		TDF.IFieldDefaultValue fieldDV16 = new TDF.FieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Description.getDescribe());
 		System.assertEquals('test0',fieldDV16.getValue(0));
-		TDF.IFieldDefaultValue fieldDV17 = new TDF.FieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Description.getDescribe());
-		System.assertEquals('test0',fieldDV17.getValue(0));
 	}
 
 	/************************* Util tests *************************/
