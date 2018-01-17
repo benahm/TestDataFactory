@@ -48,13 +48,9 @@
 
 #### Create a single sObject:
 
-##### Create an sObject using the sObject name or the sObject type
+##### Create an sObject
   ```apex
-  // Using sObject name
   Contact con = (Contact)TDF.createSObject('Contact');
-  
-  // Using sObject Type
-  Contact con = (Contact)TDF.createSObject(Contact.SObjectType);
   ```
 
 ##### Create an sObject by providing a map to assign values to fields in the main and the related sObjects
