@@ -191,6 +191,7 @@ public class TDF {
 
 		/**
 		* @description get the main sObject list
+		* @return List<SObject> : list of sObject instances
 		*/
 		public List<SObject> getMainSObjectList(){
 			return mainSObjectList;
@@ -256,6 +257,7 @@ public class TDF {
 			for(Integer i = 0; i < orderedRelationshipList.size(); i++){
 				String relationshipName = orderedRelationshipList.get(i);
 				List<SObject> sObjParentList = relatedSObjMapList.get(relationshipName);
+				// insert parent sObject list
 				insertList(DOT+relationshipName,validateList(relationshipName,sObjParentList));
 				if(relationshipName.contains(DOT)){
 					String childRelationshipName = relationshipName.substringBeforeLast(DOT);
@@ -267,7 +269,7 @@ public class TDF {
 					setChildParentRelationship(mainSObjectList,sObjParentList,relationshipName);
 				}
 			}
-
+			// insert main sObject list
 			insertList('',validateList('',mainSObjectList));
 		}
 
@@ -329,7 +331,7 @@ public class TDF {
 		* @return List<SObject> : list of sObject instances
 		*/
 		@testVisible
-		// @todo : review the generate of default value for lastname & name , write test classes
+		// @todo : review the generation of default value for lastname & name , write test classes
 		private List<sObject> validateList(String relationshipName, List<SObject> sObjList){
 			Integer counter = 0;
 			for(SObject sObj : sObjList){
@@ -401,6 +403,8 @@ public class TDF {
 
 		/**
 		* @description Generate an sObject instance
+		* @param Map<String,Object> : map of values
+		* @param Boolean : doInsert flag
 		* @return SObject : sObject instance
 		*/
 		public SObject getSObjectInstance(Map<String,Object> mapOfValuesOverride, Boolean doInsert){
@@ -409,17 +413,19 @@ public class TDF {
 
 		/**
 		* @description Generate a list of sObject instances
+		* @param Map<String,Object> : map of values
+		* @param Boolean : doInsert flag
+		* @param Integer : number of sObjects
 		* @return List<SObject> : list of sObject instances
 		*/
 		public List<SObject> getListSObjectInstance(Map<String,Object> mapOfValuesOverride, Boolean doInsert, Integer numberOfSObjects){
 			Map<String,IFieldDefaultValue> mapOfValues = dvProvider.getDefaultMap(sObjectType,mapOfValuesOverride);
 
 			for(Integer i = 0; i < numberOfSObjects; i++) {
-				sObjMgr.setSObject(i,sObjectType.newSObject()); 
-				initSObjectInstance(mapOfValues,i);
+				initSObjectInstance(mapOfValues,i); // init sObject instance
 			}
 
-			if(doInsert) sObjMgr.insertAll();
+			if(doInsert) sObjMgr.insertAll(); // insert all if doInsert = true
 
 			return sObjMgr.getMainSObjectList();
 		}
@@ -431,6 +437,8 @@ public class TDF {
 		*/
 		private void initSObjectInstance(Map<String,IFieldDefaultValue> mapOfValues, Integer counter){
 			String sObjectName = sObjectType.getDescribe().getName();
+			sObjMgr.setSObject(counter,sObjectType.newSObject()); 
+
 			for(String fullyQualifiedFieldName : mapOfValues.keySet()){
 
 				String fieldName = (DOT+fullyQualifiedFieldName).substringAfterLast(DOT);
@@ -451,6 +459,9 @@ public class TDF {
 
 		/**
 		* @description Initiate all the related sObjects for a given fully qualified relationship name
+		* @param Schema.SObjectType : sObject Type
+		* @param String : fully qualified relationship name
+		* @param Integer : index 
 		* @return SObject : sObject instance
 		*/
 		@testVisible
@@ -474,6 +485,9 @@ public class TDF {
 		}
 		/**
 		* @description get related sObject 
+		* @param Schema.SObjectType : sObjectType
+		* @param String : relationship name
+		* @param String : prefix (example : Contact.Account)
 		* @return SObject : sObject instance
 		*/
 		@testVisible
@@ -489,32 +503,41 @@ public class TDF {
 		}
 		/**
 		* @description put a related sObject to an sObject
+		* @param SObject : sObject instance
+		* @param String : sObject name
+		* @param String : value
+		* @param String : prefix (example : Contact.Account)
 		* @return SObject : sObject instance
 		*/
 		@testVisible
-		private SObject putSObject(SObject sObj, String name, sObject value, String prefix){
+		private SObject putSObject(SObject sObj, String sObjectName, sObject value, String prefix){
 			try{
-				sObj.putSObject(name,value);
+				sObj.putSObject(sObjectName,value);
 			}catch(Exception e){
-				throw new TestDataFactoryException(util.formatErrorMessage(ERR_RELATIONSHIP_NOT_EXIST,new List<String>{name,prefix},e.getMessage()));
+				throw new TestDataFactoryException(util.formatErrorMessage(ERR_RELATIONSHIP_NOT_EXIST,new List<String>{sObjectName,prefix},e.getMessage()));
 			}
 			return sObj;
 		}		
 		/**
 		* @description put a field value to an sObject
+		* @param SObject : sObject instance
+		* @param String : field name
+		* @param String : value
+		* @param String : prefix (example : Contact.Account)
 		* @return SObject : sObject instance
 		*/
 		@testVisible
-		private SObject putField(SObject sObj, String name, Object value, String prefix){
+		private SObject putField(SObject sObj, String fieldName, Object value, String prefix){
 			try{
-				sObj.put(name,value);
+				sObj.put(fieldName,value);
 			}catch(Exception e){
-				throw new TestDataFactoryException(util.formatErrorMessage(ERR_FIELD_NOT_EXIST,new List<String>{name,prefix},e.getMessage()));
+				throw new TestDataFactoryException(util.formatErrorMessage(ERR_FIELD_NOT_EXIST,new List<String>{fieldName,prefix},e.getMessage()));
 			}
 			return sObj;
 		}
 		/**
 		* @description validate sObjectType
+		* @param SObjectType : sObject type
 		*/
 		@testVisible
 		private void validateSObjectType(Schema.SObjectType sObjectType){
@@ -601,7 +624,9 @@ public class TDF {
 			String relationshipName = fieldDesc.getRelationshipName().toLowerCase();
 			String fullyQualifiedRelationshipName = prefix+relationshipName;
 			// at least add (fullyQualifiedRelationshipName.id,null) to force the instantiation of the related sObject
+			// in case it has no required field
 			mapOfValues.put(fullyQualifiedRelationshipName+DOT+'id',new FieldDefaultValue(null));
+			// get the related sObject instance
 			SObjectType refSObjectType = fieldDesc.getReferenceTo().get(0);
 			// generate a map for the related sObject
 			generateDefaultMap(refSObjectType,mapOfValues,fullyQualifiedRelationshipName+DOT);
@@ -618,10 +643,13 @@ public class TDF {
 			if(keySetOverride == null || prefix == null) return null;
 			Set<String> relationshipKeySet = new Set<String>();
 			String prefixLowerCase = prefix.toLowerCase();
+			// loop through the keySet
 			for(String fullyQualifiedFieldName : keySetOverride){
 				fullyQualifiedFieldName = fullyQualifiedFieldName.toLowerCase();
-				if(fullyQualifiedFieldName.startsWith(prefixLowerCase)){
-					if(fullyQualifiedFieldName.substringAfter(prefixLowerCase).contains(DOT)) 
+				if(fullyQualifiedFieldName.startsWith(prefixLowerCase)){ // starts with the prefix
+					String fullyQualifiedFieldNameAfterPrefix = fullyQualifiedFieldName.substringAfter(prefixLowerCase)+'';
+					if(fullyQualifiedFieldNameAfterPrefix.contains(DOT)) // if there a relationship after the prefix
+						// add the relationship contained just after the prefix
 						relationshipKeySet.add(fullyQualifiedFieldName.substringBetween(prefixLowerCase,DOT));
 				}
 			}
@@ -676,12 +704,6 @@ public class TDF {
 				// DisplayType Enum -> https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_enum_Schema_DisplayType.htm
 				if(fieldDesc.getType() == Schema.DisplayType.Base64){
 					return getBase64DefaultValue(sObjectDesc,fieldDesc,counter);
-				} else if(fieldDesc.getType() == Schema.DisplayType.Combobox){
-					return getComboboxDefaultValue(sObjectDesc,fieldDesc,counter);
-				} else if(fieldDesc.getType() == Schema.DisplayType.Address){
-					return getAddressDefaultValue(sObjectDesc,fieldDesc,counter);
-				}else if(fieldDesc.getType() == Schema.DisplayType.Reference){
-					return getLookupDefaultValue(sObjectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Boolean){
 					return getCheckboxDefaultValue(sObjectDesc,fieldDesc,counter);
 				} else if(fieldDesc.getType() == Schema.DisplayType.Currency){
@@ -736,18 +758,10 @@ public class TDF {
 			return null;
 		}
 
+		/* ===========================  virtual methods  =========================== */
 		public virtual Blob getBase64DefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return Blob.valueOf(counter.format());
-		}
-		public virtual String getComboboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
-			return counter.format();
-		}
-		public virtual Address getAddressDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
-			return new Address();
-		}		
-		public virtual ID getLookupDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
-			return null;
-		}
+		}	
 		public virtual Boolean getCheckboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 			return true;
 		}
@@ -803,10 +817,15 @@ public class TDF {
 	}
 
 	/**
-	* @description class AutoFieldDefaultValue :
+	* @description class AutoFieldDefaultValue : wrapper for auto default value that will be auto generated 
 	*/
 	@testVisible
 	private class AutoFieldDefaultValue implements IFieldDefaultValue{
+		/**
+		* @description get encapsulated value
+		* @param Integer : counter
+		* @return Object : field default value
+		*/
 		public Object getValue(Integer counter){
 			return null;
 		}
@@ -821,10 +840,19 @@ public class TDF {
 		private Schema.DescribeSObjectResult sObjectDesc = null;
 		private Schema.DescribeFieldResult fieldDesc = null;
 
+		/**
+		* @description construtor
+		* @param Object : value
+		*/
 		public FieldDefaultValue(Object value){
 			this.value = value;
-		}		
+		}	
 
+		/**
+		* @description construtor
+		* @param Schema.DescribeSObjectResult : sObject describe
+		* @param Schema.DescribeFieldResult : field describe
+		*/	
 		public FieldDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc){
 			this.sObjectDesc = sObjectDesc;
 			this.fieldDesc = fieldDesc;
