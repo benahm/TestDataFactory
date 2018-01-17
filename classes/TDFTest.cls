@@ -194,6 +194,25 @@ private class TDFTest {
 		TDF.setDefaultValueProvider(new TDF.DefaultValueProvider());
 		System.assertNotEquals(null,TDF.dvProvider);
 	}
+	@isTest static void personAccountRecordTypesTest(){
+		Set<Id> recordTypesSet;
+		if(!TDF.PERSON_ACCOUNT_IS_ENABLED){
+			try{
+				recordTypesSet = TDF.personAccountRecordTypes;
+				System.assert(false);
+			}catch(Exception e){
+				System.assert(true);
+			}
+		}	else{
+			try{
+				recordTypesSet = TDF.personAccountRecordTypes;
+				System.assert(true);
+				System.assertNotEquals(null,recordTypesSet);
+			}catch(Exception e){
+				System.assert(false);
+			}
+		}
+	}
 
 	/************************* SObjectManager tests *************************/
 	@isTest static void getMainSObjectListTest(){
