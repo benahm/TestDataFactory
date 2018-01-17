@@ -89,7 +89,7 @@ You can auto generate a value for non required field by assigning the TDF.DEFAUL
 For example when creating a contact you can force the Test Data Factory to create a related account event if an account is not required
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
-    'Account.Id' => null
+    'AccountId' => TDF.DEFAULT_VALUE
   });
   ```
 
