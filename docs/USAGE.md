@@ -19,7 +19,7 @@ public class TDF {
 
 	// Org config
 	// ==========================================================================
-	private static final Boolean PERSON_ACCOUNT_IS_ENABLED = false;
+	private static final Boolean PERSON_ACCOUNT_IS_ENABLED = true | false;
 	// ==========================================================================
   ```
 
