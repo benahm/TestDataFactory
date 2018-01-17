@@ -26,12 +26,11 @@ public class TDF {
 	public static final IFieldDefaultValue DEFAULT_VALUE = new AutoFieldDefaultValue();
 	
 	private static DefaultValueProvider dvProvider = new DefaultValueProvider();
-
 	private static final Util util = new Util();
 	private static final String DOT = '.';
 
-
 	/* ===========================  Properties =========================== */
+	// Global Describe
 	private static Map<String, Schema.SObjectType> globalDescribe{
 		get{
 			if(globalDescribe == null){
@@ -40,6 +39,8 @@ public class TDF {
 			return globalDescribe;
 		}
 	} 
+	// Person Account record type Ids
+	@testVisible
 	private static Set<Id> personAccountRecordTypes{ 
 		get{
 			if(personAccountRecordTypes == null){
@@ -68,9 +69,24 @@ public class TDF {
 	public static SObject createSObject(String sObjectName, Map<String,Object> mapOfValuesOverride){
 		return createSObject(sObjectName,mapOfValuesOverride,false);
 	}
+
+	/**
+	 * @description create an sObject
+	 * @param sObjectName : name of the sObject
+	 * @param Boolean : do insert flag 
+	 * @return SObject : sObject instance
+	 */
 	public static SObject createSObject(String sObjectName, Boolean doInsert){
 		return createSObject(sObjectName,new Map<String,Object>(),doInsert);
 	}
+
+	/**
+	 * @description create an sObject
+	 * @param sObjectName : name of the sObject
+	 * @param Map<String,Object> : map of values
+	 * @param Boolean : do insert flag 
+	 * @return SObject : sObject instance
+	 */
 	public static SObject createSObject(String sObjectName, Map<String,Object> mapOfValuesOverride, Boolean doInsert){
 		return createSObjectList(sObjectName,mapOfValuesOverride,doInsert,1).get(0);
 	}
@@ -84,6 +100,7 @@ public class TDF {
 	public static List<SObject> createSObjectList(String sObjectName, Integer numberOfSObjects){
 		return createSObjectList(sObjectName,new Map<String,Object>(),numberOfSObjects);
 	}		
+
 	/**
 	 * @description create a list of sObjects
 	 * @param sObjectName : name of the sObject
@@ -94,9 +111,26 @@ public class TDF {
 	public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Integer numberOfSObjects){
 		return createSObjectList(sObjectName,mapOfValuesOverride,false,numberOfSObjects);
 	}	
+
+	/**
+	 * @description create a list of sObjects
+	 * @param sObjectName : name of the sObject
+	 * @param Boolean : do insert flag
+	 * @param numberOfSObjects : number of sObjects
+	 * @return List<SObject> : list of sObject instances
+	 */
 	public static List<SObject> createSObjectList(String sObjectName, Boolean doInsert, Integer numberOfSObjects){
 		return createSObjectList(sObjectName,new Map<String,Object>(),doInsert,numberOfSObjects);
 	}
+
+	/**
+	 * @description create a list of sObjects
+	 * @param sObjectName : name of the sObject
+	 * @param Map<String,Object> : map of values
+	 * @param Boolean : do insert flag
+	 * @param numberOfSObjects : number of sObjects
+	 * @return List<SObject> : list of sObject instances
+	 */
 	public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Boolean doInsert, Integer numberOfSObjects){
 		Schema.SObjectType sObjectType = globalDescribe.get(sObjectName); 
 		ISObjectFactory sObjFactory = new SObjectFactory(sObjectType);
@@ -106,6 +140,7 @@ public class TDF {
 
 	/**
 	 * @description set the default value provider 
+	 * @param DefaultValueProvider : default value provider
 	 */
 	public static void setDefaultValueProvider(DefaultValueProvider dvProviderOverride){
 		if(dvProviderOverride != null)
@@ -129,18 +164,18 @@ public class TDF {
 	}
 
 	/**
-	* @description class SObjectManager
+	* @description class SObjectManager : manage all the sObjects instances and the insertion to the salesforce DB
 	*/
 	@testVisible
 	private class SObjectManager implements ISObjectManager{
-
-		private String sObjectName = null;
+		
+		private String sObjectName = null; // main sObject name
 		@testVisible
-		private List<SObject> mainSObjectList = new List<SObject>();
+		private List<SObject> mainSObjectList = new List<SObject>(); // list of main sObject instances
 		@testVisible
-		private Map<String,List<SObject>> relatedSObjMapList = new Map<String,List<SObject>>();
+		private Map<String,List<SObject>> relatedSObjMapList = new Map<String,List<SObject>>(); // map of all list of related sObject instances
 		@testVisible
-		private List<String> orderedRelationshipList = new List<String>();
+		private List<String> orderedRelationshipList = new List<String>(); // list of ordered relationship names
 
 		// Error Messages 
 		private String ERR_RECORDTYPE_REQUIRED_FOR_ACCOUNT = 'RecordTypeId is required to create an account';
@@ -163,6 +198,8 @@ public class TDF {
 
 		/**
 		* @description set an sObject to the main list with a specific index
+		* @param Integer : index
+		* @param SObject : sObject instance
 		*/
 		public void setSObject(Integer index,SObject sObj){
 			if(index < 0) return;
@@ -173,6 +210,7 @@ public class TDF {
 
 		/**
 		* @description get an sObject from the main list with a specific index
+		* @param Integer : index
 		* @return SObject : sObject instance
 		*/
 		public SObject getSObject(Integer index){
@@ -182,6 +220,9 @@ public class TDF {
 
 		/**
 		* @description set a related sObject with a specific index and relationship name
+		* @param Integer : index
+		* @param String : relationship name
+		* @param SObject : sObject instance
 		*/
 		public void setRelationship(Integer index, String relationshipName, SObject sObj){
 			if(index < 0) return;
@@ -196,6 +237,8 @@ public class TDF {
 
 		/**
 		* @description get a related sObject with a specific index and relationship name
+		* @param Integer : index
+		* @param String : relationship name
 		* @return SObject : sObject instance
 		*/
 		public SObject getRelationship(Integer index,String relationshipName){
@@ -209,6 +252,7 @@ public class TDF {
 		* @description insert all the sObjects
 		*/
 		public void insertAll(){
+			// loop through the ordered relationship list
 			for(Integer i = 0; i < orderedRelationshipList.size(); i++){
 				String relationshipName = orderedRelationshipList.get(i);
 				List<SObject> sObjParentList = relatedSObjMapList.get(relationshipName);
@@ -216,8 +260,10 @@ public class TDF {
 				if(relationshipName.contains(DOT)){
 					String childRelationshipName = relationshipName.substringBeforeLast(DOT);
 					List<SObject> sObjChildList = relatedSObjMapList.get(childRelationshipName);
+					// link child sObject list to the parent sObject list
 					setChildParentRelationship(sObjChildList,sObjParentList,relationshipName.substringAfterLast(DOT));
 				}else{
+					// link child sObject list to the main sObject list
 					setChildParentRelationship(mainSObjectList,sObjParentList,relationshipName);
 				}
 			}
@@ -227,6 +273,9 @@ public class TDF {
 
 		/**
 		* @description set child parent relationship
+		* @param List<SObject> : list of child sObjects
+		* @param List<SObject> : list of parent sObjects
+		* @param String : relationship name that links the child to the parent
 		*/
 		@testVisible
 		private void setChildParentRelationship(List<SObject> sObjChildList, List<SObject> sObjParentList, String relationshipName){
@@ -234,31 +283,37 @@ public class TDF {
 			if(sObjChildList.size() != sObjParentList.size()) return;
 			Integer index = 0;
 			for(SObject sObjChild: sObjChildList){
+				// set field related to the relationship name (on the child sObject), with the Id of the parent sObject
 				sObjChild.put(util.relationshipToFieldName(relationshipName),sObjParentList.get(index).get('Id'));
 				index++;
 			}
 		}
 
 		/**
-		* @description add relationship name to a list ordered by the dot notation
+		* @description add relationship name to a list, ordered by the number of dots
+		* @param String : relationship name with dot notation (example contact.account)
 		*/
 		@testVisible
-		private void addRelationshipName(String relationshipName){
-			String relationshipNameLowerCase = relationshipName.toLowerCase();
+		private void addRelationshipName(String dotRelationshipName){
+			String dotRelationshipNameLowerCase = dotRelationshipName.toLowerCase();
 			Integer i=0;
 			for (String rName : orderedRelationshipList) {
-				if(relationshipNameLowerCase == rName) return;
-				if(rName.countMatches('.') < relationshipName.countMatches('.')){
-					orderedRelationshipList.add(i, relationshipNameLowerCase);
+				if(dotRelationshipNameLowerCase == rName) return; // already exists
+				if(rName.countMatches('.') < dotRelationshipName.countMatches('.')){
+					// insert depending of the number of dots
+					orderedRelationshipList.add(i, dotRelationshipNameLowerCase);
 					return;
 				}
 				i++;
 			}
-			orderedRelationshipList.add(relationshipNameLowerCase);
+			// insert at the end
+			orderedRelationshipList.add(dotRelationshipNameLowerCase);
 		}
 
 		/**
 		* @description insert a list of sObjects
+		* @param String : relationship name with dot notation (example contact.account)
+		* @param List<SObject> : list of sObjects
 		*/
 		@testVisible
 		private void insertList(String dotRelationshipName, List<SObject> sObjList){
@@ -274,16 +329,17 @@ public class TDF {
 		* @return List<SObject> : list of sObject instances
 		*/
 		@testVisible
+		// @todo : review the generate of default value for lastname & name , write test classes
 		private List<sObject> validateList(String relationshipName, List<SObject> sObjList){
 			Integer counter = 0;
 			for(SObject sObj : sObjList){
 				if(sObj.getSObjectType() == Account.SObjectType){
 					if(PERSON_ACCOUNT_IS_ENABLED){
-						Id recorTypeId = (Id)sObj.get('RecordTypeId');
-						if(recorTypeId == null) throw new TestDataFactoryException(util.formatErrorMessage(ERR_RECORDTYPE_REQUIRED_FOR_ACCOUNT,new List<String>{},''));
+						Id recordTypeId = (Id)sObj.get('RecordTypeId');
+						if(recordTypeId == null) throw new TestDataFactoryException(util.formatErrorMessage(ERR_RECORDTYPE_REQUIRED_FOR_ACCOUNT,new List<String>{},''));
 						Boolean nameIsSet = (sObj.get('Name') != null);
 						Schema.DescribeSObjectResult accountDesc = Account.SObjectType.getDescribe();
-						if(personAccountRecordTypes.contains(recorTypeId)) { // Person Account
+						if(personAccountRecordTypes.contains(recordTypeId)) { // Person Account
 							if(nameIsSet) throw new TestDataFactoryException(util.formatErrorMessage(ERR_NAME_ON_PERSONACCOUNT,new List<String>{},''));
 							sObj.put('Lastname',dvProvider.getTextDefaultValue(accountDesc,accountDesc.fields.getMap().get('Lastname').getDescribe(),counter));
 							if(relationshipName.substringBeforeLast(DOT) == 'contact'){
@@ -315,7 +371,7 @@ public class TDF {
 	}
 
 	/**
-	* @description class SObjectFactory
+	* @description class SObjectFactory : manage the creation of all the sObjects instances 
 	*/
 	@testVisible
 	private class SObjectFactory implements ISObjectFactory{
@@ -370,6 +426,8 @@ public class TDF {
 
 		/**
 		* @description Initiate an sObject
+		* @param Map<String,IFieldDefaultValue> : map of values
+		* @param Integer : counter
 		*/
 		private void initSObjectInstance(Map<String,IFieldDefaultValue> mapOfValues, Integer counter){
 			String sObjectName = sObjectType.getDescribe().getName();
@@ -475,7 +533,7 @@ public class TDF {
 	}
 
 	/**
-	* @description virtual class DefaultValueProvider
+	* @description virtual class DefaultValueProvider : manage the creation of the defaultMap and getting field default values
 	*/
 	public virtual class DefaultValueProvider implements IDefaultValueProvider{
 
@@ -496,7 +554,6 @@ public class TDF {
 		* @param Schema.SObjectType : sObject Type
 		* @param Map<String,Object> : mapOfValuesOverride
 		* @param String : prefix (example : Contact.Account.)
-		* @return Map<String,IFieldDefaultValue> : map values
 		*/
 		@testVisible
 		private void generateDefaultMap(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapOfValues, String prefix){
@@ -509,7 +566,7 @@ public class TDF {
 				Schema.DescribeFieldResult fieldDesc = fieldsMap.get(fieldName).getDescribe(); // get field describe
 				String fullyQualifiedFieldName = prefix+fieldName.toLowerCase();
 				Object overrideFieldValue = mapOfValues.get(fullyQualifiedFieldName);
-				if(overrideFieldValue != null){ // override value provided in mapOfValues
+				if(overrideFieldValue != null){ // override value provided for the field
 					if(overrideFieldValue instanceof AutoFieldDefaultValue) { // auto generate a field value
 							if(fieldDesc.getRelationshipName() == null){ // field
 								mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(sObjectDesc,fieldDesc));
@@ -518,7 +575,7 @@ public class TDF {
 								mapOfValues.remove(fullyQualifiedFieldName);
 							} 
 					}
-				}else { // no override value provided
+				}else { // no override value provided for the field
 					Boolean defaultValueIsRequired = defaultValueIsRequired(fieldDesc);
 					if(fieldDesc.getRelationshipName() == null){ // field
 						if(defaultValueIsRequired)
@@ -554,7 +611,7 @@ public class TDF {
 		* @description get relationship names keyset that starts with a given prefix
 		* @param Set<String> : keySet of fully qualified field names
 		* @param String : prefix (example : Contact.Account.)
-		* @return Set<String> : Set of relationship names
+		* @return Set<String> : set of relationship names
 		*/
 		@testVisible
 		private Set<String> getRelationshipKeySet(Set<String> keySetOverride, String prefix){
@@ -584,8 +641,10 @@ public class TDF {
 				if(name != null){
 					Object value = mapOfValues.get(name);
 					if(value instanceof IFieldDefaultValue)
+							// already of type IFieldDefaultValue
 							convertedMap.put(name.trim().toLowerCase(),(IFieldDefaultValue)value);
 					else 
+							// wrap the value in a FieldDefaultValue instance
 							convertedMap.put(name.trim().toLowerCase(),new FieldDefaultValue(value));
 				}
 			}
@@ -599,7 +658,11 @@ public class TDF {
 		*/
 		@testVisible
 		private Boolean defaultValueIsRequired(Schema.DescribeFieldResult fieldDesc){
-			return !fieldDesc.isDefaultedOnCreate() && !fieldDesc.isAutoNumber() && !fieldDesc.isNillable() && fieldDesc.isCreateable();
+			return 
+				!fieldDesc.isDefaultedOnCreate() // does not have a defaut value on creation
+				&& !fieldDesc.isAutoNumber() // is not an auto number
+				&& !fieldDesc.isNillable() // is required
+				&& fieldDesc.isCreateable(); // value can be set on creation 
 		}
 
 		/**
@@ -664,7 +727,7 @@ public class TDF {
 				List<Schema.PicklistEntry> pickVals = fieldDesc.getPicklistValues();        
 				for (Schema.PicklistEntry pickVal: pickVals) {
 				    if (pickVal.isDefaultValue()) {
-				        return pickVal.getValue();
+				        return pickVal.getValue(); // default value
 				    }    
 				}
 				// if no default value is set, return the first value
@@ -740,7 +803,7 @@ public class TDF {
 	}
 
 	/**
-	* @description class AutoFieldDefaultValue
+	* @description class AutoFieldDefaultValue :
 	*/
 	@testVisible
 	private class AutoFieldDefaultValue implements IFieldDefaultValue{
@@ -750,7 +813,7 @@ public class TDF {
 	}
 
 	/**
-	* @description class FieldDefaultValue
+	* @description class FieldDefaultValue : wrapper for a field default value
 	*/
 	@testVisible
 	private class FieldDefaultValue implements IFieldDefaultValue{
@@ -769,7 +832,8 @@ public class TDF {
 
 		/**
 		* @description get encapsulated value
-		* @return Object : value
+		* @param Integer : counter
+		* @return Object : field default value
 		*/
 		public Object getValue(Integer counter){
 			if(value != null){
@@ -789,6 +853,7 @@ public class TDF {
 
 		/**
 		* @description get field name from a relationship name
+		* @param String : relationship name
 		* @return String : field name 
 		*/
 		public String relationshipToFieldName(String relationshipName){
@@ -800,7 +865,10 @@ public class TDF {
 
 		/**
 		* @description merge value in a string
-		* @return String : merged value
+		* @param String : text with a merge value
+		* @param String : name of the merge value
+		* @param String : value to be merged
+		* @return String : text with merged value
 		*/
 		public String mergeValue(String text, String name, String value){
 			if(text == null) return null;
@@ -810,6 +878,9 @@ public class TDF {
 
 		/**
 		* @description format an error message
+		* @param String : message
+		* @param List<String> : merge values
+		* @param String : original message
 		* @return String : error message
 		*/
 		public String formatErrorMessage(String message, List<String> mergeValues, String originalMessage){
