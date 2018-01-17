@@ -26,9 +26,6 @@ Implement all the methods ``get{Type}DefaultValue``
 | Salesforce    Datatype | Method                       |
 |------------------------|------------------------------|
 | Base64                 | getBase64DefaultValue        |
-| Combobox               | getComboboxDefaultValue      |
-| Address                | getAddressDefaultValue       |
-| Reference              | getLookupDefaultValue        |
 | Checkbox               | getCheckboxDefaultValue      |
 | Currency               | getCurrencyDefaultValue      |
 | Date                   | getDateDefaultValue          |
