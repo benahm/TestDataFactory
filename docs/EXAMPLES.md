@@ -108,11 +108,7 @@ You can provide an Id for a required related sObject, to force the use of that I
 
 Create 10 contact sObject instances
   ```apex
-  // Using sObject name
   List<Contact> conList = TDF.createSObjectList('Contact',10);
-  
-  // Using sObject Type
-  List<Contact> conList = TDF.createSObjectList(Contact.SObjectType,10);
   ```
 
 ##### Create a list of users using the index merge value
