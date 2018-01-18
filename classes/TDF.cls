@@ -29,8 +29,10 @@ public class TDF {
 	private static final Util util = new Util();
 	private static final String DOT = '.';
 
+	private static Map<Schema.SObjectType,Map<String, Schema.SObjectField>> mapOfFieldsMap = new Map<Schema.SObjectType,Map<String, Schema.SObjectField>>();
+
 	/* ===========================  Properties =========================== */
-	// Global Describe
+	// Global Describe //
 	private static Map<String, Schema.SObjectType> globalDescribe{
 		get{
 			if(globalDescribe == null){
@@ -39,7 +41,7 @@ public class TDF {
 			return globalDescribe;
 		}
 	} 
-	// Person Account record type Ids
+	// Person Account record type Ids //
 	@testVisible
 	private static Set<Id> personAccountRecordTypes{ 
 		get{
@@ -48,6 +50,23 @@ public class TDF {
 				personAccountRecordTypes = new Map<Id,SObject>(Database.query('select Id from RecordType where SObjectType=:account and isPersonType=true')).keySet();
 			}
 			return personAccountRecordTypes;
+		}
+	}
+
+	
+	/**
+	 * @description get the fields map of an sObject type with caching
+	 * @param Schema.SObjectType : sObject type
+	 * @return Map<String, Schema.SObjectField> : fields map
+	 */
+	@testVisible 
+	private static Map<String, Schema.SObjectField> getFieldsMap(Schema.SObjectType sObjectType){
+		if(mapOfFieldsMap.containsKey(sObjectType)){
+			return mapOfFieldsMap.get(sObjectType);
+		}else {
+			Map<String, Schema.SObjectField> fieldsMap = sObjectType.getDescribe().fields.getMap();
+			mapOfFieldsMap.put(sObjectType,fieldsMap);
+			return fieldsMap;
 		}
 	}
 
@@ -185,6 +204,10 @@ public class TDF {
 		private String ERR_INSERT_SOBJECT = 'Unable to insert "{0}"';
 		
 
+		/**
+		* @description constructor
+		* @return String : sObject name
+		*/
 		public SObjectManager(String sObjectName){
 			this.sObjectName = sObjectName;
 		}
@@ -259,12 +282,12 @@ public class TDF {
 				List<SObject> sObjParentList = relatedSObjMapList.get(relationshipName);
 				// insert parent sObject list
 				insertList(DOT+relationshipName,validateList(relationshipName,sObjParentList));
-				if(relationshipName.contains(DOT)){
+				if(relationshipName.contains(DOT)){ // multiple relationships
 					String childRelationshipName = relationshipName.substringBeforeLast(DOT);
 					List<SObject> sObjChildList = relatedSObjMapList.get(childRelationshipName);
 					// link child sObject list to the parent sObject list
 					setChildParentRelationship(sObjChildList,sObjParentList,relationshipName.substringAfterLast(DOT));
-				}else{
+				}else{ // single relationship
 					// link child sObject list to the main sObject list
 					setChildParentRelationship(mainSObjectList,sObjParentList,relationshipName);
 				}
@@ -331,28 +354,31 @@ public class TDF {
 		* @return List<SObject> : list of sObject instances
 		*/
 		@testVisible
-		// @todo : review the generation of default value for lastname & name , write test classes
 		private List<sObject> validateList(String relationshipName, List<SObject> sObjList){
 			Integer counter = 0;
 			for(SObject sObj : sObjList){
 				if(sObj.getSObjectType() == Account.SObjectType){
 					if(PERSON_ACCOUNT_IS_ENABLED){
 						Id recordTypeId = (Id)sObj.get('RecordTypeId');
+						// record type id is required if the org has person account enabled
 						if(recordTypeId == null) throw new TestDataFactoryException(util.formatErrorMessage(ERR_RECORDTYPE_REQUIRED_FOR_ACCOUNT,new List<String>{},''));
 						Boolean nameIsSet = (sObj.get('Name') != null);
+						Boolean lastnameIsSet = (sObj.get('Lastname') != null);
 						Schema.DescribeSObjectResult accountDesc = Account.SObjectType.getDescribe();
 						if(personAccountRecordTypes.contains(recordTypeId)) { // Person Account
+							// name should not be set for a person account
 							if(nameIsSet) throw new TestDataFactoryException(util.formatErrorMessage(ERR_NAME_ON_PERSONACCOUNT,new List<String>{},''));
-							sObj.put('Lastname',dvProvider.getTextDefaultValue(accountDesc,accountDesc.fields.getMap().get('Lastname').getDescribe(),counter));
-							if(relationshipName.substringBeforeLast(DOT) == 'contact'){
+							if(!lastnameIsSet) // apply default value if lastname is not set
+								sObj.put('Lastname',dvProvider.getTextDefaultValue(accountDesc,getFieldsMap(Account.SObjectType).get('Lastname').getDescribe(),counter));
+							if(relationshipName.substringBeforeLast(DOT) == 'contact'){ // a contact should not point to a person account
 								throw new TestDataFactoryException(util.formatErrorMessage(ERR_CONTACT_TO_PERSONACCOUNT,new List<String>{},''));
 							}
 						}else{ // Business Account
-							if(!nameIsSet)
+							if(!nameIsSet) // apply defaut value if name is not set
 								sObj.put('Name',dvProvider.getTextDefaultValue(accountDesc,Account.fields.Name.getDescribe(),counter));
 						}
 					}
-				}else if(sObj.getSObjectType() == Asset.SObjectType){
+				}else if(sObj.getSObjectType() == Asset.SObjectType){ // Asset
 					if(sObj.get('AccountId') == null && sObj.get('ContactId') == null){
 						throw new TestDataFactoryException(util.formatErrorMessage(ERR_REQUIRED_FOR_ASSET,new List<String>{},''));
 					}
@@ -442,7 +468,7 @@ public class TDF {
 			for(String fullyQualifiedFieldName : mapOfValues.keySet()){
 
 				String fieldName = (DOT+fullyQualifiedFieldName).substringAfterLast(DOT);
-				if(fullyQualifiedFieldName.contains(DOT)){ // field with dot notation
+				if(fullyQualifiedFieldName.contains(DOT)){ // field name in a related sObject
 
 					String firstRelationshipName = fullyQualifiedFieldName.substringBefore(DOT);
 					String fullyQualifiedRelationshipName = fullyQualifiedFieldName.substringBeforeLast(DOT);
@@ -473,7 +499,7 @@ public class TDF {
 
 			if(fullyQualifiedRelationshipName.contains(DOT)){ // multiple relationships
 				String fullyQualifiedRelationshipNameBefore = fullyQualifiedRelationshipName.substringBeforeLast(DOT);
-				SObject relatedSObj = getRelationshipInstance(sObjectType,fullyQualifiedRelationshipNameBefore,index);
+				SObject relatedSObj = getRelationshipInstance(sObjectType,fullyQualifiedRelationshipNameBefore,index); // <= recursion
 				sObj = getRelatedSObjectInstance(relatedSObj.getSObjectType(),leafRelationshipName,sObjectName+DOT+fullyQualifiedRelationshipNameBefore); 
 				relatedSObj = putSObject(relatedSObj,leafRelationshipName,sObj,sObjectName+DOT+fullyQualifiedRelationshipNameBefore);
 			}else { // single relationship
@@ -484,7 +510,7 @@ public class TDF {
 			return sObj;
 		}
 		/**
-		* @description get related sObject 
+		* @description get related sObject instance
 		* @param Schema.SObjectType : sObjectType
 		* @param String : relationship name
 		* @param String : prefix (example : Contact.Account)
@@ -492,17 +518,17 @@ public class TDF {
 		*/
 		@testVisible
 		private SObject getRelatedSObjectInstance(Schema.SObjectType sObjectType, String relationshipName, String prefix){
-			Map<String, Schema.SObjectField> fieldsMap = sObjectType.getDescribe().fields.getMap();
+			Map<String, Schema.SObjectField> fieldsMap = getFieldsMap(sObjectType);
 			Schema.DescribeFieldResult fieldDesc;
 			try{
-				fieldDesc = fieldsMap.get(util.relationshipToFieldName(relationshipName)).getDescribe();
+				fieldDesc = fieldsMap.get(util.relationshipToFieldName(relationshipName)).getDescribe(); // get related field describe
 			}catch(Exception e){
 				throw new TestDataFactoryException(util.formatErrorMessage(ERR_RELATIONSHIP_NOT_EXIST,new List<String>{relationshipName,prefix},e.getMessage()));
 			}
-			return  fieldDesc.getReferenceTo().get(0).newSObject();
+			return  fieldDesc.getReferenceTo().get(0).newSObject(); 
 		}
 		/**
-		* @description put a related sObject to an sObject
+		* @description put a related sObject in an sObject
 		* @param SObject : sObject instance
 		* @param String : sObject name
 		* @param String : value
@@ -519,7 +545,7 @@ public class TDF {
 			return sObj;
 		}		
 		/**
-		* @description put a field value to an sObject
+		* @description put a field value in an sObject
 		* @param SObject : sObject instance
 		* @param String : field name
 		* @param String : value
@@ -581,7 +607,7 @@ public class TDF {
 		@testVisible
 		private void generateDefaultMap(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapOfValues, String prefix){
 			Schema.DescribeSObjectResult sObjectDesc = sObjectType.getDescribe();
-			Map<String, Schema.SObjectField> fieldsMap = sObjectDesc.fields.getMap(); // get the fields map
+			Map<String, Schema.SObjectField> fieldsMap = getFieldsMap(sObjectType); // get the fields map
 			Set<String> keySetOverride = mapOfValues.keySet();
 			Set<String> relationshipKeySet = getRelationshipKeySet(keySetOverride,prefix);
 			// loop through fields map
