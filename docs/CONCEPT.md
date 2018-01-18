@@ -21,7 +21,7 @@ TDF internal classes list
 | **ObjectManager**             | Contains all the sObjects instances, insertAll method  |
 | **DefaultValueProvider**      | Provide all default field values                       |
 | **FieldDefaultValue**         | Wrapper of field default value                         |
-| **AutoFieldDefaultValue**     | Wrapper of DefaultValueProvider field value            |
+| **AutoFieldDefaultValue**     | Wrapper of an auto generated default value             |
 | **Util**                      | Contains utility methods                               |
 
 ## Next
