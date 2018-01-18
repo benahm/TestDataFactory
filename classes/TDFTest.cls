@@ -214,6 +214,12 @@ private class TDFTest {
 		}
 	}
 
+	@isTest static void getFieldsMapTest(){
+		Map<String, Schema.SObjectField> accountFieldMap = TDF.getFieldsMap(Account.SObjectType);
+		System.assertNotEquals(null,accountFieldMap);
+		System.assertEquals(1,TDF.mapOfFieldsMap.size());
+	}
+
 	/************************* SObjectManager tests *************************/
 	@isTest static void getMainSObjectListTest(){
 		TDF.SObjectManager sObjManager = new TDF.SObjectManager('Case');
