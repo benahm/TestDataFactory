@@ -1,23 +1,23 @@
 ## Customize
 
-* [Extend TDF.ADefaultValueProvider class](#customize-all-the-auto-generated-data)
+* [Extend TDF.DefaultValueProvider class](#customize-all-the-auto-generated-data)
 * [Implement TDF.IFieldDefaultValue interface](#customize-the-auto-generated-data-for-some-specific-fields)
 
 You can customize the auto-generated data of the Test Data Factory 
 
 #### Customize all the auto-generated data
 
-Create a default value provider class by extending the ``TDF.ADefaultValueProvider`` 
+Create a default value provider class by extending the virtual class ``TDF.DefaultValueProvider`` 
 
-Implement all the methods ``get{Type}DefaultValue``
+Implement the methods ``get{Type}DefaultValue`` that you want to override
 
   ```apex
-  public class MyDefaultValueProvider extends TDF.ADefaultValueProvider{
-  ...
+  public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
+
     public override String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
       return 'mycustomtestemail'+counter.format()+'@gmail.com';
     }
-  ...
+
   }
   ```
  
