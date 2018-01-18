@@ -12,7 +12,7 @@ You can install only the ``TDF`` class and add the ``@isTest`` annotation on it,
 
 #### Configure TDF Class 
 
-There is a configuration related to orgs that have person account enabled 
+This configuration is related to orgs that have person account enabled 
 
   ```apex
 public class TDF {
