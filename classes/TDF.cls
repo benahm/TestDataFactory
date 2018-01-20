@@ -192,7 +192,7 @@ public class TDF {
 		@testVisible
 		private List<SObject> mainSObjectList = new List<SObject>(); // list of main sObject instances
 		@testVisible
-		private Map<String,List<SObject>> relatedSObjMapList = new Map<String,List<SObject>>(); // map of all list of related sObject instances
+		private Map<String,List<SObject>> relatedSObjMapList = new Map<String,List<SObject>>(); // map of all lists of related sObject instances
 		@testVisible
 		private List<String> orderedRelationshipList = new List<String>(); // list of ordered relationship names
 
@@ -351,6 +351,8 @@ public class TDF {
 
 		/**
 		* @description validate a list of sObjects before insert
+		* @param String : relationship name
+		* @param List<SObject> : sObject list
 		* @return List<SObject> : list of sObject instances
 		*/
 		@testVisible
@@ -360,7 +362,7 @@ public class TDF {
 				if(sObj.getSObjectType() == Account.SObjectType){
 					if(PERSON_ACCOUNT_IS_ENABLED){
 						Id recordTypeId = (Id)sObj.get('RecordTypeId');
-						// record type id is required if the org has person account enabled
+						// the Account record type id is required if the org has person account enabled
 						if(recordTypeId == null) throw new TestDataFactoryException(util.formatErrorMessage(ERR_RECORDTYPE_REQUIRED_FOR_ACCOUNT,new List<String>{},''));
 						Boolean nameIsSet = (sObj.get('Name') != null);
 						Boolean lastnameIsSet = (sObj.get('Lastname') != null);
@@ -650,7 +652,7 @@ public class TDF {
 			String relationshipName = fieldDesc.getRelationshipName().toLowerCase();
 			String fullyQualifiedRelationshipName = prefix+relationshipName;
 			// at least add (fullyQualifiedRelationshipName.id,null) to force the instantiation of the related sObject
-			// in case it has no required field
+			// in case the sObject has no required fields
 			mapOfValues.put(fullyQualifiedRelationshipName+DOT+'id',new FieldDefaultValue(null));
 			// get the related sObject instance
 			SObjectType refSObjectType = fieldDesc.getReferenceTo().get(0);
@@ -674,8 +676,8 @@ public class TDF {
 				fullyQualifiedFieldName = fullyQualifiedFieldName.toLowerCase();
 				if(fullyQualifiedFieldName.startsWith(prefixLowerCase)){ // starts with the prefix
 					String fullyQualifiedFieldNameAfterPrefix = fullyQualifiedFieldName.substringAfter(prefixLowerCase)+'';
-					if(fullyQualifiedFieldNameAfterPrefix.contains(DOT)) // if there a relationship after the prefix
-						// add the relationship contained just after the prefix
+					if(fullyQualifiedFieldNameAfterPrefix.contains(DOT)) // if there is a relationship after the prefix
+						// add the relationship name after the prefix
 						relationshipKeySet.add(fullyQualifiedFieldName.substringBetween(prefixLowerCase,DOT));
 				}
 			}
