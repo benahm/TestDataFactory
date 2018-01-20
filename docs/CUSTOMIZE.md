@@ -51,32 +51,42 @@ Implement the methods ``get{Type}DefaultValue`` that you want to override
   
  #### Customize the auto-generated data for some specific fields
  
- Create a class that implements ``TDF.IFieldDefaultValue``
+ Create a class that implements ``TDF.IFieldDefaultValue`` 
+ 
+ ``getValue`` method give access to the counter
+ 
+ In this example we will create 100 Accounts that will be used to create 100 Cases 
   
   ```apex
-  public class MyFieldDefaultValue implements TDF.IFieldDefaultValue{
-    private String fieldName = null;
-    
-    public MyFieldDefaultValue(String fieldName){
-      this.fieldName = fieldName;
+  public class CaseAccountId implements TDF.IFieldDefaultValue{
+    private List<Account> AccountList = null;
+
+    public CaseAccountId(List<Account> accountList){
+      this.accountList = accountList;
     }
-    
+
     public Object getValue(Integer counter){
-      if(fieldName == 'Contact.Lastname')
-        return 'MyContactLastName'+counter.format();
-      else if(fieldName == 'Account.Name')
-        return 'MyAccountName'+counter.format();
-      return 'test'+counter.format();
+      return accountList.get(counter).Id;
     }
   }
   ```
-  Provide the instance of your field default value in the map override ``TDF.createSObject`` or ``TDF.createSObjectList``
+  Provide the instance of your field default value in the map override for the ``TDF.createSObjectList`` method
   
   ```apex
-  List<Contact> conList = TDF.createSObjectList('Contact', new Map<String,Object>{
-    'Lastname' => new MyFieldDefaultValue('Contact.Lastname'),
-    'Account.Name' => new MyFieldDefaultValue('Account.Name')
-  },10);
+  // creating 100 Accounts
+  List<Account> accountList = TDF.createSObjectList('Account', new Map<String,Object>{
+    'Description' => 'test'
+  },true,100);
+  
+  // 
+  CaseAccountId caseAccId = new CaseAccountId(accountList);
+  
+  // Creating 100 Cases
+  List<Case> caseList = TDF.createSObjectList('Case',new Map<String,Object>{
+    'AccountId' => caseAccId
+    'Contact.Description' => 'Create the related Contact',
+    'Contact.AccountId' => caseAccId
+  },true,100);
   ```
 
 ## Next
