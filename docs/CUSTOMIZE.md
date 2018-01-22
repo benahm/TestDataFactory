@@ -78,10 +78,9 @@ Implement the methods ``get{Type}DefaultValue`` that you want to override
     'Description' => 'test'
   },true,100);
   
-  // 
   CaseAccountId caseAccId = new CaseAccountId(accountList);
   
-  // Creating 100 Cases
+  // creating 100 Cases
   List<Case> caseList = TDF.createSObjectList('Case',new Map<String,Object>{
     'AccountId' => caseAccId
     'Contact.Description' => 'Create the related Contact',
