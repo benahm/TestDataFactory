@@ -58,10 +58,10 @@ Implement the methods ``get{Type}DefaultValue`` that you want to override
  In this example we will create 100 Accounts that will be used to create 100 Cases 
   
   ```apex
-  public class CaseAccountId implements TDF.IFieldDefaultValue{
+  public class TestAccountId implements TDF.IFieldDefaultValue{
     private List<Account> AccountList = null;
 
-    public CaseAccountId(List<Account> accountList){
+    public TestAccountId(List<Account> accountList){
       this.accountList = accountList;
     }
 
@@ -78,13 +78,14 @@ Implement the methods ``get{Type}DefaultValue`` that you want to override
     'Description' => 'test'
   },true,100);
   
-  CaseAccountId caseAccId = new CaseAccountId(accountList);
+  // account Id
+  TestAccountId accId = new TestAccountId(accountList);
   
   // creating 100 Cases
   List<Case> caseList = TDF.createSObjectList('Case',new Map<String,Object>{
-    'AccountId' => caseAccId
+    'AccountId' => accId
     'Contact.Description' => 'Create the related Contact',
-    'Contact.AccountId' => caseAccId
+    'Contact.AccountId' => accId
   },true,100);
   ```
 
