@@ -214,12 +214,6 @@ private class TDFTest {
 		}
 	}
 
-	@isTest static void getFieldsMapTest(){
-		Map<String, Schema.SObjectField> accountFieldMap = TDF.getFieldsMap(Account.SObjectType);
-		System.assertNotEquals(null,accountFieldMap);
-		System.assertEquals(1,TDF.mapOfFieldsMap.size());
-	}
-
 	/************************* SObjectManager tests *************************/
 	@isTest static void getMainSObjectListTest(){
 		TDF.SObjectManager sObjManager = new TDF.SObjectManager('Case');
@@ -485,16 +479,16 @@ private class TDFTest {
 		System.assertEquals(new Set<String>{'account'},dvProvider.getRelationshipKeySet(new Set<String>{'Contact.Account.Id','Contact.Account.ParentId','Contact.AccountId'},'Contact.'));
 		System.assertEquals(new Set<String>{'parent','user'},dvProvider.getRelationshipKeySet(new Set<String>{'Contact.Account.User.Id','Contact.Account.Parent.Id','Contact.Account.Description'},'Contact.Account.'));
 	}
-	@isTest static void convertMapTest(){
+	@isTest static void convertMapValueTypesTest(){
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
 		Map<String,Object> mapTest = new Map<String,Object>{
 			'TesT' => 0,
 			'  tOto  ' => 1
 			};
-		System.assert(dvProvider.convertMap(mapTest).keySet().contains('test'));
-		System.assert(dvProvider.convertMap(mapTest).keySet().contains('toto'));
-		System.assertEquals(0,dvProvider.convertMap(mapTest).get('test').getValue(0));
-		System.assertEquals(1,dvProvider.convertMap(mapTest).get('toto').getValue(0));
+		System.assert(dvProvider.convertMapValueTypes(mapTest).keySet().contains('test'));
+		System.assert(dvProvider.convertMapValueTypes(mapTest).keySet().contains('toto'));
+		System.assertEquals(0,dvProvider.convertMapValueTypes(mapTest).get('test').getValue(0));
+		System.assertEquals(1,dvProvider.convertMapValueTypes(mapTest).get('toto').getValue(0));
 	}
 	@isTest static void getDefaultPicklistValueTest(){
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
@@ -502,10 +496,10 @@ private class TDFTest {
 		System.assertNotEquals(null,defaultValue);
 		System.assertNotEquals('',defaultValue);
 	}
-	@isTest static void defaultValueIsRequiredTest(){
+	@isTest static void isDefaultValueRequiredTest(){
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		System.assertEquals(true,dvProvider.defaultValueIsRequired(Account.fields.Name.getDescribe()));
-		System.assertEquals(false,dvProvider.defaultValueIsRequired(Account.fields.OwnerId.getDescribe()));
+		System.assertEquals(true,dvProvider.isDefaultValueRequired(Account.fields.Name.getDescribe()));
+		System.assertEquals(false,dvProvider.isDefaultValueRequired(Account.fields.OwnerId.getDescribe()));
 	}
 	@isTest static void getDefaultValueTest(){
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
@@ -519,7 +513,7 @@ private class TDFTest {
 		System.assertEquals(0,dvProvider.getDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.BodyLength.getDescribe(),0)); // number
 		System.assertEquals(0,dvProvider.getDefaultValue(Asset.SObjectType.getDescribe(),Asset.fields.Quantity.getDescribe(),0)); // number
 		System.assertEquals(0,dvProvider.getDefaultValue(Opportunity.SObjectType.getDescribe(),Opportunity.fields.Probability.getDescribe(),0)); // percent
-		System.assertEquals('123456789',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Phone.getDescribe(),0)); // phone
+		System.assertEquals('01 23 45 67 89',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Phone.getDescribe(),0)); // phone
 		System.assertNotEquals('',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0)); //  picklist
 		// no standard multipicklist field
 		System.assertEquals('test0',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.FirstName.getDescribe(),0));  // text
@@ -539,7 +533,7 @@ private class TDFTest {
 		System.assertNotEquals(null,dvProvider.getGeolocationDefaultValue(null,null,0));
 		System.assertEquals(0,dvProvider.getNumberDefaultValue(null,null,0));
 		System.assertEquals(0,dvProvider.getPercentDefaultValue(null,null,0));
-		System.assertEquals('123456789',dvProvider.getPhoneDefaultValue(null,null,0));
+		System.assertEquals('01 23 45 67 89',dvProvider.getPhoneDefaultValue(null,null,0));
 		System.assertEquals(null,dvProvider.getPicklistDefaultValue(null,null,0));
 		System.assertNotEquals('',dvProvider.getPicklistDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0));
 		System.assertEquals('test0',dvProvider.getTextDefaultValue(null,null,0));
@@ -547,7 +541,7 @@ private class TDFTest {
 		System.assertNotEquals('',dvProvider.getMultiPicklistDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0));
 		System.assertEquals('test0',dvProvider.getTextDefaultValue(null,null,0));
 		System.assertEquals('test0',dvProvider.getTextAreaDefaultValue(null,null,0));
-		System.assertEquals(Time.newInstance(0, 0, 0, 0),dvProvider.getTimeDefaultValue(null,null,0));
+		System.assertEquals(Time.newInstance(12, 0, 0, 0),dvProvider.getTimeDefaultValue(null,null,0));
 		System.assertEquals('http://test0.com',dvProvider.getURLDefaultValue(null,null,0));
 	}
 
@@ -584,7 +578,7 @@ private class TDFTest {
 		TDF.IFieldDefaultValue fieldDV12 = new TDF.FieldDefaultValue(Opportunity.SObjectType.getDescribe(),Opportunity.fields.Probability.getDescribe());
 		System.assertEquals(0,fieldDV12.getValue(0));
 		TDF.IFieldDefaultValue fieldDV13 = new TDF.FieldDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Phone.getDescribe());
-		System.assertEquals('123456789',fieldDV13.getValue(0));
+		System.assertEquals('01 23 45 67 89',fieldDV13.getValue(0));
 		TDF.IFieldDefaultValue fieldDV14 = new TDF.FieldDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe());
 		System.assertNotEquals('',fieldDV14.getValue(0));
 		TDF.IFieldDefaultValue fieldDV15 = new TDF.FieldDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.FirstName.getDescribe());
@@ -593,17 +587,25 @@ private class TDFTest {
 		System.assertEquals('test0',fieldDV16.getValue(0));
 	}
 
-	/************************* Util tests *************************/
+	/************************* Util methods tests *************************/
+	@isTest static void getFieldsMapTest(){
+		Map<String, Schema.SObjectField> accountFieldMap = TDF.getFieldsMap(Account.SObjectType);
+		System.assertNotEquals(null,accountFieldMap);
+		System.assertEquals(1,TDF.mapOfFieldsMap.size());
+	}
 	@isTest static void relationshipToFieldNameTest(){
-		TDF.Util util = new TDF.Util();
-		System.assertEquals('customrelationship__c',util.relationshipToFieldName('customrelationshiP__r'));
-		System.assertEquals('standardrelationshipid',util.relationshipToFieldName('standardRelationshiP'));
+		System.assertEquals('customrelationship__c',TDF.relationshipToFieldName('customrelationshiP__r'));
+		System.assertEquals('standardrelationshipid',TDF.relationshipToFieldName('standardRelationshiP'));
 	}
 	@isTest static void mergeValueTest(){
-		TDF.Util util = new TDF.Util();
-		System.assertEquals(null,util.mergeValue(null,'i','101'));
-		System.assertEquals('test101',util.mergeValue('test{!i}','i','101'));
-		System.assertEquals('test101',util.mergeValue('test{!iD}','id','101'));
-		System.assertEquals('test101',util.mergeValue('test{!Id}','ID','101'));
+		System.assertEquals(null,TDF.mergeValue(null,'i','101'));
+		System.assertEquals('test101',TDF.mergeValue('test{!i}','i','101'));
+		System.assertEquals('test101',TDF.mergeValue('test{!iD}','id','101'));
+		System.assertEquals('test101',TDF.mergeValue('test{!Id}','ID','101'));
+	}
+	@isTest static void formatErrorMessageTest(){
+		System.assertEquals('test1',TDF.formatErrorMessage('test{0}',new List<String>{'1'},null));
+		System.assertEquals('test12',TDF.formatErrorMessage('test{0}{1}',new List<String>{'1','2'},null));
+		System.assertEquals('test1\nOriginal error message : Error',TDF.formatErrorMessage('test{0}',new List<String>{'1'},'Error'));
 	}
 }
