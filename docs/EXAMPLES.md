@@ -74,9 +74,9 @@ By default the created sObjects are not inserted, by providing the *doInsert* se
   },true /* <-- doInsert flag */);
   ```
 
-##### Auto generate value for non required fields
+##### Auto-generate values for non required fields
 
-You can auto generate a value for non required field by assigning the TDF.DEFAULT_VALUE
+You can auto-generate a value for non required field by assigning the TDF.DEFAULT_VALUE in the Map of values
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'Description' => TDF.DEFAULT_VALUE,
