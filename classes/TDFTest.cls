@@ -315,7 +315,7 @@ private class TDFTest {
 		TDF.SObjectManager sObjManager = new TDF.SObjectManager('Case');
 		List<Account> accList = new List<Account>{new Account(Name='test')};
 		try {
-			sObjManager.insertList('',accList);
+			sObjManager.insertList(accList,'');
 		}catch(DmlException e){
 			System.assert(true); // if missing required fields
 		}
@@ -385,17 +385,6 @@ private class TDFTest {
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}
-	}
-	@isTest static void validateSObjectTypeTest(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory(Contact.SObjectType);
-		try{
-			sObjFactory.validateSObjectType(null);
-			System.assert(false);
-		}catch(TDF.TestDataFactoryException e){
-			System.assert(true);
-		}
-		sObjFactory.validateSObjectType(Account.sObjectType);
-		System.assert(true);
 	}
 	
 	/************************* DefaultValueProvider tests *************************/
@@ -483,12 +472,15 @@ private class TDFTest {
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
 		Map<String,Object> mapTest = new Map<String,Object>{
 			'TesT' => 0,
-			'  tOto  ' => 1
+			'  tOto  ' => 1,
+			'Titi' => new TDF.FieldDefaultValue(2)
 			};
 		System.assert(dvProvider.convertMapValueTypes(mapTest).keySet().contains('test'));
 		System.assert(dvProvider.convertMapValueTypes(mapTest).keySet().contains('toto'));
+		System.assert(dvProvider.convertMapValueTypes(mapTest).keySet().contains('titi'));
 		System.assertEquals(0,dvProvider.convertMapValueTypes(mapTest).get('test').getValue(0));
 		System.assertEquals(1,dvProvider.convertMapValueTypes(mapTest).get('toto').getValue(0));
+		System.assertEquals(2,dvProvider.convertMapValueTypes(mapTest).get('titi').getValue(0));
 	}
 	@isTest static void getDefaultPicklistValueTest(){
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
