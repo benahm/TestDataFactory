@@ -73,20 +73,31 @@ Implement the methods ``get{Type}DefaultValue`` that you want to override
   Provide the instance of your field default value in the map override for the ``TDF.createSObjectList`` method
   
   ```apex
-  // creating 100 Accounts
-  List<Account> accountList = TDF.createSObjectList('Account', new Map<String,Object>{
-    'Description' => 'test'
-  },true,100);
+// creating 100 Accounts
+public class AccountIdWrapper implements TDF.IFieldDefaultValue{
+  private List<Account> AccountList = null;
   
-  // account Id
-  TestAccountId accId = new TestAccountId(accountList);
+  public AccountIdWrapper(List<Account> accountList){
+    this.accountList = accountList;
+  }
   
-  // creating 100 Cases
-  List<Case> caseList = TDF.createSObjectList('Case',new Map<String,Object>{
-    'AccountId' => accId
-    'Contact.Description' => 'Create the related Contact',
-    'Contact.AccountId' => accId
-  },true,100);
+  public Object getValue(Integer counter){
+    return accountList.get(counter).Id;
+  }
+}
+
+List<Account> accountList = TDF.createSObjectList('Account', new Map<String,Object>{
+	  'Description' => 'test'
+},true,100);
+
+AccountIdWrapper accIdWrapped = new AccountIdWrapper(accountList);
+
+// create 100 Cases
+List<Case> caseList = TDF.createSObjectList('Case',new Map<String,Object>{
+	  'AccountId' => accIdWrapped
+  	'Contact.Description' => 'Create the related Contact',
+  	'Contact.AccountId' => accIdWrapped
+},true,100);
   ```
 
 ## Next
