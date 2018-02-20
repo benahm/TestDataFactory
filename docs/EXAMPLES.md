@@ -84,7 +84,7 @@ You can auto-generate a value for non required field by assigning the TDF.DEFAUL
   },true);
   ```
 
-##### Force to instanciate a related sObject
+##### Force the instantiation of a related sObject
 
 For example when creating a contact you can force the Test Data Factory to create a related account event if an account is not required
   ```apex
@@ -93,7 +93,7 @@ For example when creating a contact you can force the Test Data Factory to creat
   },true);
   ```
 
-##### Provide an Id for a required related sObject to avoid instantiation
+##### Provide an Id for a required related sObject to avoid its instantiation
 
 You can provide an Id for a required related sObject, to force the use of that Id and prevent the instantiation of the related sObject
   ```apex
