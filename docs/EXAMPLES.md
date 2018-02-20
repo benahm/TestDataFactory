@@ -81,7 +81,7 @@ You can auto generate a value for non required field by assigning the TDF.DEFAUL
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'Description' => TDF.DEFAULT_VALUE,
     'Account.Phone' => TDF.DEFAULT_VALUE
-  });
+  },true);
   ```
 
 ##### Force to instanciate a related sObject
@@ -90,7 +90,7 @@ For example when creating a contact you can force the Test Data Factory to creat
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'AccountId' => TDF.DEFAULT_VALUE
-  });
+  },true);
   ```
 
 ##### Provide an Id for a required related sObject to avoid instantiation
@@ -104,14 +104,14 @@ You can provide an Id for a required related sObject, to force the use of that I
 
 #### Create a list of sObjects:
 
-##### Create an sObject using the sObject name or the sObject type
+##### Create and insert a list of sObjects
 
-Create 10 contact sObject instances
+Create & insert 10 contact sObject instances
   ```apex
-  List<Contact> conList = TDF.createSObjectList('Contact',10);
+  List<Contact> conList = TDF.createSObjectList('Contact',true,10);
   ```
 
-##### Create a list of users using the index merge value
+##### Create and insert a list of users using the index merge value
 
 The following code creates 10 users with different usernames and nicknames 
   ```apex
@@ -119,7 +119,7 @@ The following code creates 10 users with different usernames and nicknames
     'ProfileId' => UserInfo.getProfileId(),
     'Username' => 'test{!index}@mytestdomain.developer',
     'CommunityNickname' => 'test{!index}'
-  },10);
+  },true,10);
   ```
 
 ## Next
