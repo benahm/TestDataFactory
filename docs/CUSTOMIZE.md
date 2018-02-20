@@ -12,13 +12,13 @@ Create a default value provider class by extending the virtual class ``TDF.Defau
 Implement the methods ``get{Type}DefaultValue`` that you want to override
 
   ```apex
-  public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
+public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
 
-    public override String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
-      return 'mycustomtestemail'+counter.format()+'@gmail.com';
-    }
+	public override String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
+		return 'mycustomtestemail'+counter.format()+'@gmail.com';
+	}
 
-  }
+}
   ```
  
  Here is the list of support datatypes and the method that defines the default value for each type
