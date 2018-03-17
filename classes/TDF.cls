@@ -40,6 +40,7 @@ public class TDF {
 			}
 			return globalDescribe;
 		}
+		set{}
 	} 
 	// Person Account record type Ids //
 	@testVisible
@@ -51,6 +52,7 @@ public class TDF {
 			}
 			return personAccountRecordTypes;
 		}
+		set{}
 	}
 	// ==========================================================================
 
@@ -181,10 +183,6 @@ public class TDF {
 		private List<String> orderedRelationshipList = new List<String>(); // list of ordered relationship names
 
 		// Error Messages 
-		private String ERR_RECORDTYPE_REQUIRED_FOR_ACCOUNT = 'RecordTypeId is required to create an account';
-		private String ERR_NAME_ON_PERSONACCOUNT = 'You can not set the name field for a person account';
-		private String ERR_CONTACT_TO_PERSONACCOUNT = 'You cannot set the AccountId of a contact to a person account';
-		private String ERR_REQUIRED_FOR_ASSET = 'AccountId or ContactId is required for an Asset';
 		private String ERR_INSERT_SOBJECT = 'Unable to insert "{0}"';
 		
 
@@ -271,7 +269,7 @@ public class TDF {
 				List<SObject> sObjParentList = relatedSObjMapList.get(fullyQualifiedRelationshipName);
 				String leafRelationshipName = (DOT+fullyQualifiedRelationshipName).substringAfterLast(DOT);
 				// insert parent sObject list
-				insertList(validateList(fullyQualifiedRelationshipName,sObjParentList),DOT+fullyQualifiedRelationshipName);
+				insertList(sObjParentList,DOT+fullyQualifiedRelationshipName);
 				if(fullyQualifiedRelationshipName.contains(DOT)){ // multiple relationships
 					String fullyQualifiedRelationshipNameWithoutLeaf = fullyQualifiedRelationshipName.substringBeforeLast(DOT);
 					List<SObject> sObjChildList = relatedSObjMapList.get(fullyQualifiedRelationshipNameWithoutLeaf);
@@ -283,7 +281,7 @@ public class TDF {
 				}
 			}
 			// insert main sObject list
-			insertList(validateList('',mainSObjectList),'');
+			insertList(mainSObjectList,'');
 		}
 
 		/* =======================================  private methods ==================================== */
@@ -341,48 +339,6 @@ public class TDF {
 			}
 		}
 
-		/**
-		* @description validate a list of sObjects before insert
-		*							 handle required fields for accounts in case person account is enabled
-		*							 handle required fields for asset by default AccountId or ContactId should be provided
-		* @param fullyQualifiedRelationshipName : fully qualified relationship name (example contact.account
-		* @param sObjList : sObject list
-		* @return list of sObject instances
-		*/
-		@testVisible
-		private List<sObject> validateList(String fullyQualifiedRelationshipName, List<SObject> sObjList){
-			Integer recordIndex = 0;
-			for(SObject sObj : sObjList){
-				if(sObj.getSObjectType() == Account.SObjectType){
-					if(PERSON_ACCOUNT_IS_ENABLED){
-						Id recordTypeId = (Id)sObj.get('RecordTypeId');
-						// the Account record type id is required if the org has person account enabled
-						if(recordTypeId == null) throw new TestDataFactoryException(formatErrorMessage(ERR_RECORDTYPE_REQUIRED_FOR_ACCOUNT,new List<String>{},''));
-						Boolean nameIsSet = (sObj.get('Name') != null);
-						Boolean lastnameIsSet = (sObj.get('Lastname') != null);
-						Schema.DescribeSObjectResult accountDesc = Account.SObjectType.getDescribe();
-						if(personAccountRecordTypes.contains(recordTypeId)) { // Person Account
-							// name should not be set for a person account
-							if(nameIsSet) throw new TestDataFactoryException(formatErrorMessage(ERR_NAME_ON_PERSONACCOUNT,new List<String>{},''));
-							if(!lastnameIsSet) // apply default value if lastname is not set
-								sObj.put('Lastname',dvProvider.getTextDefaultValue(accountDesc,getFieldsMap(Account.SObjectType).get('Lastname').getDescribe(),recordIndex));
-							if(fullyQualifiedRelationshipName.substringBeforeLast(DOT) == 'contact'){ // a contact should not point to a person account
-								throw new TestDataFactoryException(formatErrorMessage(ERR_CONTACT_TO_PERSONACCOUNT,new List<String>{},''));
-							}
-						}else{ // Business Account
-							if(!nameIsSet) // apply defaut value if name is not set
-								sObj.put('Name',dvProvider.getTextDefaultValue(accountDesc,Account.fields.Name.getDescribe(),recordIndex));
-						}
-					}
-				}else if(sObj.getSObjectType() == Asset.SObjectType){ // Asset
-					if(sObj.get('AccountId') == null && sObj.get('ContactId') == null){
-						throw new TestDataFactoryException(formatErrorMessage(ERR_REQUIRED_FOR_ASSET,new List<String>{},''));
-					}
-				}
-				recordIndex++;
-			}
-			return sObjList;
-		}
 	}
 
 	/**
@@ -532,7 +488,7 @@ public class TDF {
 		*/
 		@testVisible
 		private SObject getRelatedSObjectInstance(Schema.SObjectType sObjectType, String relationshipName, String prefix){
-			Map<String, Schema.SObjectField> fieldsMap = getFieldsMap(sObjectType);
+			Map<String, Schema.SObjectField> fieldsMap = getFieldTokensMap(sObjectType);
 			Schema.DescribeFieldResult fieldDesc;
 			try{
 				fieldDesc = fieldsMap.get(relationshipToFieldName(relationshipName)).getDescribe(); // get related field describe
@@ -592,11 +548,16 @@ public class TDF {
 	*/
 	public virtual class DefaultValueProvider implements IDefaultValueProvider{
 
+		private String ERR_RECORDTYPE_ID_REQUIRED_FOR_ACCOUNT = 'RecordTypeId is required to create an account';
+		private String ERR_NAME_ON_PERSONACCOUNT = 'You can not set the name field for a person account';
+		private String ERR_CONTACT_TO_PERSONACCOUNT = 'You cannot set the AccountId of a contact to a person account';
+		private String ERR_BAD_RECORDTYPE_ID_FOR_ACCOUNT = 'Bad record type Id provided for Account';
+
 		/**
 		* @description get the default map of values
 		*							 the map of values will contain 
 		*								* all the fields with override values provided  
-		* 							* all the required fields of the main sObject and related required sObject
+		* 								* all the required fields of the main sObject and related required sObject
 		* @param sObjectType : sObject Type
 		* @param mapOfValuesOverride : mapOfValuesOverride
 		* @return map of values
@@ -621,7 +582,7 @@ public class TDF {
 		@testVisible
 		private void generateDefaultMap(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapOfValues, String prefix){
 			Schema.DescribeSObjectResult sObjectDesc = sObjectType.getDescribe();
-			Map<String, Schema.SObjectField> fieldsMap = getFieldsMap(sObjectType); // get the fields map
+			Map<String, Schema.SObjectField> fieldsMap = getFieldTokensMap(sObjectType); // get the fields map
 			Set<String> keySetOverride = mapOfValues.keySet();
 			Set<String> relationshipKeySet = getRelationshipKeySet(keySetOverride,prefix);
 			// loop through fields map
@@ -648,6 +609,46 @@ public class TDF {
 						if(isDefaultValueRequired || relationshipKeySet.contains(relationshipName)){ // relationship required or mentioned in the mapOfValues
 							putRelationship(mapOfValues,fieldDesc,prefix); // <= recursion  generateDefaultMap is called in putRelationship
 						}
+					}
+				}
+			}
+			// check the map of values againt some rules that are not detected via the describe API
+			checkDefaultMap(sObjectType,mapOfValues,prefix);
+		}
+
+		/**
+		* @description check if the map of values regarding some rules that are not detected via the describe API
+		*							 handle required fields for accounts in case person account is enabled
+		* @param sObjectType : sObject Type
+		* @param mapOfValues : map of values
+		* @return prefix : prefix (example : Contact.Account.)
+		*/
+		private void checkDefaultMap(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapOfValues, String prefix){
+			Schema.DescribeSObjectResult sObjectDesc = sObjectType.getDescribe();
+			if(sObjectType == Account.SObjectType){ // Account
+				if(PERSON_ACCOUNT_IS_ENABLED){
+					IFieldDefaultValue recordTypeIdValue = (IFieldDefaultValue)mapOfValues.get(prefix+'recordtypeid');
+					// the Account record type id is required if the org has person account enabled
+					if(recordTypeIdValue == null) throw new TestDataFactoryException(formatErrorMessage(ERR_RECORDTYPE_ID_REQUIRED_FOR_ACCOUNT,new List<String>{},''));
+					Id recordTypeId;
+					try{
+						recordTypeId = Id.valueOf((String)recordTypeIdValue.getValue(0));
+					}catch(Exception e){
+						throw new TestDataFactoryException(formatErrorMessage(ERR_BAD_RECORDTYPE_ID_FOR_ACCOUNT,new List<String>{},e.getMessage()));
+					}
+					Boolean nameIsSet = (mapOfValues.get(prefix+'name') != null);
+					Boolean lastnameIsSet = (mapOfValues.get(prefix+'lastname') != null);
+					if(personAccountRecordTypes.contains(recordTypeId)) { // Person Account
+						// name should not be set for a person account
+						if(nameIsSet) throw new TestDataFactoryException(formatErrorMessage(ERR_NAME_ON_PERSONACCOUNT,new List<String>{},''));
+						if(!lastnameIsSet) // apply default value if lastname is not set
+							mapOfValues.put(prefix+'lastname',new FieldDefaultValue(sObjectDesc,getFieldTokensMap(Account.SObjectType).get('Lastname').getDescribe()));
+						if(prefix.substringBeforeLast(DOT) == 'contact'){ // a contact should not point to a person account
+							throw new TestDataFactoryException(formatErrorMessage(ERR_CONTACT_TO_PERSONACCOUNT,new List<String>{},''));
+						}
+					}else{ // Business Account
+						if(!nameIsSet) // apply defaut value if name is not set
+							mapOfValues.put(prefix+'name',new FieldDefaultValue(sObjectDesc,Account.fields.Name.getDescribe()));
 					}
 				}
 			}
@@ -1032,6 +1033,33 @@ public class TDF {
 		}
 	}
 
+	/**
+	* @description class FieldValue : wrapper for a list of sObject in order to get a given field value
+	*/
+	public class FieldValue implements IFieldDefaultValue{
+		private List<SObject> sObjectList;
+		private String fieldName;
+
+		/**
+		* @description construtor
+		* @param sObjectList : list of sObjects for which a given field value will be retruned
+		* @param fieldName : name of the field to return when the getValue method is called
+		*/
+		public FieldValue(List<SObject> sObjectList, String fieldName){
+			this.sObjectList = sObjectList;
+			this.fieldName = fieldName;
+		}	
+
+		/**
+		* @description get encapsulated value
+		* @param recordIndex : recordIndex
+		* @return field value
+		*/
+		public Object getValue(Integer recordIndex){
+			return sObjectList.get(recordIndex).get(fieldName);
+		}
+	}
+
 	/* ===========================  Utility methods  =========================== */
 
 	/**
@@ -1040,7 +1068,7 @@ public class TDF {
 	 * @return fields map
 	 */
 	@testVisible 
-	private static Map<String, Schema.SObjectField> getFieldsMap(Schema.SObjectType sObjectType){
+	private static Map<String, Schema.SObjectField> getFieldTokensMap(Schema.SObjectType sObjectType){
 		if(mapOfFieldsMap.containsKey(sObjectType)){
 			return mapOfFieldsMap.get(sObjectType);
 		}else {
