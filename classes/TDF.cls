@@ -13,84 +13,53 @@
 /**
 * @author benahm
 * @date 2017
-* @description TDF Class
+* @description Apex Test Data Factory
 */
-@testVisible
+@isTest
 public class TDF {
-
+	
 	// Org config
 	// ==========================================================================
 	private static final Boolean PERSON_ACCOUNT_IS_ENABLED = false;
 	// ==========================================================================
 
+	/** Default value generator, used to auto-generate default values for non required fields  */
 	public static final IFieldDefaultValue DEFAULT_VALUE = new AutoFieldDefaultValue();
 	
+	/** Default value provider instance */
 	private static DefaultValueProvider dvProvider = new DefaultValueProvider();
-	private static final String DOT = '.';
 
-	private static Map<Schema.SObjectType,Map<String, Schema.SObjectField>> mapOfFieldsMap = new Map<Schema.SObjectType,Map<String, Schema.SObjectField>>();
+	/** Constant that contains a dot '.' */
+	public static final String DOT = '.';
 
-	// Properties
-	// ==========================================================================
-	// Global Describe //
-	private static Map<String, Schema.SObjectType> globalDescribe{
-		get{
-			if(globalDescribe == null){
-		 		globalDescribe = Schema.getGlobalDescribe();
-			}
-			return globalDescribe;
-		}
-		set{}
-	} 
-	// Person Account record type Ids //
-	@testVisible
-	private static Set<Id> personAccountRecordTypes{ 
-		get{
-			if(personAccountRecordTypes == null){
-				String account = 'Account';
-				personAccountRecordTypes = new Map<Id,SObject>(Database.query('select Id from RecordType where SObjectType=:account and isPersonType=true')).keySet();
-			}
-			return personAccountRecordTypes;
-		}
-		set{}
-	}
-	// ==========================================================================
+	/** Map of sObject type with their corresponding map of field Tokens  */
+	@TestVisible
+	private static Map<Schema.SObjectType,Map<String, Schema.SObjectField>> mapOfFieldTokensMap = new Map<Schema.SObjectType,Map<String, Schema.SObjectField>>();
+
+
 
 	/**
 	 * @description create an sObject
-	 * @param sObjectName : name of the sObject
+	 * @param sObjectName (String): name of the sObject to be created
+	 * @param Boolean (Boolean): if true the sObject instance is inserted to the Salesforce database
 	 * @return sObject instance
-	 */
-	public static SObject createSObject(String sObjectName){
-		return createSObject(sObjectName,new Map<String,Object>());
-	}
-
-	/**
-	 * @description create an sObject
-	 * @param sObjectName : name of the sObject
-	 * @param mapOfValuesOverride : map of values 
-	 * @return sObject instance
-	 */
-	public static SObject createSObject(String sObjectName, Map<String,Object> mapOfValuesOverride){
-		return createSObject(sObjectName,mapOfValuesOverride,false);
-	}
-
-	/**
-	 * @description create an sObject
-	 * @param sObjectName : name of the sObject
-	 * @param Boolean : do insert flag 
-	 * @return sObject instance
+	 * @example 
+	 * Account acc = (Account)TDF_TestDataFactory.createSObject('Account',true);
 	 */
 	public static SObject createSObject(String sObjectName, Boolean doInsert){
 		return createSObject(sObjectName,new Map<String,Object>(),doInsert);
 	}
 
 	/**
-	 * @description create an sObject
-	 * @param sObjectName : name of the sObject
-	 * @param mapOfValuesOverride : map of values
-	 * @param doInsert : do insert flag 
+	 * @description create an sObject with a map to override field values
+	 * @param sObjectName (String): name of the sObject to be created
+	 * @param mapOfValuesOverride (Map<String,Object>): map of values
+	 * @param doInsert (Boolean): if true the sObject instance is inserted to the Salesforce database
 	 * @return sObject instance
+	 * @example 
+	 * Account acc = (Account)TDF_TestDataFactory.createSObject('Account',new Map<String,Object>{
+	 *	'Description' => 'Test'
+	 * },true);
 	 */
 	public static SObject createSObject(String sObjectName, Map<String,Object> mapOfValuesOverride, Boolean doInsert){
 		return createSObjectList(sObjectName,mapOfValuesOverride,doInsert,1).get(0);
@@ -98,63 +67,39 @@ public class TDF {
 	
 	/**
 	 * @description create a list of sObjects
-	 * @param sObjectName : name of the sObject
-	 * @param numberOfSObjects : number of sObjects
+	 * @param sObjectName (String): name of the sObject to be created
+	 * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
+	 * @param numberOfSObjects (Integer): number of sObjects to be created
 	 * @return list of sObject instances
-	 */
-	public static List<SObject> createSObjectList(String sObjectName, Integer numberOfSObjects){
-		return createSObjectList(sObjectName,new Map<String,Object>(),numberOfSObjects);
-	}		
-
-	/**
-	 * @description create a list of sObjects
-	 * @param sObjectName : name of the sObject
-	 * @param mapOfValuesOverride : map of values
-	 * @param numberOfSObjects : number of sObjects
-	 * @return list of sObject instances
-	 */
-	public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Integer numberOfSObjects){
-		return createSObjectList(sObjectName,mapOfValuesOverride,false,numberOfSObjects);
-	}	
-
-	/**
-	 * @description create a list of sObjects
-	 * @param sObjectName : name of the sObject
-	 * @param doInsert : do insert flag
-	 * @param numberOfSObjects : number of sObjects
-	 * @return list of sObject instances
+	 * @example 
+	 * List<Account> accList = TDF_TestDataFactory.createSObjectList('Account',true,10);
 	 */
 	public static List<SObject> createSObjectList(String sObjectName, Boolean doInsert, Integer numberOfSObjects){
 		return createSObjectList(sObjectName,new Map<String,Object>(),doInsert,numberOfSObjects);
 	}
 
 	/**
-	 * @description create a list of sObjects
-	 * @param sObjectName : name of the sObject
-	 * @param mapOfValuesOverride : map of values
-	 * @param doInsert : do insert flag
-	 * @param numberOfSObjects : number of sObjects
+	 * @description create a list of sObjects with a map to override field values
+	 * @param sObjectName (String): name of the sObject to be created
+	 * @param mapOfValuesOverride (Map<String,Object>): map of values
+	 * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
+	 * @param numberOfSObjects (Integer): number of sObjects to be created
 	 * @return list of sObject instances
+	 * @example 
+	 * List<Account> accList = TDF_TestDataFactory.createSObjectList('Account',new Map<String,Object>{
+	 *	'Description' => 'Test'
+	 * },true,10);
 	 */
 	public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Boolean doInsert, Integer numberOfSObjects){
-		Schema.SObjectType sObjectType = globalDescribe.get(sObjectName); 
-		ISObjectFactory sObjFactory = new SObjectFactory(sObjectType);
+		Schema.SObjectType sObjectType = Schema.getGlobalDescribe().get(sObjectName); 
+		SObjectFactory sObjFactory = new SObjectFactory(sObjectType);
 		List<SObject> listSObjectInstance = sObjFactory.getListSObjectInstance(mapOfValuesOverride, doInsert, numberOfSObjects);
 		return listSObjectInstance;
 	}
 
-	/**
-	 * @description set the default value provider 
-	 * @param dvProviderOverride : default value provider
-	 */
-	public static void setDefaultValueProvider(DefaultValueProvider dvProviderOverride){
-		if(dvProviderOverride != null)
-			dvProvider = dvProviderOverride;
-	}
-
 
 	/* ======================================================================================================== */
-	/* =======================================  Inner Interfaces & Classes ==================================== */
+	/* =======================================  inner classes & interfaces ==================================== */
 	/* ======================================================================================================== */
 	/**
 	* @description interface ISObjectManager
@@ -169,33 +114,37 @@ public class TDF {
 	}
 
 	/**
-	* @description class SObjectManager : manage all the sObjects instances and the insertion to the salesforce database
+	* @description class SObjectManager : manage all the sObjects instances and the insertion to the salesforce DB
 	*/
-	@testVisible
-	private class SObjectManager implements ISObjectManager{
+	public class SObjectManager implements ISObjectManager{
 		
-		private String sObjectName = null; // main sObject name
+		/** Main sObject name */
+		private String sObjectName = null; 
+		/** List of main sObject instances */
 		@testVisible
-		private List<SObject> mainSObjectList = new List<SObject>(); // list of main sObject instances
+		private List<SObject> mainSObjectList = new List<SObject>();
+		/** Map of relationship names with their related list of sObject instances  */
 		@testVisible
-		private Map<String,List<SObject>> relatedSObjMapList = new Map<String,List<SObject>>(); // map of all lists of related sObject instances
+		private Map<String,List<SObject>> relatedSObjMapList = new Map<String,List<SObject>>();
+		/** List of ordered relationship names by dot notation*/
 		@testVisible
-		private List<String> orderedRelationshipList = new List<String>(); // list of ordered relationship names
+		private List<String> orderedRelationshipList = new List<String>();
 
-		// Error Messages 
-		private String ERR_INSERT_SOBJECT = 'Unable to insert "{0}"';
-		
+		/* ===========================  Error Messages =========================== */
+		/** Unable to insert "{0}" records: {1} */
+		private String ERR_INSERT_SOBJECT = 'Unable to insert "{0}" records: \n{1}';
+
 
 		/**
 		* @description constructor
-		* @return sObjectName : sObject name
+		* @return sObjectName (String): main sObject name
 		*/
 		public SObjectManager(String sObjectName){
 			this.sObjectName = sObjectName;
 		}
 
 		/**
-		* @description get the main sObject list
+		* @description get the list of all main sObject instances
 		* @return list of sObject instances
 		*/
 		public List<SObject> getMainSObjectList(){
@@ -203,142 +152,181 @@ public class TDF {
 		}
 
 		/**
-		* @description set an sObject to the main list with a specific index
-		* @param index : index
-		* @param sObj : sObject instance
+		* @description set or add an sObject to the main sObject list for a given index
+		* @param index (Integer): index for which the sObject instance will be added or set
+		* @param sObj (SObject): sObject instance to add or set to the main sObject list
 		*/
 		public void setSObject(Integer index, SObject sObj){
-			if(index < 0) return;
-			if(index < mainSObjectList.size())
+			if(index == mainSObjectList.size()){
+				mainSObjectList.add(sObj);
+			}else{
 				mainSObjectList.set(index,sObj);
-			else mainSObjectList.add(sObj);
+			} 
 		}
 
 		/**
-		* @description get an sObject from the main list with a specific index
-		* @param index : index
-		* @return sObject instance
+		* @description get an sObject from the main sObject list for a given index
+		* @param index (Integer): index for which the sObject instance will be returned
+		* @return the returnd sObject instance
 		*/
 		public SObject getSObject(Integer index){
-			if(index >= mainSObjectList.size() || index < 0) return null;
 			return mainSObjectList.get(index);
 		}
 
 		/**
-		* @description set a related sObject with a specific index and relationship name
-		* @param index : index
-		* @param fullyQualifiedRelationshipName : fully qualified relationship name (example contact.account)
-		* @param sObj : sObject instance
+		* @description set or add a related sObject into the related sObject map list for a given index and relationship name
+		* @param index (Integer): index for which the sObject instance will be added or set
+		* @param fullyQualifiedRelationshipName (String): fully qualified relationship name for which the sObject instance will be added or set
+		* @param sObj (SObject): sObject instance to add or set to the related sObject map list
 		*/
 		public void setRelationship(Integer index, String fullyQualifiedRelationshipName, SObject sObj){
-			if(index < 0) return;
-			List<SObject> relatedSObjList = relatedSObjMapList.get(fullyQualifiedRelationshipName);
+			String fullyQualifiedRelationshipNameLowerCase = fullyQualifiedRelationshipName.toLowerCase();
+			// get related sObject list for the fully qualified relationship name
+			List<SObject> relatedSObjList = relatedSObjMapList.get(fullyQualifiedRelationshipNameLowerCase);
 			if(relatedSObjList == null){ 
+				// instantiate the list if null
 				relatedSObjList = new List<SObject>();
-				relatedSObjMapList.put(fullyQualifiedRelationshipName.toLowerCase(),relatedSObjList);
-				addRelationshipName(fullyQualifiedRelationshipName);
+				// put the list into the related sObject map list 
+				relatedSObjMapList.put(fullyQualifiedRelationshipNameLowerCase,relatedSObjList);
+				// add the fully qualified relationship name to the list of ordered relationship names
+				addRelationshipName(fullyQualifiedRelationshipNameLowerCase);
 			} 
-			if(index < relatedSObjList.size()){
-				relatedSObjList.set(index,sObj);
+
+			if(index == relatedSObjList.size()){
+				relatedSObjList.add(sObj);
 			}
 			else{
-				relatedSObjList.add(sObj);
+				relatedSObjList.set(index,sObj);
 			} 
 		}
 
 		/**
-		* @description get a related sObject with a specific index and relationship name
-		* @param index : index
-		* @param fullyQualifiedRelationshipName : fully qualified relationship name (example contact.account)
-		* @return sObject instance
+		* @description get a related sObject from the related sObject map list for a given index and relationship name
+		* @param index (Integer): index for which the sObject instance will be returned
+		* @param fullyQualifiedRelationshipName (String): fully qualified relationship name for which the sObject instance will be returned
+		* @return the returnd sObject instance
 		*/
-		public SObject getRelationship(Integer index,String fullyQualifiedRelationshipName){
-			List<SObject> relatedSObjList = relatedSObjMapList.get(fullyQualifiedRelationshipName.toLowerCase());
-			if(relatedSObjList == null) return null;
-			if(index >= relatedSObjList.size() || index < 0) return null;
-			return relatedSObjList.get(index);
+		public SObject getRelationship(Integer index, String fullyQualifiedRelationshipName){
+			try{
+				List<SObject> relatedSObjList = relatedSObjMapList.get(fullyQualifiedRelationshipName.toLowerCase());
+				return relatedSObjList.get(index);
+			}catch(Exception e){
+				return null;
+			}
 		}
 
 		/**
-		* @description insert all the sObjects
+		* @description insert all the sObjects stored in the sObject Manager into the Salesforce database  
 		*/
 		public void insertAll(){
 			// loop through the ordered relationship list
 			for(Integer i = 0; i < orderedRelationshipList.size(); i++){
 				String fullyQualifiedRelationshipName = orderedRelationshipList.get(i);
 				List<SObject> sObjParentList = relatedSObjMapList.get(fullyQualifiedRelationshipName);
-				String leafRelationshipName = (DOT+fullyQualifiedRelationshipName).substringAfterLast(DOT);
+
 				// insert parent sObject list
-				insertList(sObjParentList,DOT+fullyQualifiedRelationshipName);
-				if(fullyQualifiedRelationshipName.contains(DOT)){ // multiple relationships
-					String fullyQualifiedRelationshipNameWithoutLeaf = fullyQualifiedRelationshipName.substringBeforeLast(DOT);
+				insertList(sObjParentList,TDF_Utility.DOT+fullyQualifiedRelationshipName);
+				
+				// last relationship name in the dot notation
+				String leafRelationshipName = (TDF_Utility.DOT+fullyQualifiedRelationshipName).substringAfterLast(TDF_Utility.DOT); 
+
+				if(!fullyQualifiedRelationshipName.contains(TDF_Utility.DOT)){ // single relationship 
+					// link child sObject list to the main sObject list
+					setChildParentRelationship(mainSObjectList,sObjParentList,fullyQualifiedRelationshipName);
+
+				}else{ // multiple relationships
+
+					// fully qualified relationship name without the leaf relationship
+					String fullyQualifiedRelationshipNameWithoutLeaf = fullyQualifiedRelationshipName.substringBeforeLast(TDF_Utility.DOT);
+					// get the list of sObject of the fully qualified relationship name without the leaf relationship name
 					List<SObject> sObjChildList = relatedSObjMapList.get(fullyQualifiedRelationshipNameWithoutLeaf);
 					// link child sObject list to the parent sObject list
 					setChildParentRelationship(sObjChildList,sObjParentList,leafRelationshipName);
-				}else{ // single relationship
-					// link child sObject list to the main sObject list
-					setChildParentRelationship(mainSObjectList,sObjParentList,fullyQualifiedRelationshipName);
 				}
 			}
+
 			// insert main sObject list
 			insertList(mainSObjectList,'');
 		}
 
+		/* ============================================================================================= */
 		/* =======================================  private methods ==================================== */
+		/* ============================================================================================= */
 
 		/**
-		* @description set child parent relationship
-		* @param sObjChildList : list of child sObjects
-		* @param sObjParentList : list of parent sObjects
-		* @param relationshipName : relationship name that links the child to the parent
+		* @description link a list of child sObject instances to a list of parent sObject instances for a given relationship name
+		* @param sObjChildList (List<SObject>): list of child sObject instances
+		* @param sObjParentList (List<SObject>): list of parent sObject instances
+		* @param relationshipName (String): relationship name that links the child sObject to the parent sObject
 		*/
 		@testVisible
 		private void setChildParentRelationship(List<SObject> sObjChildList, List<SObject> sObjParentList, String relationshipName){
-			if(sObjChildList == null || sObjParentList == null) return;
-			if(sObjChildList.size() != sObjParentList.size()) return;
 			Integer index = 0;
 			for(SObject sObjChild: sObjChildList){
+				// get the field name that links the child sObject to the parent sObject
+				String relationshipFieldName = TDF_Utility.getFieldNameFromRelationshipName(relationshipName); 
 				// set field related to the relationship name (on the child sObject), with the Id of the parent sObject
-				sObjChild.put(relationshipToFieldName(relationshipName),sObjParentList.get(index).get('Id'));
+				sObjChild.put(relationshipFieldName,sObjParentList.get(index).get('Id'));
 				index++;
 			}
 		}
 
 		/**
-		* @description add relationship name to a list, ordered by the number of dots
-		* @param fullyQualifiedRelationshipName : fully qualified relationship name (example contact.account)
+		* @description add relationship name to the ordered relationship list, ordered by the number of dots
+		* @param fullyQualifiedRelationshipName (String): fully qualified relationship name (example contact.account)
 		*/
 		@testVisible
 		private void addRelationshipName(String fullyQualifiedRelationshipName){
-			String fullyQualifiedRelationshipNameLowerCase = fullyQualifiedRelationshipName.toLowerCase();
 			Integer i=0;
 			for (String rName : orderedRelationshipList) {
-				if(fullyQualifiedRelationshipNameLowerCase == rName) return; // already exists
+				if(fullyQualifiedRelationshipName == rName) return; // already exists
 				if(rName.countMatches('.') < fullyQualifiedRelationshipName.countMatches('.')){
 					// insert depending of the number of dots
-					orderedRelationshipList.add(i, fullyQualifiedRelationshipNameLowerCase);
+					orderedRelationshipList.add(i, fullyQualifiedRelationshipName);
 					return;
 				}
 				i++;
 			}
 			// insert at the end
-			orderedRelationshipList.add(fullyQualifiedRelationshipNameLowerCase);
+			orderedRelationshipList.add(fullyQualifiedRelationshipName);
 		}
 
 		/**
-		* @description insert a list of sObjects
-		* @param suffixErrorMessage : suffix provided only for error message generation (example : .contact.account)
-		* @param sObjList : list of sObjects
+		* @description execute a DML insert operation on a list of sObjects
+		* @param errorMessageMergeValue (String): merge value provided only for error message generation (example : .contact.account)
+		* @param sObjList (List<SObject>): list of sObjects to be inserted
 		*/
 		@testVisible
-		private void insertList(List<SObject> sObjList, String suffixErrorMessage){
-			try{
-				insert sObjList;
-			}catch(Exception e){
-				throw new TestDataFactoryException(formatErrorMessage(ERR_INSERT_SOBJECT,new List<String>{sObjectName+suffixErrorMessage},e.getMessage()));
+		private void insertList(List<SObject> sObjList, String errorMessageMergeValue){
+			Database.SaveResult[] saveResults = Database.insert(sObjList, false);
+			Integer i = 0;
+			List<String> listErrors = new List<String>();
+			// Iterate through the save results
+			for (Database.SaveResult saveResult : saveResults) {
+				if (!saveResult.isSuccess()){
+					// Iterate through the errors                
+					for(Database.Error error : saveResult.getErrors()) {
+						Set<String> fieldNames = new Set<String>{'Name','RecordTypeId'};
+						fieldNames.addAll(error.getFields());
+						String listFieldValues = '';     
+						for(String fieldName : fieldNames){
+							Object fieldValue;
+							try {
+								fieldValue = sObjList.get(i).get(fieldName);
+							}catch(Exception e){ /*  ignore errors */}
+							if(fieldValue != null){
+								listFieldValues += fieldName + '='+ fieldValue +', ';
+							}
+						}              
+						listFieldValues = listFieldValues.removeEnd(', ');
+						listErrors.add(error.getStatusCode() + ': ' + error.getMessage() + ' ' +'['+listFieldValues+']');
+					}
+					i++;
+				}
 			}
+			if(!listErrors.isEmpty())
+				throw new TDF_TestDataFactory.TestDataFactoryException(TDF_Utility.formatErrorMessage(ERR_INSERT_SOBJECT,new List<String>{sObjectName+errorMessageMergeValue,String.join(listErrors,'\n')},''));
 		}
-
 	}
 
 	/**
@@ -351,39 +339,52 @@ public class TDF {
 	}
 
 	/**
-	* @description class SObjectFactory : manage the creation of all the sObjects instances and store them in an sObject Manager instance
+	* @description class SObjectFactory : manage the creation of all the sObjects instances 
 	*/
-	@testVisible
-	private class SObjectFactory implements ISObjectFactory{
+	public class SObjectFactory implements ISObjectFactory{
 
+		/** Main sObject type to instantiated */
 		private Schema.SObjectType sObjectType = null;
-		private ISObjectManager sObjMgr = null;
+		/** Main sObject Name to instantiated */
+		private String sObjectName;
+		/** Instance of SObject Manager to store all the created sObject instances */
+		private SObjectManager sObjMgr;
 
-		// Error Messages 
+		/* ===========================  Error Messages =========================== */
+		/** Unable to find the sObject */
 		private String ERR_NOT_FOUND_SOBJECT = 'Unable to find the sObject';
-		private String ERR_FIELD_NOT_EXIST = 'The field "{0}" does not exist on "{1} or the value type provided is incorrect"';
+		/** The field "{0}" does not exist on "{1}" or the value type provided is incorrect */
+		private String ERR_FIELD_NOT_EXIST = 'The field "{0}" does not exist on "{1}" or the value type provided is incorrect';
+		/** The relationship "{0}" does not exist on "{1}" */
 		private String ERR_RELATIONSHIP_NOT_EXIST = 'The relationship "{0}" does not exist on "{1}"';
+		/** Unable to get the value for the field "{0}" */
+		private String ERR_UNABLE_TO_GET_FIELD_VALUE = 'Unable to get the value for the field "{0}"';
 
 
+		/**
+		* @description construtor
+		* @param sObjectType (Schema.SObjectType): main sObject type to be instantiated
+		*/
 		public SObjectFactory(Schema.SObjectType sObjectType){
 			if(sObjectType == null) 
-				throw new TDF.TestDataFactoryException(formatErrorMessage(ERR_NOT_FOUND_SOBJECT,new List<String>{},''));
+				throw new TDF_TestDataFactory.TestDataFactoryException(TDF_Utility.formatErrorMessage(ERR_NOT_FOUND_SOBJECT,new List<String>{},''));
 			this.sObjectType = sObjectType;
-			this.sObjMgr = new SObjectManager(sObjectType.getDescribe().getName());
+			this.sObjectName = sObjectType.getDescribe().getName();
+			this.sObjMgr = new SObjectManager(this.sObjectName);
 		}
 
 		/**
-		* @description Get SObject Manager instance
-	  * @return sObjectManager instance
+		* @description get the SObject Manager instance
+		* @return sObject Manager instance
 		*/
-		public ISObjectManager getSObjectManager(){
+		public SObjectManager getSObjectManager(){
 			return sObjMgr;
 		}
 
 		/**
-		* @description Generate an sObject instance
-		* @param mapOfValuesOverride : map of values
-		* @param doInsert : doInsert flag
+		* @description generate an sObject instance and apply the override map of values
+		* @param mapOfValuesOverride (Map<String,Object>): map of values to override when instanciating the sObject
+		* @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
 		* @return sObject instance
 		*/
 		public SObject getSObjectInstance(Map<String,Object> mapOfValuesOverride, Boolean doInsert){
@@ -391,18 +392,18 @@ public class TDF {
 		}
 
 		/**
-		* @description Generate a list of sObject instances
-		* @param mapOfValuesOverride : map of values
-		* @param doInsert : doInsert flag
-		* @param numberOfSObjects : number of sObjects
+		* @description generate a list of sObject instances and apply the override map of values
+		* @param mapOfValuesOverride (Map<String,Object>): map of values to override when instanciating the sObject
+		* @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
+		* @param numberOfSObjects (Integer): number of sObjects to be instantiated
 		* @return list of sObject instances
 		*/
 		public List<SObject> getListSObjectInstance(Map<String,Object> mapOfValuesOverride, Boolean doInsert, Integer numberOfSObjects){
 			// get the map of values formed from the union of the map of values override given by the user and the auto-generated map of values for the required fields
-			Map<String,IFieldDefaultValue> mapOfValues = dvProvider.getDefaultMap(sObjectType,mapOfValuesOverride);
+			Map<String,TDF_DefaultValueProvider.IFieldDefaultValue> mapOfValues = TDF_TestDataFactory.defaultValueProvider.getDefaultMapOfValues(sObjectType,mapOfValuesOverride);
 
 			for(Integer i = 0; i < numberOfSObjects; i++) {
-				initSObjectInstance(sObjectType,mapOfValues,i); // init sObject instance
+				initSObjectInstance(mapOfValues,i); // init sObject instance
 			}
 
 			if(doInsert) sObjMgr.insertAll(); // insert all if doInsert = true
@@ -410,126 +411,156 @@ public class TDF {
 			return sObjMgr.getMainSObjectList();
 		}
 
+		/* ============================================================================================= */
 		/* =======================================  private methods ==================================== */
+		/* ============================================================================================= */
 
 		/**
-		* @description Initiate an sObject
-		* @param sObjectType : sObject Type
-		* @param mapOfValues : map of values
-		* @param recordIndex : recordIndex
+		* @description initiate the main sObject instance with all related sObject and apply the map of values
+		* @param mapOfValues (Map<String,TDF_DefaultValueProvider.IFieldDefaultValue>): map of values with key as field name and value as the default value to be used when instantiating the sObject. 
+		* 			This map contains the default values provided as input by the user and the auto-generated default values for the required fields
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
 		*/
-		private void initSObjectInstance(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapOfValues, Integer recordIndex){
-			String sObjectName = sObjectType.getDescribe().getName();
+		@testVisible
+		private void initSObjectInstance(Map<String,TDF_DefaultValueProvider.IFieldDefaultValue> mapOfValues, Integer recordIndex){
 			// add the main sObject instance to the sObject Manager
 			sObjMgr.setSObject(recordIndex,sObjectType.newSObject()); 
 
 			for(String fullyQualifiedFieldName : mapOfValues.keySet()){ // loop through the map of values
 
-				String fieldName = (DOT+fullyQualifiedFieldName).substringAfterLast(DOT);
-				Object fieldValue = mapOfValues.get(fullyQualifiedFieldName).getValue(recordIndex);
-				if(fullyQualifiedFieldName.contains(DOT)){ // relationship
-					// first relationship name in fully qualified relationship name
-					String firstRelationshipName = fullyQualifiedFieldName.substringBefore(DOT);
-					// fully qualified relationship name without the field nam
-					String fullyQualifiedRelationshipName = fullyQualifiedFieldName.substringBeforeLast(DOT);
-					// generate the related sObject instances for a given fullyQualifiedRelationshipName
-					SObject relatedSObj = getRelationshipInstance(sObjectType,fullyQualifiedRelationshipName,recordIndex);
-					// apply the field value for the related sObject
-					putField(relatedSObj,fieldName,fieldValue,sObjectName+DOT+fullyQualifiedRelationshipName);
-					// link the related sObject to the main sObj
-					putSObject(sObjMgr.getSObject(recordIndex),firstRelationshipName,sObjMgr.getRelationship(recordIndex,firstRelationshipName),sObjectName);
-
-				}else { // field name
+				// get the field name from the fully qualified field name
+				String fieldName = (TDF_Utility.DOT+fullyQualifiedFieldName).substringAfterLast(TDF_Utility.DOT);
+				// get the field value from the map of values
+				Object fieldValue = getFieldValueFromMapOfValues(mapOfValues,fullyQualifiedFieldName,recordIndex);
+				
+				if(!fullyQualifiedFieldName.contains(TDF_Utility.DOT)){ // field name
 					putField(sObjMgr.getSObject(recordIndex),fieldName,fieldValue,sObjectName);
+				}else{ // relationship
+					// first relationship name in fully qualified relationship name
+					String firstRelationshipName = fullyQualifiedFieldName.substringBefore(TDF_Utility.DOT); 
+					// fully qualified relationship name without the field name 
+					String fullyQualifiedRelationshipName = fullyQualifiedFieldName.substringBeforeLast(TDF_Utility.DOT);  
+					// generate the related sObject instances for a given fullyQualifiedRelationshipName
+					SObject relatedSObj = getRelationshipInstance(fullyQualifiedRelationshipName,recordIndex); 
+					// apply the field value for the related sObject
+					putField(relatedSObj,fieldName,fieldValue,sObjectName+TDF_Utility.DOT+fullyQualifiedRelationshipName);
+					// link the related sObject to the main sObject
+					putSObject(sObjMgr.getSObject(recordIndex),firstRelationshipName,sObjMgr.getRelationship(recordIndex,firstRelationshipName),sObjectName);
 				}
-
 			}
 		}
 
 		/**
-		* @description Initiate all the related sObjects for a given fully qualified relationship name
-		* @param sObjectType : sObject Type
-		* @param fullyQualifiedRelationshipName : fully qualified relationship name
-		* @param index : index 
-		* @return sObject instance
+		* @description Recursive method that initiate all the related sObjects of a given fully qualified relationship name
+		* @param fullyQualifiedRelationshipName (String): fully qualified relationship name (example : Case.Contact.Account)
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return main sObject instance with all related sObjects attached to it
 		*/
 		@testVisible
-		private SObject getRelationshipInstance(Schema.SObjectType sObjectType,String fullyQualifiedRelationshipName, Integer index){
-			// get the sObject instance from the sObject Manage
-			SObject sObj = sObjMgr.getRelationship(index,fullyQualifiedRelationshipName);
-			if(sObj != null) return sObj;
+		private SObject getRelationshipInstance(String fullyQualifiedRelationshipName, Integer recordIndex){
+			// get the sObject instance from the sObject Manager
+			SObject sObj = sObjMgr.getRelationship(recordIndex,fullyQualifiedRelationshipName);
+			// return the sObject instance if already exists in the sObject Manager
+			if(sObj != null) return sObj; 
 
-			String sObjectName = sObjectType.getDescribe().getName();
-			String leafRelationshipName = (DOT+fullyQualifiedRelationshipName).substringAfterLast(DOT);
+			// last relationship name in the dot notation
+			String leafRelationshipName = (TDF_Utility.DOT+fullyQualifiedRelationshipName).substringAfterLast(TDF_Utility.DOT); 
 
-			if(fullyQualifiedRelationshipName.contains(DOT)){ // multiple relationships
-				// fully qualified relationship name without the leaf relationship
-				String fullyQualifiedRelationshipNameWithoutLeaf = fullyQualifiedRelationshipName.substringBeforeLast(DOT);
-				// generate the all the sObject instances for the fully qualified relationship name without the leaf relationship name
-				SObject relatedSObj = getRelationshipInstance(sObjectType,fullyQualifiedRelationshipNameWithoutLeaf,index); // <= recursion
-				// get sObject instance for the leaf relationship
-				sObj = getRelatedSObjectInstance(relatedSObj.getSObjectType(),leafRelationshipName,sObjectName+DOT+fullyQualifiedRelationshipNameWithoutLeaf);
-				// link the related instance of the leaf relationship to the related sObject of the fully qualified relationship name without the leaf relationship name 
-				putSObject(relatedSObj,leafRelationshipName,sObj,sObjectName+DOT+fullyQualifiedRelationshipNameWithoutLeaf);
-			}else { // single relationship
+			if(!fullyQualifiedRelationshipName.contains(TDF_Utility.DOT)){ // single relationship
 				sObj = getRelatedSObjectInstance(sObjectType,leafRelationshipName,sObjectName); 
-			}
+			}else{ // multiple relationships
 
-			sObjMgr.setRelationship(index,fullyQualifiedRelationshipName,sObj);
+				// fully qualified relationship name without the leaf relationship
+				String fullyQualifiedRelationshipNameWithoutLeaf = fullyQualifiedRelationshipName.substringBeforeLast(TDF_Utility.DOT); 
+				// generate the all the sObject instances for the fully qualified relationship name without the leaf relationship name
+				SObject relatedSObj = getRelationshipInstance(fullyQualifiedRelationshipNameWithoutLeaf,recordIndex); // <= recursion
+				// merge value for error message display
+				String errorMessageMergeValue = sObjectName+TDF_Utility.DOT+fullyQualifiedRelationshipNameWithoutLeaf;
+				// get sObject instance for the leaf relationship
+				sObj = getRelatedSObjectInstance(relatedSObj.getSObjectType(),leafRelationshipName,errorMessageMergeValue); 
+				// link the related instance of the leaf relationship to the related sObject of the fully qualified relationship name without the leaf relationship name
+				putSObject(relatedSObj,leafRelationshipName,sObj,errorMessageMergeValue);
+			} 
+
+			// add the sObject instance to the sObject Manager
+			sObjMgr.setRelationship(recordIndex,fullyQualifiedRelationshipName,sObj);
 			return sObj;
 		}
 
 		/**
-		* @description get related sObject instance
-		* @param sObjectType : sObjectType
-		* @param relationshipName : relationship name
-		* @param prefix : prefix (example : Contact.Account)
-		* @return sObject instance
+		* @description get related sObject instance of an sObject type for a given relationship name
+		* @param sObjectType (Schema.SObjectType): sObject type to which the generate sObject is related
+		* @param relationshipName (String): relationship name that links the sObject type and the sObject instance that will be generated
+		* @param errorMessageMergeValue (String): merge value provided only for error message generation (example : Contact.Account)
+		* @return the generated related sObject instance
 		*/
 		@testVisible
-		private SObject getRelatedSObjectInstance(Schema.SObjectType sObjectType, String relationshipName, String prefix){
-			Map<String, Schema.SObjectField> fieldsMap = getFieldTokensMap(sObjectType);
+		private SObject getRelatedSObjectInstance(Schema.SObjectType sObjectType, String relationshipName, String errorMessageMergeValue){
+			Map<String, Schema.SObjectField> fieldsMap = TDF_Utility.getFieldTokensMap(sObjectType);
 			Schema.DescribeFieldResult fieldDesc;
+			SObject sObj;
 			try{
-				fieldDesc = fieldsMap.get(relationshipToFieldName(relationshipName)).getDescribe(); // get related field describe
+				// get the related field describe
+				fieldDesc = fieldsMap.get(TDF_Utility.getFieldNameFromRelationshipName(relationshipName)).getDescribe(); 
+				// get related sObject instance
+				sObj = fieldDesc.getReferenceTo().get(0).newSObject();
 			}catch(Exception e){
-				throw new TestDataFactoryException(formatErrorMessage(ERR_RELATIONSHIP_NOT_EXIST,new List<String>{relationshipName,prefix},e.getMessage()));
+				throw new TDF_TestDataFactory.TestDataFactoryException(TDF_Utility.formatErrorMessage(ERR_RELATIONSHIP_NOT_EXIST,new List<String>{relationshipName,errorMessageMergeValue},e.getMessage()));
 			}
-			return  fieldDesc.getReferenceTo().get(0).newSObject(); 
+			return  sObj;
 		}
 
 		/**
-		* @description put a related sObject in an sObject
-		* @param sObj : sObject instance
-		* @param relationshipName : relationship name
-		* @param sObjectValue : sObject Instance
-		* @param prefixErrorMessage : prefix provided only for error message generation (example : Contact.Account)
-		* @return sObject instance
+		* @description get the field value from the map of values for a given record index and fully qualified field name
+		* @param mapOfValues (Map<String,TDF_DefaultValueProvider.IFieldDefaultValue>): map of values with key as field name and value as the default value to be used when instantiating the sObject. 
+		* @param fullyQualifiedFieldName (String): fully qualified field name (example : Contact.Account.Name)
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return field value
 		*/
 		@testVisible
-		private SObject putSObject(SObject sObj, String relationshipName, sObject sObjectValue, String prefixErrorMessage){
+		private Object getFieldValueFromMapOfValues(Map<String,TDF_DefaultValueProvider.IFieldDefaultValue> mapOfValues, String fullyQualifiedFieldName, Integer recordIndex){
+			Object fieldValue;
+			try{
+				// get the field value
+				fieldValue = mapOfValues.get(fullyQualifiedFieldName).getValue(recordIndex); 
+			}catch(Exception e){
+				throw new TDF_TestDataFactory.TestDataFactoryException(TDF_Utility.formatErrorMessage(ERR_UNABLE_TO_GET_FIELD_VALUE,new List<String>{fullyQualifiedFieldName},e.getMessage()));
+			}
+			return fieldValue;
+		}
+
+		/**
+		* @description attach an sObject into a related sObject
+		* @param sObj (SObject): main sObject instance
+		* @param relationshipName (String): sObject name of the related sObject
+		* @param sObjectValue (SObject): related sObject instance to be attached to the main sObject instance
+		* @param errorMessageMergeValue (String): merge value provided only for error message generation (example : Contact.Account)
+		* @return main sObject instance
+		*/
+		@testVisible
+		private SObject putSObject(SObject sObj, String relationshipName , SObject sObjectValue, String errorMessageMergeValue){
 			try{
 				sObj.putSObject(relationshipName,sObjectValue);
 			}catch(Exception e){
-				throw new TestDataFactoryException(formatErrorMessage(ERR_RELATIONSHIP_NOT_EXIST,new List<String>{relationshipName,prefixErrorMessage},e.getMessage()));
+				throw new TDF_TestDataFactory.TestDataFactoryException(TDF_Utility.formatErrorMessage(ERR_RELATIONSHIP_NOT_EXIST,new List<String>{relationshipName,errorMessageMergeValue},e.getMessage()));
 			}
 			return sObj;
 		}		
 
 		/**
-		* @description put a field value in an sObject
-		* @param sObj : sObject instance
-		* @param fieldName : field name
-		* @param value : value
-		* @param prefixErrorMessage : prefix provided only for error message generation (example : Contact.Account)
-		* @return sObject instance
+		* @description set field value in given sObject instance
+		* @param sObj (SObject): main sObject instance
+		* @param fieldName (String): field name of the field to set
+		* @param fieldValue (Object): value of the field to set
+		* @param errorMessageMergeValue (String): merge value provided only for error message generation (example : Contact.Account)
+		* @return main sObject instance
 		*/
 		@testVisible
-		private SObject putField(SObject sObj, String fieldName, Object value, String prefixErrorMessage){
+		private SObject putField(SObject sObj, String fieldName, Object fieldValue, String errorMessageMergeValue){
 			try{
-				sObj.put(fieldName,value);
+				sObj.put(fieldName,fieldValue);
 			}catch(Exception e){
-				throw new TestDataFactoryException(formatErrorMessage(ERR_FIELD_NOT_EXIST,new List<String>{fieldName,prefixErrorMessage},e.getMessage()));
+				throw new TDF_TestDataFactory.TestDataFactoryException(TDF_Utility.formatErrorMessage(ERR_FIELD_NOT_EXIST,new List<String>{fieldName,errorMessageMergeValue},e.getMessage()));
 			}
 			return sObj;
 		}
@@ -540,132 +571,140 @@ public class TDF {
 	* @description interface IDefaultValueProvider
 	*/
 	public interface IDefaultValueProvider{
-		Map<String,IFieldDefaultValue> getDefaultMap(Schema.SObjectType sObjectType, Map<String,Object> mapOfValuesOverride);
+		Map<String,IFieldDefaultValue> getDefaultMapOfValues(Schema.SObjectType sObjectType, Map<String,Object> mapOfValuesOverride);
 	}
 
 	/**
 	* @description virtual class DefaultValueProvider : manage the creation of the defaultMap and getting field default values
 	*/
-	public virtual class DefaultValueProvider implements IDefaultValueProvider{
+	public virtual class DefaultValueProvider implements IDefaultValueProvider {
 
-		private String ERR_RECORDTYPE_ID_REQUIRED_FOR_ACCOUNT = 'RecordTypeId is required to create an account';
-		private String ERR_NAME_ON_PERSONACCOUNT = 'You can not set the name field for a person account';
-		private String ERR_CONTACT_TO_PERSONACCOUNT = 'You cannot set the AccountId of a contact to a person account';
+		/* ===========================  Error Messages =========================== */
+		/** List values is not supported for field {0} */
+		private String ERR_LIST_VALUE_NOT_SUPPORTED = 'List values is not supported for field {0}';
+		/** Bad record type Id provided for Account */
 		private String ERR_BAD_RECORDTYPE_ID_FOR_ACCOUNT = 'Bad record type Id provided for Account';
 
+		/* ===========================  Properties =========================== */
+		/** Person Account record type Ids */
+		@TestVisible
+		private Set<Id> personAccountRecordTypes{ 
+			get{
+				if(personAccountRecordTypes == null){
+					if(PERSON_ACCOUNT_IS_ENABLED){
+						String account = 'Account';
+						personAccountRecordTypes = new Map<Id,SObject>(Database.query('select Id from RecordType where SObjectType=:account and isPersonType=true')).keySet();
+					}else {
+						personAccountRecordTypes = new Set<Id>();
+					}
+				}
+				return personAccountRecordTypes;
+			}
+			set{}
+		}
+
+		/** Account default record type Id */
+		@TestVisible
+		private Id accountDefaultRecordTypeId {
+			get{
+				if(accountDefaultRecordTypeId == null){
+					Schema.DescribeSObjectResult dsr = Account.SObjectType.getDescribe();
+					for(Schema.RecordTypeInfo rti : dsr.getRecordTypeInfos()) {
+						if(rti.isDefaultRecordTypeMapping()) {
+							return rti.getRecordTypeId();
+						}
+					}
+				}
+				return accountDefaultRecordTypeId;
+			}
+			set{}
+		}
+
 		/**
-		* @description get the default map of values
-		*							 the map of values will contain 
-		*								* all the fields with override values provided  
-		* 								* all the required fields of the main sObject and related required sObject
-		* @param sObjectType : sObject Type
-		* @param mapOfValuesOverride : mapOfValuesOverride
+		* @description get the default map of values for a given sObjectType.
+		* 						 The default map of value contains fully qualified field name as a key and the field value wrapped in FieldDefaultValue instance
+		* @param sObjectType (Schema.SObjectType): sObject Type for which the map of values will be generated
+		* @param mapOfValuesOverride (Map<String,Object>): map of values that will override the the auto-generated map of values
 		* @return map of values
 		*/
-		public Map<String,IFieldDefaultValue> getDefaultMap(Schema.SObjectType sObjectType, Map<String,Object> mapOfValuesOverride){
-			Map<String,IFieldDefaultValue> mapOfValues = new Map<String,IFieldDefaultValue>(convertMapValueTypes(mapOfValuesOverride));
-			generateDefaultMap(sObjectType,mapOfValues,'');
+		public Map<String,IFieldDefaultValue> getDefaultMapOfValues(Schema.SObjectType sObjectType, Map<String,Object> mapOfValuesOverride){
+			Map<String,IFieldDefaultValue> mapOfValues = new Map<String,IFieldDefaultValue>(convertMapValueTypes('',mapOfValuesOverride));
+			generateDefaultMapOfValues(sObjectType,mapOfValues,'');
 			return mapOfValues;
 		}
 
+		/* ============================================================================================= */
 		/* =======================================  private methods ==================================== */
+		/* ============================================================================================= */
+
 		/**
-		* @description generate the default map values
-		* 						 this method : 
-		*								* detects required fields of an sObject and adds the fields with default values to the map of values 
-		*								* detects the DEFAULT_VALUE and replace it with an instance of FieldDefaultValue class
-		*								* detects required related sObjects or related sObject mentioned in the given map of values 
-		* @param sObjectType : sObject Type
-		* @param mapOfValues : mapOfValuesOverride
-		* @param prefix : prefix (example : Contact.Account.)
+		* @description generate the default map of values for a given sObjectType.
+		* 				The default value map of values will contain the map of values overrided and generated value for all required fields of the sObjectType
+		* @param sObjectType (Schema.SObjectType): sObject Type for which the map of values will generated
+		* @param mapOfValues (Map<String,IFieldDefaultValue>): map of values
+		* @param prefix (String): prefix of the relationship (example : Contact.Account.)
 		*/
-		@testVisible
-		private void generateDefaultMap(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapOfValues, String prefix){
+		@TestVisible
+		private void generateDefaultMapOfValues(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapOfValues, String prefix){
 			Schema.DescribeSObjectResult sObjectDesc = sObjectType.getDescribe();
-			Map<String, Schema.SObjectField> fieldsMap = getFieldTokensMap(sObjectType); // get the fields map
+			Map<String, Schema.SObjectField> fieldsMap = getFieldTokensMap(sObjectType); // get the field Tokens map
 			Set<String> keySetOverride = mapOfValues.keySet();
 			Set<String> relationshipKeySet = getRelationshipKeySet(keySetOverride,prefix);
+			// get the defined required fields set
+			Set<String> definedRequiredFields = getDefinedSObjectRequiredFields(sObjectType);
+			// get the defined optional fields set
+			Set<String> definedOptionalFields = getDefinedSObjectOptionalFields(sObjectType);
+			// Person Account enabled
+			if(sObjectType == Account.sObjectType && PERSON_ACCOUNT_IS_ENABLED){ 
+			managePersonAccountOrgEnabled(mapOfValues,prefix,definedRequiredFields);
+			}
 			// loop through fields map
 			for(String fieldName : fieldsMap.keySet()){
 				Schema.DescribeFieldResult fieldDesc = fieldsMap.get(fieldName).getDescribe(); // get field describe
-				String fullyQualifiedFieldName = prefix+fieldName.toLowerCase();
+				String fieldNameLowerCase = fieldName.toLowerCase();
+				// construct the fully qualified name of the field
+				String fullyQualifiedFieldName = prefix+fieldNameLowerCase;
+				// get the field value from the mapOfValues
 				Object overrideFieldValue = mapOfValues.get(fullyQualifiedFieldName);
 				if(overrideFieldValue != null){ // override value provided for the field
 					if(overrideFieldValue instanceof AutoFieldDefaultValue) { // auto generate a field value
-							if(fieldDesc.getRelationshipName() == null){ // field
-								mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(sObjectDesc,fieldDesc));
-							}else { // relationship
-								putRelationship(mapOfValues,fieldDesc,prefix); // <= recursion  generateDefaultMap is called in putRelationship
-								mapOfValues.remove(fullyQualifiedFieldName);
-							} 
+						if(fieldDesc.getRelationshipName() == null){ // field
+							// put a fieldDefaultValue instance of the field in order to auto-generate the field default value
+							mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(this,sObjectDesc,fieldDesc));
+						}else { // relationship
+							// put a field relationship in the map of values
+							putRelationshipField(mapOfValues,fieldDesc,prefix); // <== recursion
+							// remove the AutoFieldDefaultValue instance from the map
+							mapOfValues.remove(fullyQualifiedFieldName);
+						} 
 					}
 				}else { // no override value provided for the field
-					Boolean isDefaultValueRequired = isDefaultValueRequired(fieldDesc);
+					// field default value required and field not mentioned in definedOptionalFields or field mentioned in definedRequiredFields
+					Boolean isRequired = (isDefaultValueRequired(fieldDesc) && !definedOptionalFields.contains(fieldNameLowerCase)) || definedRequiredFields.contains(fieldNameLowerCase);
 					if(fieldDesc.getRelationshipName() == null){ // field
-						if(isDefaultValueRequired)
-							mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(sObjectDesc,fieldDesc));
+						if(isRequired){
+							// put a fieldDefaultValue instance of the field in order to auto-generate the field default value
+							mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(this,sObjectDesc,fieldDesc));
+						}
 					}else { // relationship
 						String relationshipName = fieldDesc.getRelationshipName().toLowerCase();
-						if(isDefaultValueRequired || relationshipKeySet.contains(relationshipName)){ // relationship required or mentioned in the mapOfValues
-							putRelationship(mapOfValues,fieldDesc,prefix); // <= recursion  generateDefaultMap is called in putRelationship
+						if(isRequired || relationshipKeySet.contains(relationshipName)){ // relationship required or mentioned in the relationshipKeySet
+							// put a field relationship in the map of values
+							putRelationshipField(mapOfValues,fieldDesc,prefix); // <== recursion
 						}
-					}
-				}
-			}
-			// check the map of values againt some rules that are not detected via the describe API
-			checkDefaultMap(sObjectType,mapOfValues,prefix);
-		}
-
-		/**
-		* @description check if the map of values regarding some rules that are not detected via the describe API
-		*							 handle required fields for accounts in case person account is enabled
-		* @param sObjectType : sObject Type
-		* @param mapOfValues : map of values
-		* @return prefix : prefix (example : Contact.Account.)
-		*/
-		private void checkDefaultMap(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapOfValues, String prefix){
-			Schema.DescribeSObjectResult sObjectDesc = sObjectType.getDescribe();
-			if(sObjectType == Account.SObjectType){ // Account
-				if(PERSON_ACCOUNT_IS_ENABLED){
-					IFieldDefaultValue recordTypeIdValue = (IFieldDefaultValue)mapOfValues.get(prefix+'recordtypeid');
-					// the Account record type id is required if the org has person account enabled
-					if(recordTypeIdValue == null) throw new TestDataFactoryException(formatErrorMessage(ERR_RECORDTYPE_ID_REQUIRED_FOR_ACCOUNT,new List<String>{},''));
-					Id recordTypeId;
-					try{
-						recordTypeId = Id.valueOf((String)recordTypeIdValue.getValue(0));
-					}catch(Exception e){
-						throw new TestDataFactoryException(formatErrorMessage(ERR_BAD_RECORDTYPE_ID_FOR_ACCOUNT,new List<String>{},e.getMessage()));
-					}
-					Boolean nameIsSet = (mapOfValues.get(prefix+'name') != null);
-					Boolean lastnameIsSet = (mapOfValues.get(prefix+'lastname') != null);
-					if(personAccountRecordTypes.contains(recordTypeId)) { // Person Account
-						// name should not be set for a person account
-						if(nameIsSet) throw new TestDataFactoryException(formatErrorMessage(ERR_NAME_ON_PERSONACCOUNT,new List<String>{},''));
-						if(!lastnameIsSet) // apply default value if lastname is not set
-							mapOfValues.put(prefix+'lastname',new FieldDefaultValue(sObjectDesc,getFieldTokensMap(Account.SObjectType).get('Lastname').getDescribe()));
-						if(prefix.substringBeforeLast(DOT) == 'contact'){ // a contact should not point to a person account
-							throw new TestDataFactoryException(formatErrorMessage(ERR_CONTACT_TO_PERSONACCOUNT,new List<String>{},''));
-						}
-					}else{ // Business Account
-						if(!nameIsSet) // apply defaut value if name is not set
-							mapOfValues.put(prefix+'name',new FieldDefaultValue(sObjectDesc,Account.fields.Name.getDescribe()));
 					}
 				}
 			}
 		}
 
 		/**
-		* @description put a relationship to the mapOfValues
-		*							 this method :
-		*								* adds the id field to the map of value with a null default value 
-		*									in order to force the instantiation of that sObject (in case there no required fields and no field is mentioned in the map of value for it)
-		*								* get the related sObjec type and call the generateDefaultMap on it
-		* @param mapOfValues : map of values
-		* @param fieldDesc : field describe
-		* @param prefix : prefix (example : Contact.Account.)
+		* @description put a relationship field into a map of values
+		* @param mapOfValues (Map<String,IFieldDefaultValue>): map of values in which relationship field will be put
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information information of the relationship field
+		* @param prefix (String): prefix of the relationship field (example : Contact.Account.)
 		*/
-		@testVisible
-		private void putRelationship(Map<String,IFieldDefaultValue> mapOfValues, Schema.DescribeFieldResult fieldDesc, String prefix){
+		@TestVisible
+		private void putRelationshipField(Map<String,IFieldDefaultValue> mapOfValues, Schema.DescribeFieldResult fieldDesc, String prefix){
 			String relationshipName = fieldDesc.getRelationshipName().toLowerCase();
 			String fullyQualifiedRelationshipName = prefix+relationshipName;
 			// at least add (fullyQualifiedRelationshipName.id,null) to force the instantiation of the related sObject
@@ -674,19 +713,87 @@ public class TDF {
 			// get the related sObject instance
 			SObjectType refSObjectType = fieldDesc.getReferenceTo().get(0);
 			// generate a map for the related sObject
-			generateDefaultMap(refSObjectType,mapOfValues,fullyQualifiedRelationshipName+DOT);
+			generateDefaultMapOfValues(refSObjectType,mapOfValues,fullyQualifiedRelationshipName+DOT);
+		}
+
+		/**
+		* @description manage the map of values and the defined required fields for Account if person account enabled org
+		* @param mapOfValues (Map<String,IFieldDefaultValue>): map of values from which the field value id will be extracted
+		* @param prefix (String): prefix of the relationship field (example : Contact.Account.)
+		* @param definedRequiredFields (Set<String>): Set of defined required fields
+		*/
+		@TestVisible
+		private void managePersonAccountOrgEnabled(Map<String,IFieldDefaultValue> mapOfValues, String prefix, Set<String> definedRequiredFields){
+			String fullyQualifieldRecordTypeIdFieldName = prefix+'recordtypeid';
+			IFieldDefaultValue recordTypeIdDefaultValue = mapOfValues.get(fullyQualifieldRecordTypeIdFieldName);
+			if(recordTypeIdDefaultValue == null){
+				recordTypeIdDefaultValue = new FieldDefaultValue(null);
+			}
+			if(recordTypeIdDefaultValue instanceof FieldDefaultValue){ // instance of FieldDefaultValue
+				Object recordTypeIdValue = recordTypeIdDefaultValue.getValue(0);
+				if(recordTypeIdValue == null) {
+					recordTypeIdValue = accountDefaultRecordTypeId;
+					mapOfValues.put(fullyQualifieldRecordTypeIdFieldName, new FieldDefaultValue(accountDefaultRecordTypeId));
+				}
+				try{
+					Id recordTypeId = Id.valueOf((String)recordTypeIdValue);
+					if(personAccountRecordTypes.contains(recordTypeId)){ // person account 
+						definedRequiredFields.add('lastname');
+					}else { // business account
+						definedRequiredFields.add('name');
+					}
+				}catch(Exception e){
+					throw new TestDataFactoryException(formatErrorMessage(ERR_BAD_RECORDTYPE_ID_FOR_ACCOUNT,new List<String>{},e.getMessage()));
+				}
+			}else if(recordTypeIdDefaultValue instanceof ListFieldDefaultValue){ // instance of ListFieldDefaultValue
+				throw new TestDataFactoryException(formatErrorMessage(ERR_LIST_VALUE_NOT_SUPPORTED,new List<String>{fullyQualifieldRecordTypeIdFieldName},''));
+			}
+		}
+
+		/**
+		* @description get defined set of required fields for a given sObject type and record type id
+		* @param sObjectType (Schema.SObjectType): sObject type for which the defined required fields will be returned 
+		* @param recordTypeValue (Object): record type id provided for to the sObject Type
+		* @return set of defined required fields
+		*/
+		@TestVisible
+		private Set<String> getDefinedSObjectRequiredFields(Schema.SObjectType sObjectType){
+			Set<String> definedRequiredFields = new Set<String>();
+			Set<String> definedRequiredFieldsByDeveloper = defineSObjectRequiredFields(sObjectType);
+			if(definedRequiredFieldsByDeveloper != null)
+				definedRequiredFields.addAll(convertSetToLowerCase(definedRequiredFieldsByDeveloper));
+			
+			return definedRequiredFields;
+		}
+
+		/**
+		* @description get defined set of optional fields for a given sObject type
+		* @param sObjectType (Schema.SObjectType): sObject type for which the defined optional fields will be returned 
+		* @param recordTypeValue (Object): record type id provided for to the sObject Type
+		* @return set of defined optional fields
+		*/
+		@TestVisible
+		private Set<String> getDefinedSObjectOptionalFields(Schema.SObjectType sObjectType){
+			Set<String> definedOptionalFields = new Set<String>();
+			Set<String> definedOptionalFieldsByDeveloper = defineSObjectOptionalFields(sObjectType);
+			if(definedOptionalFieldsByDeveloper != null)
+				definedOptionalFields.addAll(convertSetToLowerCase(definedOptionalFieldsByDeveloper));
+			
+			return definedOptionalFields;
 		}
 
 		/**
 		* @description get relationship names keyset that starts with a given prefix
-		* 						 this method extract all the relationship names persent in the keySetOverride just after the prefix
-		* @param keySetOverride : keySet of fully qualified field names
-		* @param prefix : prefix (example : Contact.Account.)
+		* @param keySetOverride (Set<String>): keySet of fully qualified field names
+		* @param prefix (String): prefix (example : Contact.Account.)
 		* @return set of relationship names
+		* @example 
+		* keySetOverride = {Contact.Account.Name,Contact.FirstName}
+		* Prefix : Contact.
+		* Result : Account
 		*/
-		@testVisible
+		@TestVisible
 		private Set<String> getRelationshipKeySet(Set<String> keySetOverride, String prefix){
-			if(keySetOverride == null || prefix == null) return null;
 			Set<String> relationshipKeySet = new Set<String>();
 			String prefixLowerCase = prefix.toLowerCase();
 			// loop through the keySet
@@ -703,34 +810,69 @@ public class TDF {
 		}
 
 		/**
-		* @description Converting a map from Map<String,Object> to Map<String,IFieldDefaultValue>
-		* @param mapOfValues : map of values
+		* @description converting a map from Map(key:String,value:Object) to Map(key:String,value:IFieldDefaultValue)
+		* @param prefix (String): prefix (example : Contact.Account.)
+		* @param mapOfValues (Map<String,Object>): map of values to convert
 		* @return converted map
 		*/
-		@testVisible
-		private Map<String,IFieldDefaultValue> convertMapValueTypes(Map<String,Object> mapOfValues){
+		@TestVisible
+		private Map<String,IFieldDefaultValue> convertMapValueTypes(String prefix, Map<String,Object> mapOfValues){ // TODO to be fixed
 			Map<String,IFieldDefaultValue> convertedMap = new Map<String,IFieldDefaultValue>();
 			if(mapOfValues == null) return convertedMap;
 			for(String name : mapOfValues.keySet()){
 				if(name != null){
 					Object value = mapOfValues.get(name);
-					if(value instanceof IFieldDefaultValue)
-							// already of type IFieldDefaultValue
-							convertedMap.put(name.trim().toLowerCase(),(IFieldDefaultValue)value);
-					else 
-							// wrap the value in a FieldDefaultValue instance
-							convertedMap.put(name.trim().toLowerCase(),new FieldDefaultValue(value));
+					String fullyQualifiedName = prefix + name.trim().toLowerCase();
+					if(value instanceof IFieldDefaultValue){
+						// cast the value if already of type IFieldDefaultValue
+						convertedMap.put(fullyQualifiedName,(IFieldDefaultValue)value);
+					}else if(value instanceof Map<String,Object>){
+						// convert the map value and putting into the main map of values
+						convertedMap.putAll(convertMapValueTypes(fullyQualifiedName+DOT,(Map<String,Object>)value));
+					}else if(value instanceof SObject){
+						String fullyQualifiedFieldName = getFieldNameFromRelationshipName(fullyQualifiedName);
+						if(value instanceof List<SObject>){
+							// cast to list sObject and wrap it in ListRelationshipFieldDefaultValue instance
+							convertedMap.put(fullyQualifiedFieldName,new ListRelationshipFieldDefaultValue((List<SObject>)value));
+						}else{
+							// wrap the value in a RelationshipFieldDefaultValue instance
+							convertedMap.put(fullyQualifiedFieldName,new RelationshipFieldDefaultValue((SObject)value));
+						}
+					}else if(value instanceof List<Object>){
+						// cast to list object and wrap it in ListFieldDefaultValue instance
+						convertedMap.put(fullyQualifiedName,new ListFieldDefaultValue((List<Object>)value));
+					}else{
+						// wrap the value in a FieldDefaultValue instance
+						convertedMap.put(fullyQualifiedName,new FieldDefaultValue(value));
+					}
 				}
 			}
 			return convertedMap;
 		}
 
 		/**
-		* @description test if a field requires a default value
-		* @param fieldDesc : field describe
-		* @return true if is default value required
+		* @description converting a given set of String to set of lower case string values
+		* @param setOfValues (Set<String>): set of values to convert to lower case
+		* @return converted set
 		*/
-		@testVisible
+		@TestVisible
+		private Set<String> convertSetToLowerCase(Set<String> setOfValues){
+			Set<String> convertedSet = new Set<String>();
+			if(setOfValues == null) return convertedSet;
+			for(String value : setOfValues){
+				if(value != null){
+					convertedSet.add(value.trim().toLowerCase());
+				}
+			}
+			return convertedSet;
+		}
+
+		/**
+		* @description test if a field requires a default value
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @return true if a default value is required
+		*/
+		@TestVisible
 		private Boolean isDefaultValueRequired(Schema.DescribeFieldResult fieldDesc){
 			return 
 				!fieldDesc.isDefaultedOnCreate() // does not have a defaut value on creation
@@ -740,12 +882,14 @@ public class TDF {
 		}
 
 		/**
-		* @description get the default for a specific field
-		* @param fieldDesc : field describe
-		* @param recordIndex : recordIndex
+		* @description generate a default value for a given field of an sObject 
+		* 						depending on the field type, the corresponding get{FieldType}DefaultValue method will be invoked to retrieve the default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
 		* @return the generated field default value
 		*/
-		@testVisible
+		@TestVisible
 		private Object getDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			if(fieldDesc != null){
 				// DisplayType Enum -> https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_enum_Schema_DisplayType.htm
@@ -787,18 +931,18 @@ public class TDF {
 		}
 
 		/**
-		* @description get the default value for a picklist
-		* @param fieldDesc : field description
-		* @return picklist default value
+		* @description get the Saleforce default value for given picklist
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @return The picklist default value on Salesforce
 		*/
-		@testVisible
-		private String getDefaultPicklistValue(Schema.DescribeFieldResult fieldDesc){
+		@TestVisible
+		private String getSFDefaultPicklistValue(Schema.DescribeFieldResult fieldDesc){
 			if(fieldDesc != null){
 				List<Schema.PicklistEntry> pickVals = fieldDesc.getPicklistValues();        
 				for (Schema.PicklistEntry pickVal: pickVals) {
-				    if (pickVal.isDefaultValue()) {
-				        return pickVal.getValue(); // default value
-				    }    
+					if (pickVal.isDefaultValue()) {
+						return pickVal.getValue(); // default value
+					}    
 				}
 				// if no default value is set, return the first value
 				return pickVals.get(0).getValue();
@@ -806,184 +950,205 @@ public class TDF {
 			return null;
 		}
 
+		/* ============================================================================================= */
 		/* =======================================  virtual methods ==================================== */
+		/* ============================================================================================= */
+		/**
+		* @description defined set of required fields for a given sObject
+		* @param sObjectType (Schema.SObjectType): sObject Type for which the required fields will be defined
+		* @return set of defined required fields
+		*/
+		public virtual Set<String> defineSObjectRequiredFields(Schema.SObjectType sObjectType){
+			return null;
+		}
+		/**
+		* @description defined set of optional fields for a given sObject
+		* @param sObjectType (Schema.SObjectType): sObject Type for which the optional fields will be defined
+		* @return set of defined optional fields
+		*/
+		public virtual Set<String> defineSObjectOptionalFields(Schema.SObjectType sObjectType){
+			return null;
+		}
 		/**
 		* @description get the default value for Base64 field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return base64 default value
 		*/
 		public virtual Blob getBase64DefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return Blob.valueOf(recordIndex.format());
 		}	
 		/**
 		* @description get the default value for checkbox field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return checkbox default value
 		*/
 		public virtual Boolean getCheckboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return true;
 		}
 		/**
 		* @description get the default value for Currency field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return currency default value
 		*/
 		public virtual String getCurrencyDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return recordIndex.format();
 		}
 		/**
 		* @description get the default value for Date field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return date default value
 		*/
 		public virtual Date getDateDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return Date.today();
 		}
 		/**
 		* @description get the default value for Datetime field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return datetime default value
 		*/
 		public virtual Datetime getDateTimeDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return Datetime.now();
 		}
 		/**
 		* @description get the default value for Email field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return email default value
 		*/
 		public virtual String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return 'test'+recordIndex.format()+'@email.com';
 		}
 		/**
 		* @description get the default value for Geolocation field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return geolocation default value
 		*/
 		public virtual Location getGeolocationDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return Location.newInstance(0,0);
 		}		
 		/**
 		* @description get the default value for Number field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return number default value
 		*/
 		public virtual Decimal getNumberDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return recordIndex;
 		}
 		/**
 		* @description get the default value for Percent field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return percent default value
 		*/
 		public virtual Decimal getPercentDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return recordIndex;
 		}
 		/**
 		* @description get the default value for Phone field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return phone default value
 		*/
 		public virtual String getPhoneDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return '01 23 45 67 89';
 		}
 		/**
 		* @description get the default value for Picklist field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return picklist default value
 		*/
 		public virtual String getPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
-			return getDefaultPicklistValue(fieldDesc);
+			return getSFDefaultPicklistValue(fieldDesc);
 		}
 		/**
 		* @description get the default value for Multipicklist field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return multipicklist default value
 		*/
 		public virtual String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
-			return getDefaultPicklistValue(fieldDesc);
+			return getSFDefaultPicklistValue(fieldDesc);
 		}
 		/**
 		* @description get the default value for Text field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return text default value
 		*/
 		public virtual String getTextDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return 'test'+recordIndex.format();
 		}
 		/**
 		* @description get the default value for TextArea field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return text area default value
 		*/
 		public virtual String getTextAreaDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return 'test'+recordIndex.format();
 		}
 		/**
 		* @description get the default value for Time field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return time default value
 		*/
 		public virtual Time getTimeDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return Time.newInstance(12, 0, 0, 0);
 		}
 		/**
 		* @description get the default value for URL field type
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
-		* @param recordIndex : record index
-		* @return default value
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return URL default value
 		*/
 		public virtual String getURLDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return 'http://test' + recordIndex + '.com';
 		}
+
 	}
 
 	/**
-	* @description interface IFieldDefaultValue
+	* @description common interface fo the field default value classes
 	*/
 	public interface IFieldDefaultValue{
+		/**
+		* @description get the value wrapped for a given record index
+		*/
 		Object getValue(Integer recordIndex);
 	}
 
 	/**
-	* @description class AutoFieldDefaultValue : wrapper for auto default value that will be auto generated 
+	* @description wrapper for default value that will be auto generated 
 	*/
-	@testVisible
-	private class AutoFieldDefaultValue implements IFieldDefaultValue{
+	public class AutoFieldDefaultValue implements IFieldDefaultValue{
 		/**
-		* @description get encapsulated value
-		* @param recordIndex : recordIndex
+		* @description get the value wrapped for a given record index
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
 		* @return field default value
 		*/
 		public Object getValue(Integer recordIndex){
@@ -992,98 +1157,171 @@ public class TDF {
 	}
 
 	/**
-	* @description class FieldDefaultValue : wrapper for a field default value
+	* @description wrapper for a field default value
 	*/
-	@testVisible
+	@TestVisible
 	private class FieldDefaultValue implements IFieldDefaultValue{
+		/** Instance of the container class */
+		private DefaultValueProvider dvPrvdr = null;
+		/** Field value */
 		private Object value = null;
+		/** SObject describe information */
 		private Schema.DescribeSObjectResult sObjectDesc = null;
+		/** Field describe information */
 		private Schema.DescribeFieldResult fieldDesc = null;
 
 		/**
-		* @description construtor
-		* @param value : value
+		* @description construtor to wrap a griven field value
+		* @param value (Object): the value that will be wrapped
 		*/
 		public FieldDefaultValue(Object value){
 			this.value = value;
 		}	
 
 		/**
-		* @description construtor
-		* @param sObjectDesc : sObject describe
-		* @param fieldDesc : field describe
+		* @description construtor to wrap a field value that will be generated based on the given sObject & Field describe informations
+		* @param dvPrvdr (DefaultValueProvider): default value provider instance of the containing class DefaultValueProvider
+		* @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+		* @param fieldDesc (Schema.DescribeFieldResult): field describe information
 		*/	
-		public FieldDefaultValue(Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc){
+		public FieldDefaultValue(DefaultValueProvider dvPrvdr,Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc){
+			this.dvPrvdr = dvPrvdr;
 			this.sObjectDesc = sObjectDesc;
 			this.fieldDesc = fieldDesc;
 		}
 
 		/**
-		* @description get encapsulated value
-		* @param recordIndex : recordIndex
+		* @description get the wrapped value for a given record index
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
 		* @return field default value
 		*/
 		public Object getValue(Integer recordIndex){
-			if(value != null){
-				if(value instanceof String)
-					return mergeValue((String)value,'Index',recordIndex.format());
+			if(dvPrvdr != null){ // if default value provider is set
+				// generate the value from the sObject & field describe informations
+				return dvPrvdr.getDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+			}else {
+				if(value instanceof String) // if value is of type string merge the index value
+					return mergeValue((String)value,'index',recordIndex.format());
 				else return value;
-			} 
-			return dvProvider.getDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+			}
 		}
 	}
 
 	/**
-	* @description class FieldValue : wrapper for a list of sObject in order to get a given field value
+	* @description wrapper for a relationship field default value
 	*/
-	public class FieldValue implements IFieldDefaultValue{
-		private List<SObject> sObjectList;
-		private String fieldName;
+	@TestVisible
+	private class RelationshipFieldDefaultValue implements IFieldDefaultValue{
+		/** Field value */
+		private SObject sObjectValue = null;
 
 		/**
-		* @description construtor
-		* @param sObjectList : list of sObjects for which a given field value will be retruned
-		* @param fieldName : name of the field to return when the getValue method is called
+		* @description construtor to wrap a griven field sObject value
+		* @param sObjectValue (Object): the sObject value that will be wrapped
 		*/
-		public FieldValue(List<SObject> sObjectList, String fieldName){
-			this.sObjectList = sObjectList;
-			this.fieldName = fieldName;
+		public RelationshipFieldDefaultValue(SObject sObjectValue){
+			this.sObjectValue = sObjectValue;
 		}	
 
 		/**
-		* @description get encapsulated value
-		* @param recordIndex : recordIndex
-		* @return field value
+		* @description get the wrapped sObject value for a given record index
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return Id of the sObject field default value
 		*/
 		public Object getValue(Integer recordIndex){
-			return sObjectList.get(recordIndex).get(fieldName);
+			return sObjectValue.Id;
+		}
+	}
+
+	/**
+	* @description wrapper for a list of field default values
+	*/
+	@TestVisible
+	private class ListFieldDefaultValue implements IFieldDefaultValue{
+		/** Field list values */
+		private List<Object> listValues = null;
+
+		/**
+		* @description construtor to wrap a griven field list of values
+		* @param listValues (List<Object>): the list of values that will be wrapped
+		*/
+		public ListFieldDefaultValue(List<Object> listValues){
+			this.listValues = listValues;
+		}	
+
+		/**
+		* @description get the wrapped value for a given record index
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return value at recordIndex position of list field default values
+		*/
+		public Object getValue(Integer recordIndex){
+				return listValues.get(recordIndex);
+		}
+
+		/**
+		* @description return the size of the wrapped list of values
+		*/
+		public Integer size(){
+			return listValues.size();
+		}
+	}
+
+	/**
+	* @description wrapper for a list of relationship field default values
+	*/
+	@TestVisible
+	private class ListRelationshipFieldDefaultValue implements IFieldDefaultValue{
+		/** Field list sObject values */
+		private List<SObject> listSObjectValues = null;
+
+		/**
+		* @description construtor to wrap a griven field list of sObject values
+		* @param listSObjectValues (List<SObject>): the list of values that will be wrapped
+		*/
+		public ListRelationshipFieldDefaultValue(List<SObject> listSObjectValues){
+			this.listSObjectValues = listSObjectValues;
+		}	
+
+		/**
+		* @description get the wrapped list sObject values for a given record index
+		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+		* @return id of the sObject at recordIndex position of list relationship field default values
+		*/
+		public Object getValue(Integer recordIndex){
+				return listSObjectValues.get(recordIndex).Id;
+		}
+
+		/**
+		* @description return the size of the wrapped list of the sObject values
+		*/
+		public Integer size(){
+			return listSObjectValues.size();
 		}
 	}
 
 	/* ===========================  Utility methods  =========================== */
 
 	/**
-	 * @description get the fields map of an sObject type with caching
-	 * @param sObjectType : sObject type
-	 * @return fields map
+	 * @description get the field tokens map of an sObject type with caching
+	 * @param sObjectType (Schema.SObjectType): sObject type for which the map of field tokens will be returned
+	 * @return field tokens map
 	 */
-	@testVisible 
-	private static Map<String, Schema.SObjectField> getFieldTokensMap(Schema.SObjectType sObjectType){
-		if(mapOfFieldsMap.containsKey(sObjectType)){
-			return mapOfFieldsMap.get(sObjectType);
+	public static Map<String, Schema.SObjectField> getFieldTokensMap(Schema.SObjectType sObjectType){
+		if(mapOfFieldTokensMap.containsKey(sObjectType)){
+			return mapOfFieldTokensMap.get(sObjectType);
 		}else {
-			Map<String, Schema.SObjectField> fieldsMap = sObjectType.getDescribe().fields.getMap();
-			mapOfFieldsMap.put(sObjectType,fieldsMap);
-			return fieldsMap;
+			Map<String, Schema.SObjectField> fieldTokensMap = sObjectType.getDescribe().fields.getMap();
+			mapOfFieldTokensMap.put(sObjectType,fieldTokensMap);
+			return fieldTokensMap;
 		}
 	}
 
 	/**
 	* @description get field name from a relationship name
-	* @param relationshipName : relationship name
+	* @param relationshipName (String): relationship name
 	* @return field name 
 	*/
-	private static String relationshipToFieldName(String relationshipName){
+	public static String getFieldNameFromRelationshipName(String relationshipName){
 		String relationshipNameLowerCase = relationshipName.toLowerCase();
 		if(relationshipNameLowerCase.contains('__r')) // custom relationship 
 			return relationshipNameLowerCase.replace('__r', '__c');
@@ -1091,13 +1329,13 @@ public class TDF {
 	}
 
 	/**
-	* @description merge value in a string
-	* @param text : text with a merge value
-	* @param name : name of the merge value
-	* @param value : value to be merged
+	* @description merge given value in a string
+	* @param text (String): text with a merge value
+	* @param name (String): name of the merge value
+	* @param value (String): value to be merged
 	* @return text with merged value
 	*/
-	private static String mergeValue(String text, String name, String value){
+	public static String mergeValue(String text, String name, String value){
 		if(text == null) return null;
 		String pattern = '(?i)\\{!'+name+'\\}';
 		return text.replaceAll(pattern,value);
@@ -1105,13 +1343,14 @@ public class TDF {
 
 	/**
 	* @description format an error message
-	* @param message : message
-	* @param mergeValues : merge values
-	* @param originalMessage : original message
+	* @param message (String): error message
+	* @param mergeValues (List<String>): values to be merge in the error message
+	* @param originalMessage (String): original error message
 	* @return error message
 	*/
-	private static String formatErrorMessage(String message, List<String> mergeValues, String originalMessage){
+	public static String formatErrorMessage(String message, List<String> mergeValues, String originalMessage){
 		String errorMessage = String.format(message,mergeValues);
+		// if originalMessage is passed as param it will be include in the errorMessage
 		if(!String.isBlank(originalMessage)) errorMessage +='\n'+'Original error message : '+originalMessage;
 		return errorMessage;
 	}
