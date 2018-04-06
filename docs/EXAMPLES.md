@@ -93,6 +93,19 @@ For example when creating a contact you can force the Test Data Factory to creat
   },true);
   ```
 
+##### Provide a map for a related sObject
+
+
+  ```apex
+  Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
+    'Description' => 'Contact description',
+    'Account' => new Map<String,Object>{
+      'Name' => 'Account Name',
+      'Description' => 'Account Description'
+    }
+  },true);
+  ```
+
 ##### Provide an Id for a required related sObject to avoid its instantiation
 
 You can provide an Id for a required related sObject, to force the use of that Id and prevent the instantiation of the related sObject
@@ -119,6 +132,21 @@ The following code creates 10 users with different usernames and nicknames
     'ProfileId' => UserInfo.getProfileId(),
     'Username' => 'test{!index}@mytestdomain.developer',
     'CommunityNickname' => 'test{!index}'
+  },true,10);
+  ```
+
+##### Create 10 cases related to 10 Accounts
+
+  ```apex
+  List<User> accountList = TDF.createSObjectList('Account', new Map<String,Object>{
+    'Description' => 'Account Description'
+  },true,10);
+  ```
+  
+  ```apex
+  List<User> caseList = TDF.createSObjectList('Case', new Map<String,Object>{
+    'AccountId' => AccountList,
+    'Contact.AccountId' => AccountList
   },true,10);
   ```
 
