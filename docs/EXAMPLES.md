@@ -138,13 +138,13 @@ The following code creates 10 users with different usernames and nicknames
 ##### Create 10 cases related to 10 Accounts
 
   ```apex
-  List<User> accountList = TDF.createSObjectList('Account', new Map<String,Object>{
+  List<Account> accountList = TDF.createSObjectList('Account', new Map<String,Object>{
     'Description' => 'Account Description'
   },true,10);
   ```
   
   ```apex
-  List<User> caseList = TDF.createSObjectList('Case', new Map<String,Object>{
+  List<Case> caseList = TDF.createSObjectList('Case', new Map<String,Object>{
     'AccountId' => AccountList,
     'Contact.AccountId' => AccountList
   },true,10);
