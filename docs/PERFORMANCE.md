@@ -1,5 +1,7 @@
 ## Performance
 
+_**Tests done with an older version of Test Data Factory : Results will be updated soon**_
+
 Performance tests executed in a Developer Org
 
 * without any active automations(Worfklow rules/Process Builder/Flow), Triggers or Validations rules on the Case, Contact and Account objects
