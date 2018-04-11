@@ -16,7 +16,7 @@
 * @description Apex Test Data Factory that can be used to generate any sObject with ability to auto-fill required field with default values 
 */
 @isTest
-public class TDF_AllIn {
+public class TDF {
 	
 	// Org config
 	// ==========================================================================
