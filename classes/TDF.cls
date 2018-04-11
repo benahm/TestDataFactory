@@ -13,10 +13,10 @@
 /**
 * @author benahm
 * @date 2017
-* @description Apex Test Data Factory
+* @description Apex Test Data Factory that can be used to generate any sObject with ability to auto-fill required field with default values 
 */
 @isTest
-public class TDF {
+public class TDF_AllIn {
 	
 	// Org config
 	// ==========================================================================
@@ -27,7 +27,7 @@ public class TDF {
 	public static final IFieldDefaultValue DEFAULT_VALUE = new AutoFieldDefaultValue();
 	
 	/** Default value provider instance */
-	private static DefaultValueProvider dvProvider = new DefaultValueProvider();
+	private static DefaultValueProvider defaultValueProvider = new DefaultValueProvider();
 
 	/** Constant that contains a dot '.' */
 	public static final String DOT = '.';
@@ -44,7 +44,7 @@ public class TDF {
 	 * @param Boolean (Boolean): if true the sObject instance is inserted to the Salesforce database
 	 * @return sObject instance
 	 * @example 
-	 * Account acc = (Account)TDF_TestDataFactory.createSObject('Account',true);
+	 * Account acc = (Account)TDF.createSObject('Account',true);
 	 */
 	public static SObject createSObject(String sObjectName, Boolean doInsert){
 		return createSObject(sObjectName,new Map<String,Object>(),doInsert);
@@ -57,7 +57,7 @@ public class TDF {
 	 * @param doInsert (Boolean): if true the sObject instance is inserted to the Salesforce database
 	 * @return sObject instance
 	 * @example 
-	 * Account acc = (Account)TDF_TestDataFactory.createSObject('Account',new Map<String,Object>{
+	 * Account acc = (Account)TDF.createSObject('Account',new Map<String,Object>{
 	 *	'Description' => 'Test'
 	 * },true);
 	 */
@@ -72,7 +72,7 @@ public class TDF {
 	 * @param numberOfSObjects (Integer): number of sObjects to be created
 	 * @return list of sObject instances
 	 * @example 
-	 * List<Account> accList = TDF_TestDataFactory.createSObjectList('Account',true,10);
+	 * List<Account> accList = TDF.createSObjectList('Account',true,10);
 	 */
 	public static List<SObject> createSObjectList(String sObjectName, Boolean doInsert, Integer numberOfSObjects){
 		return createSObjectList(sObjectName,new Map<String,Object>(),doInsert,numberOfSObjects);
@@ -86,7 +86,7 @@ public class TDF {
 	 * @param numberOfSObjects (Integer): number of sObjects to be created
 	 * @return list of sObject instances
 	 * @example 
-	 * List<Account> accList = TDF_TestDataFactory.createSObjectList('Account',new Map<String,Object>{
+	 * List<Account> accList = TDF.createSObjectList('Account',new Map<String,Object>{
 	 *	'Description' => 'Test'
 	 * },true,10);
 	 */
@@ -225,19 +225,19 @@ public class TDF {
 				List<SObject> sObjParentList = relatedSObjMapList.get(fullyQualifiedRelationshipName);
 
 				// insert parent sObject list
-				insertList(sObjParentList,TDF_Utility.DOT+fullyQualifiedRelationshipName);
+				insertList(sObjParentList,DOT+fullyQualifiedRelationshipName);
 				
 				// last relationship name in the dot notation
-				String leafRelationshipName = (TDF_Utility.DOT+fullyQualifiedRelationshipName).substringAfterLast(TDF_Utility.DOT); 
+				String leafRelationshipName = (DOT+fullyQualifiedRelationshipName).substringAfterLast(DOT); 
 
-				if(!fullyQualifiedRelationshipName.contains(TDF_Utility.DOT)){ // single relationship 
+				if(!fullyQualifiedRelationshipName.contains(DOT)){ // single relationship 
 					// link child sObject list to the main sObject list
 					setChildParentRelationship(mainSObjectList,sObjParentList,fullyQualifiedRelationshipName);
 
 				}else{ // multiple relationships
 
 					// fully qualified relationship name without the leaf relationship
-					String fullyQualifiedRelationshipNameWithoutLeaf = fullyQualifiedRelationshipName.substringBeforeLast(TDF_Utility.DOT);
+					String fullyQualifiedRelationshipNameWithoutLeaf = fullyQualifiedRelationshipName.substringBeforeLast(DOT);
 					// get the list of sObject of the fully qualified relationship name without the leaf relationship name
 					List<SObject> sObjChildList = relatedSObjMapList.get(fullyQualifiedRelationshipNameWithoutLeaf);
 					// link child sObject list to the parent sObject list
@@ -264,7 +264,7 @@ public class TDF {
 			Integer index = 0;
 			for(SObject sObjChild: sObjChildList){
 				// get the field name that links the child sObject to the parent sObject
-				String relationshipFieldName = TDF_Utility.getFieldNameFromRelationshipName(relationshipName); 
+				String relationshipFieldName = getFieldNameFromRelationshipName(relationshipName); 
 				// set field related to the relationship name (on the child sObject), with the Id of the parent sObject
 				sObjChild.put(relationshipFieldName,sObjParentList.get(index).get('Id'));
 				index++;
@@ -325,7 +325,7 @@ public class TDF {
 				}
 			}
 			if(!listErrors.isEmpty())
-				throw new TDF_TestDataFactory.TestDataFactoryException(TDF_Utility.formatErrorMessage(ERR_INSERT_SOBJECT,new List<String>{sObjectName+errorMessageMergeValue,String.join(listErrors,'\n')},''));
+				throw new TestDataFactoryException(formatErrorMessage(ERR_INSERT_SOBJECT,new List<String>{sObjectName+errorMessageMergeValue,String.join(listErrors,'\n')},''));
 		}
 	}
 
@@ -367,7 +367,7 @@ public class TDF {
 		*/
 		public SObjectFactory(Schema.SObjectType sObjectType){
 			if(sObjectType == null) 
-				throw new TDF_TestDataFactory.TestDataFactoryException(TDF_Utility.formatErrorMessage(ERR_NOT_FOUND_SOBJECT,new List<String>{},''));
+				throw new TestDataFactoryException(formatErrorMessage(ERR_NOT_FOUND_SOBJECT,new List<String>{},''));
 			this.sObjectType = sObjectType;
 			this.sObjectName = sObjectType.getDescribe().getName();
 			this.sObjMgr = new SObjectManager(this.sObjectName);
@@ -400,7 +400,7 @@ public class TDF {
 		*/
 		public List<SObject> getListSObjectInstance(Map<String,Object> mapOfValuesOverride, Boolean doInsert, Integer numberOfSObjects){
 			// get the map of values formed from the union of the map of values override given by the user and the auto-generated map of values for the required fields
-			Map<String,TDF_DefaultValueProvider.IFieldDefaultValue> mapOfValues = TDF_TestDataFactory.defaultValueProvider.getDefaultMapOfValues(sObjectType,mapOfValuesOverride);
+			Map<String,IFieldDefaultValue> mapOfValues = defaultValueProvider.getDefaultMapOfValues(sObjectType,mapOfValuesOverride);
 
 			for(Integer i = 0; i < numberOfSObjects; i++) {
 				initSObjectInstance(mapOfValues,i); // init sObject instance
@@ -417,33 +417,33 @@ public class TDF {
 
 		/**
 		* @description initiate the main sObject instance with all related sObject and apply the map of values
-		* @param mapOfValues (Map<String,TDF_DefaultValueProvider.IFieldDefaultValue>): map of values with key as field name and value as the default value to be used when instantiating the sObject. 
+		* @param mapOfValues (Map<String,IFieldDefaultValue>): map of values with key as field name and value as the default value to be used when instantiating the sObject. 
 		* 			This map contains the default values provided as input by the user and the auto-generated default values for the required fields
 		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
 		*/
 		@testVisible
-		private void initSObjectInstance(Map<String,TDF_DefaultValueProvider.IFieldDefaultValue> mapOfValues, Integer recordIndex){
+		private void initSObjectInstance(Map<String,IFieldDefaultValue> mapOfValues, Integer recordIndex){
 			// add the main sObject instance to the sObject Manager
 			sObjMgr.setSObject(recordIndex,sObjectType.newSObject()); 
 
 			for(String fullyQualifiedFieldName : mapOfValues.keySet()){ // loop through the map of values
 
 				// get the field name from the fully qualified field name
-				String fieldName = (TDF_Utility.DOT+fullyQualifiedFieldName).substringAfterLast(TDF_Utility.DOT);
+				String fieldName = (DOT+fullyQualifiedFieldName).substringAfterLast(DOT);
 				// get the field value from the map of values
 				Object fieldValue = getFieldValueFromMapOfValues(mapOfValues,fullyQualifiedFieldName,recordIndex);
 				
-				if(!fullyQualifiedFieldName.contains(TDF_Utility.DOT)){ // field name
+				if(!fullyQualifiedFieldName.contains(DOT)){ // field name
 					putField(sObjMgr.getSObject(recordIndex),fieldName,fieldValue,sObjectName);
 				}else{ // relationship
 					// first relationship name in fully qualified relationship name
-					String firstRelationshipName = fullyQualifiedFieldName.substringBefore(TDF_Utility.DOT); 
+					String firstRelationshipName = fullyQualifiedFieldName.substringBefore(DOT); 
 					// fully qualified relationship name without the field name 
-					String fullyQualifiedRelationshipName = fullyQualifiedFieldName.substringBeforeLast(TDF_Utility.DOT);  
+					String fullyQualifiedRelationshipName = fullyQualifiedFieldName.substringBeforeLast(DOT);  
 					// generate the related sObject instances for a given fullyQualifiedRelationshipName
 					SObject relatedSObj = getRelationshipInstance(fullyQualifiedRelationshipName,recordIndex); 
 					// apply the field value for the related sObject
-					putField(relatedSObj,fieldName,fieldValue,sObjectName+TDF_Utility.DOT+fullyQualifiedRelationshipName);
+					putField(relatedSObj,fieldName,fieldValue,sObjectName+DOT+fullyQualifiedRelationshipName);
 					// link the related sObject to the main sObject
 					putSObject(sObjMgr.getSObject(recordIndex),firstRelationshipName,sObjMgr.getRelationship(recordIndex,firstRelationshipName),sObjectName);
 				}
@@ -464,18 +464,18 @@ public class TDF {
 			if(sObj != null) return sObj; 
 
 			// last relationship name in the dot notation
-			String leafRelationshipName = (TDF_Utility.DOT+fullyQualifiedRelationshipName).substringAfterLast(TDF_Utility.DOT); 
+			String leafRelationshipName = (DOT+fullyQualifiedRelationshipName).substringAfterLast(DOT); 
 
-			if(!fullyQualifiedRelationshipName.contains(TDF_Utility.DOT)){ // single relationship
+			if(!fullyQualifiedRelationshipName.contains(DOT)){ // single relationship
 				sObj = getRelatedSObjectInstance(sObjectType,leafRelationshipName,sObjectName); 
 			}else{ // multiple relationships
 
 				// fully qualified relationship name without the leaf relationship
-				String fullyQualifiedRelationshipNameWithoutLeaf = fullyQualifiedRelationshipName.substringBeforeLast(TDF_Utility.DOT); 
+				String fullyQualifiedRelationshipNameWithoutLeaf = fullyQualifiedRelationshipName.substringBeforeLast(DOT); 
 				// generate the all the sObject instances for the fully qualified relationship name without the leaf relationship name
 				SObject relatedSObj = getRelationshipInstance(fullyQualifiedRelationshipNameWithoutLeaf,recordIndex); // <= recursion
 				// merge value for error message display
-				String errorMessageMergeValue = sObjectName+TDF_Utility.DOT+fullyQualifiedRelationshipNameWithoutLeaf;
+				String errorMessageMergeValue = sObjectName+DOT+fullyQualifiedRelationshipNameWithoutLeaf;
 				// get sObject instance for the leaf relationship
 				sObj = getRelatedSObjectInstance(relatedSObj.getSObjectType(),leafRelationshipName,errorMessageMergeValue); 
 				// link the related instance of the leaf relationship to the related sObject of the fully qualified relationship name without the leaf relationship name
@@ -496,35 +496,35 @@ public class TDF {
 		*/
 		@testVisible
 		private SObject getRelatedSObjectInstance(Schema.SObjectType sObjectType, String relationshipName, String errorMessageMergeValue){
-			Map<String, Schema.SObjectField> fieldsMap = TDF_Utility.getFieldTokensMap(sObjectType);
+			Map<String, Schema.SObjectField> fieldsMap = getFieldTokensMap(sObjectType);
 			Schema.DescribeFieldResult fieldDesc;
 			SObject sObj;
 			try{
 				// get the related field describe
-				fieldDesc = fieldsMap.get(TDF_Utility.getFieldNameFromRelationshipName(relationshipName)).getDescribe(); 
+				fieldDesc = fieldsMap.get(getFieldNameFromRelationshipName(relationshipName)).getDescribe(); 
 				// get related sObject instance
 				sObj = fieldDesc.getReferenceTo().get(0).newSObject();
 			}catch(Exception e){
-				throw new TDF_TestDataFactory.TestDataFactoryException(TDF_Utility.formatErrorMessage(ERR_RELATIONSHIP_NOT_EXIST,new List<String>{relationshipName,errorMessageMergeValue},e.getMessage()));
+				throw new TestDataFactoryException(formatErrorMessage(ERR_RELATIONSHIP_NOT_EXIST,new List<String>{relationshipName,errorMessageMergeValue},e.getMessage()));
 			}
 			return  sObj;
 		}
 
 		/**
 		* @description get the field value from the map of values for a given record index and fully qualified field name
-		* @param mapOfValues (Map<String,TDF_DefaultValueProvider.IFieldDefaultValue>): map of values with key as field name and value as the default value to be used when instantiating the sObject. 
+		* @param mapOfValues (Map<String,IFieldDefaultValue>): map of values with key as field name and value as the default value to be used when instantiating the sObject. 
 		* @param fullyQualifiedFieldName (String): fully qualified field name (example : Contact.Account.Name)
 		* @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
 		* @return field value
 		*/
 		@testVisible
-		private Object getFieldValueFromMapOfValues(Map<String,TDF_DefaultValueProvider.IFieldDefaultValue> mapOfValues, String fullyQualifiedFieldName, Integer recordIndex){
+		private Object getFieldValueFromMapOfValues(Map<String,IFieldDefaultValue> mapOfValues, String fullyQualifiedFieldName, Integer recordIndex){
 			Object fieldValue;
 			try{
 				// get the field value
 				fieldValue = mapOfValues.get(fullyQualifiedFieldName).getValue(recordIndex); 
 			}catch(Exception e){
-				throw new TDF_TestDataFactory.TestDataFactoryException(TDF_Utility.formatErrorMessage(ERR_UNABLE_TO_GET_FIELD_VALUE,new List<String>{fullyQualifiedFieldName},e.getMessage()));
+				throw new TestDataFactoryException(formatErrorMessage(ERR_UNABLE_TO_GET_FIELD_VALUE,new List<String>{fullyQualifiedFieldName},e.getMessage()));
 			}
 			return fieldValue;
 		}
@@ -542,7 +542,7 @@ public class TDF {
 			try{
 				sObj.putSObject(relationshipName,sObjectValue);
 			}catch(Exception e){
-				throw new TDF_TestDataFactory.TestDataFactoryException(TDF_Utility.formatErrorMessage(ERR_RELATIONSHIP_NOT_EXIST,new List<String>{relationshipName,errorMessageMergeValue},e.getMessage()));
+				throw new TestDataFactoryException(formatErrorMessage(ERR_RELATIONSHIP_NOT_EXIST,new List<String>{relationshipName,errorMessageMergeValue},e.getMessage()));
 			}
 			return sObj;
 		}		
@@ -560,7 +560,7 @@ public class TDF {
 			try{
 				sObj.put(fieldName,fieldValue);
 			}catch(Exception e){
-				throw new TDF_TestDataFactory.TestDataFactoryException(TDF_Utility.formatErrorMessage(ERR_FIELD_NOT_EXIST,new List<String>{fieldName,errorMessageMergeValue},e.getMessage()));
+				throw new TestDataFactoryException(formatErrorMessage(ERR_FIELD_NOT_EXIST,new List<String>{fieldName,errorMessageMergeValue},e.getMessage()));
 			}
 			return sObj;
 		}
