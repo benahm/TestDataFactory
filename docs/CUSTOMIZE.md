@@ -42,6 +42,31 @@ public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
 | Time                   | getTimeDefaultValue          |
 | URL                    | getURLDefaultValue           |
  
+Define required fields and/or optional fields 
+
+  ```apex
+public class MyDefaultValueProvider extends TDF.DefaultValueProvider{     
+    public override Set<String> defineSObjectRequiredFields(Schema.SObjectType sObjectType){
+        if(sObjectType == Contact.SObjectType){
+            return new Set<String>{
+                'Firstname',
+                'Description',
+                'Email'
+            };
+        }
+        return null;
+    }
+    public override Set<String> defineSObjectOptionalFields(Schema.SObjectType sObjectType){
+        if(sObjectType == Contact.SObjectType){
+            return new Set<String>{
+                'Lastname'
+            };
+        }
+        return null;
+    }
+}
+  ```  
+  
   Set the TDF value provider in your test class 
   
   ```apex
@@ -89,7 +114,7 @@ List<Case> caseList = TDF.createSObjectList('Case',new Map<String,Object>{
 	'Contact.AccountId' => accIdWrapped
 },true,100);
   ```
-
+  
 ## Next
 
 * [Contribute](CONTRIBUTE.md)
