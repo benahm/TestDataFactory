@@ -50,7 +50,7 @@
 
 ##### Create an sObject
   ```apex
-  Contact con = (Contact)TDF.createSObject('Contact');
+  Contact con = (Contact)TDF.createSObject('Contact',false);
   ```
 
 ##### Create an sObject by providing a map to assign values to fields in the main and the related sObjects
