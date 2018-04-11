@@ -45,7 +45,7 @@ public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
   Set the TDF value provider in your test class 
   
   ```apex
-  TDF.setDefaultValueProvider(new MyDefaultValueProvider());
+  TDF.defaultValueProvider = new MyDefaultValueProvider();
   ```
  
   
