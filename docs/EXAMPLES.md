@@ -62,7 +62,8 @@ You can assign values to the main sObject and any related sObject, all sObjects 
   ```
 
 ##### Create and insert an sObject
-By default the created sObjects are not inserted, by providing the *doInsert* set to true, all the sObjects will be automatically inserted  
+
+By providing the *doInsert* set to true, all the sObjects will be automatically inserted  
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'FirstName' => 'Doe',
