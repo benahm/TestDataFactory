@@ -132,6 +132,17 @@ The following code creates 10 users with different usernames and nicknames
   },true,10);
   ```
 
+
+##### Create 5 Accounts with 5 different names and a same description
+
+  ```apex
+  List<Account> accountList = TDF.createSObjectList('Account', new Map<String,Object>{
+    'Name' => new List<String>{'Chandra','Carolin','Susie','Edmund','Shawn'}
+    'Description' => 'Same description'
+  },true,5);
+  ```
+
+
 ##### Create 10 Cases related to 10 Accounts
 
   ```apex
