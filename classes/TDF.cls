@@ -13,7 +13,7 @@
 /**
 * @author benahm
 * @date 2017
-* @description Apex Test Data Factory that can be used to generate any sObject with ability to auto-fill required field with default values 
+* @description Apex Test Data Factory
 */
 @isTest
 public class TDF {
