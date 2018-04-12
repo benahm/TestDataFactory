@@ -39,7 +39,7 @@ public class TDF {
 
 	/* ===========================  Properties =========================== */
 	/** Default Value Provider property, used to override the default value provider instance  **/
-	public static TDF_DefaultValueProvider defaultValueProvider {
+	public static DefaultValueProvider defaultValueProvider {
 		get { return dvPrvdr; }
 		set {
 			if(value != null)
