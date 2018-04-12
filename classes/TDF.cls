@@ -27,7 +27,8 @@ public class TDF {
 	public static final IFieldDefaultValue DEFAULT_VALUE = new AutoFieldDefaultValue();
 	
 	/** Default value provider instance */
-	public static DefaultValueProvider defaultValueProvider = new DefaultValueProvider();
+	private static DefaultValueProvider dvPrvdr = new DefaultValueProvider();
+	
 
 	/** Constant that contains a dot '.' */
 	private static final String DOT = '.';
@@ -36,7 +37,15 @@ public class TDF {
 	@TestVisible
 	private static Map<Schema.SObjectType,Map<String, Schema.SObjectField>> mapOfFieldTokensMap = new Map<Schema.SObjectType,Map<String, Schema.SObjectField>>();
 
-
+	/* ===========================  Properties =========================== */
+	/** Default Value Provider property, used to override the default value provider instance  **/
+	public static TDF_DefaultValueProvider defaultValueProvider {
+		get { return dvPrvdr; }
+		set {
+			if(value != null)
+				dvPrvdr = value;
+		}
+	}
 
 	/**
 	 * @description create an sObject
