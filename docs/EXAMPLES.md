@@ -58,7 +58,7 @@ You can assign values to the main sObject and any related sObject, all sObjects 
     'LastName' => 'John',
     'Account.Description' => 'Description of the related account',
     'Account.Parent.Name' => 'Name of the parent Account'
-  });
+  },false);
   ```
 
 ##### Create and insert an sObject
