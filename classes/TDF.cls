@@ -27,10 +27,10 @@ public class TDF {
 	public static final IFieldDefaultValue DEFAULT_VALUE = new AutoFieldDefaultValue();
 	
 	/** Default value provider instance */
-	private static DefaultValueProvider defaultValueProvider = new DefaultValueProvider();
+	public static DefaultValueProvider defaultValueProvider = new DefaultValueProvider();
 
 	/** Constant that contains a dot '.' */
-	public static final String DOT = '.';
+	private static final String DOT = '.';
 
 	/** Map of sObject type with their corresponding map of field Tokens  */
 	@TestVisible
