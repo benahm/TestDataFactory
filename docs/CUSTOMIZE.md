@@ -1,11 +1,13 @@
 ## Customize
 
-* [Extend TDF.DefaultValueProvider class](#customize-all-the-auto-generated-data)
+* [Extend TDF.DefaultValueProvider class](#extend-tdf-defaultvalueprovider-class)
 * [Implement TDF.IFieldDefaultValue interface](#customize-the-auto-generated-data-for-some-specific-fields)
 
 You can customize the auto-generated data of the Test Data Factory 
 
-#### Customize all the auto-generated data
+#### Extend TDF.DefaultValueProvider class
+
+###### Customize all the auto-generated data
 
 Create a default value provider class by extending the virtual class ``TDF.DefaultValueProvider`` 
 
