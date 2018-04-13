@@ -7,11 +7,11 @@ You can customize the auto-generated data of the Test Data Factory
 
 ### Extend TDF.DefaultValueProvider class
 
-##### Customize all the auto-generated data
+#### Customize the auto-generated data
 
 Create a default value provider class by extending the virtual class ``TDF.DefaultValueProvider`` 
 
-Implement the methods ``get{Type}DefaultValue`` that you want to override
+Implement the methods ``get{Type}DefaultValue`` that you want to override (available methods are listed in the table below)
 
   ```apex
 public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
@@ -44,7 +44,11 @@ public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
 | Time                   | getTimeDefaultValue          |
 | URL                    | getURLDefaultValue           |
  
-Define required fields and/or optional fields 
+#### Define required fields and/or optional fields 
+
+1- You force  non-required fields to behave as required fields (example if a field is part of a validation rule)
+
+In the example below the fields  Firstname, Description and Email of the Contact are defined as required fields so the Test Data Factory will generate test data for those fields each time a Contact is created 
 
   ```apex
 public class MyDefaultValueProvider extends TDF.DefaultValueProvider{     
