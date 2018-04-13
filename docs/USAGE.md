@@ -4,7 +4,7 @@
 
 #### Installation
 
-Install the ``TDF`` class by coping the apex code or using the Ant Migration Tools
+Install the ``TDF`` class by copying the apex code or using the Ant Migration Tools
 
 The ``TDF`` class is provided with a test class ``TDFTest``
 
@@ -12,7 +12,7 @@ You can install only the ``TDF`` class and add the ``@isTest`` annotation on it,
 
 #### Configure TDF Class 
 
-This configuration is related to orgs that have person account enabled 
+This configuration is related to orgs that have Person Account enabled 
 
   ```apex
 public class TDF {
