@@ -44,14 +44,14 @@
 
 #### Create a single sObject:
 
-##### Create an sObject
+##### Create a Contact 
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact',false);
   ```
 
-##### Create an sObject by providing a map to assign values to fields in the main and the related sObjects
+##### Create a Contact by providing a map to assign values to fields in the main and the related sObjects
 
-You can assign values to the main sObject and any related sObject, all sObjects will be created with the required fields auto-filled 
+You can assign values to the main sObject or any related sObject, all sObjects will be created with the required fields auto-filled 
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'FirstName' => 'Doe',
@@ -61,9 +61,9 @@ You can assign values to the main sObject and any related sObject, all sObjects 
   },false);
   ```
 
-##### Create and insert an sObject
+##### Create and insert a Contact
 
-By providing the *doInsert* set to true, all the sObjects will be automatically inserted  
+By providing the *doInsert* set to true, the main and related sObjects will be automatically inserted  
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'FirstName' => 'Doe',
@@ -73,7 +73,7 @@ By providing the *doInsert* set to true, all the sObjects will be automatically 
 
 ##### Auto-generate values for non required fields
 
-You can auto-generate a value for non required field by assigning the TDF.DEFAULT_VALUE in the Map of values
+You can auto-generate a value for a non required field by assigning the TDF.DEFAULT_VALUE to it, in the Map of values
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'Description' => TDF.DEFAULT_VALUE,
@@ -83,7 +83,7 @@ You can auto-generate a value for non required field by assigning the TDF.DEFAUL
 
 ##### Force the instantiation of a related sObject
 
-For example when creating a contact you can force the Test Data Factory to create a related account event if an account is not required
+For example when creating a Contact you can force the Test Data Factory to create a related Account, even if an Account is not required
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'AccountId' => TDF.DEFAULT_VALUE
@@ -92,7 +92,7 @@ For example when creating a contact you can force the Test Data Factory to creat
 
 ##### Provide a map for a related sObject
 
-
+You can provide a sub map of values for a related sObject
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'Description' => 'Contact description',
