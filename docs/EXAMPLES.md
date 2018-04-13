@@ -133,9 +133,9 @@ The following code creates 10 users with different usernames and nicknames
   ```
 
 
-##### Create 5 Accounts with 5 different names and a same description
+##### Create 5 Accounts with different names
 
-Create a list of Account sObjects with different names
+Create a list of 5 Account sObjects with different names and a same description
   ```apex
   List<Account> accountList = TDF.createSObjectList('Account', new Map<String,Object>{
     'Name' => new List<String>{'Alex','Jack','Susie','Sarah','Paul'}
