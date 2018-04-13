@@ -114,14 +114,14 @@ You can provide an Id for a required related sObject, to force the use of that I
 
 #### Create a list of sObjects:
 
-##### Create and insert a list of sObjects
+##### Create and insert a list of Contact sObjects
 
 Create & insert 10 contact sObject instances
   ```apex
   List<Contact> conList = TDF.createSObjectList('Contact',true,10);
   ```
 
-##### Create and insert a list of users using the index merge value
+##### Create and insert a list of Users using the index merge value
 
 The following code creates 10 users with different usernames and nicknames 
   ```apex
@@ -135,9 +135,10 @@ The following code creates 10 users with different usernames and nicknames
 
 ##### Create 5 Accounts with 5 different names and a same description
 
+Create a list of Account sObjects with different names
   ```apex
   List<Account> accountList = TDF.createSObjectList('Account', new Map<String,Object>{
-    'Name' => new List<String>{'Chandra','Carolin','Susie','Edmund','Shawn'}
+    'Name' => new List<String>{'Alex','Jack','Susie','Sarah','Paul'}
     'Description' => 'Same description'
   },true,5);
   ```
