@@ -46,9 +46,12 @@ public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
  
 #### Define required fields and/or optional fields 
 
-1- You force  non-required fields to behave as required fields (example if a field is part of a validation rule)
+* You can force  non-required field to behave as a required field (example if a field is part of a validation rule)
+* You can force a required field to behave as a non-required field (example if a field is required but get its value from a trigger)
 
-In the example below the fields  Firstname, Description and Email of the Contact are defined as required fields so the Test Data Factory will generate test data for those fields each time a Contact is created 
+In the example below the fields Firstname, Description and Email of the Contact are defined as required fields so the Test Data Factory will generate default values for those fields each time a Contact is created 
+
+The field Lastname of the Contact is defined as optional so the Test Data Factory will not generate a default value for it
 
   ```apex
 public class MyDefaultValueProvider extends TDF.DefaultValueProvider{     
@@ -73,11 +76,31 @@ public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
 }
   ```  
   
-  Set the TDF value provider in your test class 
+Use your custom default value provider class
   
-  ```apex
-  TDF.defaultValueProvider = new MyDefaultValueProvider();
-  ```
+**Apply it to the current transaction**:
+  
+Set your default value provider class as the default one before using the Test Data Factory
+  
+```apex
+TDF.defaultValueProvider = new MyDefaultValueProvider();
+```
+ 
+**Apply it globally**:
+ 
+In the TDF class, change default value provider from the `DefaultValueProvider` to your custom default value provider 
+
+```apex
+/** Default value provider instance */
+private static DefaultValueProvider dvPrvdr = new DefaultValueProvider();
+```
+
+Apply your custom default value provider like below
+
+```apex
+/** Default value provider instance */
+private static DefaultValueProvider dvPrvdr = new MyDefaultValueProvider();
+```
  
   
  ### Implement TDF.IFieldDefaultValue interface
