@@ -15,9 +15,8 @@
 * @date 2017
 * @description Apex Test Data Factory 
 */
-@isTest
 public class TDF {
-	
+	@TestVisible
 	// Org config
 	// ==========================================================================
 	private static final Boolean PERSON_ACCOUNT_IS_ENABLED = false;
@@ -46,6 +45,7 @@ public class TDF {
 				dvPrvdr = value;
 		}
 	}
+
 
 	/**
 	 * @description create an sObject
@@ -679,7 +679,7 @@ public class TDF {
 					if(overrideFieldValue instanceof AutoFieldDefaultValue) { // auto generate a field value
 						if(fieldDesc.getRelationshipName() == null){ // field
 							// put a fieldDefaultValue instance of the field in order to auto-generate the field default value
-							mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(defaultValueProvider,sObjectDesc,fieldDesc));
+							mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(this,sObjectDesc,fieldDesc));
 						}else { // relationship
 							// put a field relationship in the map of values
 							putRelationshipField(mapOfValues,fieldDesc,prefix); // <== recursion
@@ -693,7 +693,7 @@ public class TDF {
 					if(fieldDesc.getRelationshipName() == null){ // field
 						if(isRequired){
 							// put a fieldDefaultValue instance of the field in order to auto-generate the field default value
-							mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(defaultValueProvider,sObjectDesc,fieldDesc));
+							mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(this,sObjectDesc,fieldDesc));
 						}
 					}else { // relationship
 						String relationshipName = fieldDesc.getRelationshipName().toLowerCase();
