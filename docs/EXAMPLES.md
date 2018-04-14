@@ -2,7 +2,7 @@
 ## More examples
 
 
-#### Methods of the TDF:
+#### Methods of the TDF class :
 
 
 <table>
