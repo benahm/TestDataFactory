@@ -13,6 +13,11 @@ Generate & insert an sObject with all the required fields & relationships auto-f
   Contact con = (Contact)TDF.createSObject('Contact',true);
   ```
 
+Inserted data*:
+  ```javascript
+  Contact:{Id='0036E00000R4nG0QAJ',Lastname:'test0'}
+  ```
+  
 Assign values to fields of the main and the related sObjects
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
@@ -20,7 +25,18 @@ Assign values to fields of the main and the related sObjects
     'Account.Description' => 'Text for the Description field on the Account'
   },true);
   ```
-  
+ 
+Inserted data*:
+  ```apex
+  Contact:{Id='0036E00000R55chQAB', Lastname:'test0', Email:'test@email.com', AccountId='0016E00000Z6bC7QAJ'}
+  Account:{Id='0016E00000Z6bC7QAJ',Name='test0', Description='Text for the Description field on the Account'}
+  ```
+
+<br/>
+
+
+
+  \* *in a non customized org*
   
   ### More :
 * [Usage](/docs/USAGE.md)
