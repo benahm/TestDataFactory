@@ -15,7 +15,7 @@ Generate & insert an sObject with all the required fields & relationships auto-f
 
 Inserted data*:
   ```javascript
-  Contact:{Id='0036E00000R4nG0QAJ',Lastname:'test0'}
+  Contact:{Id='0036E00000R4nG0QAJ', Lastname:'test0'}
   ```
 
 <br/>
@@ -31,7 +31,7 @@ Assign values to fields of the main and the related sObjects
 Inserted data*:
   ```apex
   Contact:{Id='0036E00000R55chQAB', Lastname:'test0', Email:'test@email.com', AccountId='0016E00000Z6bC7QAJ'}
-  Account:{Id='0016E00000Z6bC7QAJ',Name='test0', Description='Text for the Description field on the Account'}
+  Account:{Id='0016E00000Z6bC7QAJ', Name='test0', Description='Text for the Description field on the Account'}
   ```
 <br/>
 
