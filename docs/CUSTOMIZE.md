@@ -27,25 +27,25 @@ public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
 
 | Salesforce    Datatype | Method                       | Default value for the creation of a single sObject               | Default value for the creation of a list of sObject |
 |------------------------|------------------------------|------------------------------------------------------------------|-----------------------------------------------------|
-| Base64                 | getBase64DefaultValue        | Blob.valueOf(0)                                                  | Blob.valueOf(RecordIndex)                           |
+| Base64                 | getBase64DefaultValue        | Blob.valueOf(0)                                                  | Blob.valueOf(recordIndex)                           |
 | Checkbox               | getCheckboxDefaultValue      | True                                                             | //                                                  |
-| Currency               | getCurrencyDefaultValue      | 0                                                                | RecordIndex                                         |
+| Currency               | getCurrencyDefaultValue      | 0                                                                | recordIndex                                         |
 | Date                   | getDateDefaultValue          | Date.today()                                                     | //                                                  |
 | DateTime               | getDateTimeDefaultValue      | Datetime.now()                                                   | //                                                  |
-| Email                  | getEmailDefaultValue         | 'test0@email.com'                                                | 'test'+RecordIndex+'@email.com'                     |
+| Email                  | getEmailDefaultValue         | 'test0@email.com'                                                | 'test'+recordIndex+'@email.com'                     |
 | Geolocation            | getGeolocationDefaultValue   | Location.newInstance(0,0)                                        | //                                                  |
-| Number                 | getNumberDefaultValue        | 0                                                                | RecordIndex                                         |
-| Percent                | getPercentDefaultValue       | 0                                                                | RecordIndex                                         |
+| Number                 | getNumberDefaultValue        | 0                                                                | recordIndex                                         |
+| Percent                | getPercentDefaultValue       | 0                                                                | recordIndex                                         |
 | Phone                  | getPhoneDefaultValue         | '01 23 45 67 89'                                                 | //                                                  |
 | Picklist               | getPicklistDefaultValue      | The default value of the picklist otherwise the first value      | //                                                  |
 | MultiPicklist          | getMultiPicklistDefaultValue | The default value of the multipicklist otherwise the first value | //                                                  |
-| Text                   | getTextDefaultValue          | 'test0'                                                          | 'test'+RecordIndex                                  |
-| TextArea               | getTextAreaDefaultValue      | 'test0'                                                          | 'test'+RecordIndex                                  |
+| Text                   | getTextDefaultValue          | 'test0'                                                          | 'test'+recordIndex                                  |
+| TextArea               | getTextAreaDefaultValue      | 'test0'                                                          | 'test'+recordIndex                                  |
 | Time                   | getTimeDefaultValue          | Time.newInstance(12, 0, 0, 0)                                    | //                                                  |
 | URL                    | getURLDefaultValue           | 'http://test0.com'                                               | 'http://test'+RecordIndex+'.com'                    |
 
 
-*RecordIndex* : index number (starting from 0) of each record when creating a list of sObjects
+*recordIndex* : index number (starting from 0) of each record when creating a list of sObjects
 
 *//* : same value
  
