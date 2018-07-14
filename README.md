@@ -37,7 +37,7 @@ Inserted data*:
 
 
 
-  \* *in a non customized org*
+  \* *in a vanilla org*
   
   ### More :
 * [Usage](/docs/USAGE.md)
