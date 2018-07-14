@@ -23,26 +23,31 @@ public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
 }
   ```
  
- Here is the list of support datatypes and the method that defines the default value for each type
+ Here is the list of supported datatypes and the method that defines the default value for each type and their default value
 
-| Salesforce    Datatype | Method                       |
-|------------------------|------------------------------|
-| Base64                 | getBase64DefaultValue        |
-| Checkbox               | getCheckboxDefaultValue      |
-| Currency               | getCurrencyDefaultValue      |
-| Date                   | getDateDefaultValue          |
-| DateTime               | getDateTimeDefaultValue      |
-| Email                  | getEmailDefaultValue         |
-| Geolocation            | getGeolocationDefaultValue   |
-| Number                 | getNumberDefaultValue        |
-| Percent                | getPercentDefaultValue       |
-| Phone                  | getPhoneDefaultValue         |
-| Picklist               | getPicklistDefaultValue      |
-| MultiPicklist          | getMultiPicklistDefaultValue |
-| Text                   | getTextDefaultValue          |
-| TextArea               | getTextAreaDefaultValue      |
-| Time                   | getTimeDefaultValue          |
-| URL                    | getURLDefaultValue           |
+| Salesforce    Datatype | Method                       | Default value for the creation of a single sObject               | Default value for the creation of a list of sObject |
+|------------------------|------------------------------|------------------------------------------------------------------|-----------------------------------------------------|
+| Base64                 | getBase64DefaultValue        | Blob.valueOf(0)                                                  | Blob.valueOf(RecordIndex)                           |
+| Checkbox               | getCheckboxDefaultValue      | True                                                             | //                                                  |
+| Currency               | getCurrencyDefaultValue      | 0                                                                | RecordIndex                                         |
+| Date                   | getDateDefaultValue          | Date.today()                                                     | //                                                  |
+| DateTime               | getDateTimeDefaultValue      | Datetime.now()                                                   | //                                                  |
+| Email                  | getEmailDefaultValue         | 'test0@email.com'                                                | 'test'+RecordIndex+'@email.com'                     |
+| Geolocation            | getGeolocationDefaultValue   | Location.newInstance(0,0)                                        | //                                                  |
+| Number                 | getNumberDefaultValue        | 0                                                                | RecordIndex                                         |
+| Percent                | getPercentDefaultValue       | 0                                                                | RecordIndex                                         |
+| Phone                  | getPhoneDefaultValue         | '01 23 45 67 89'                                                 | //                                                  |
+| Picklist               | getPicklistDefaultValue      | The default value of the picklist otherwise the first value      | //                                                  |
+| MultiPicklist          | getMultiPicklistDefaultValue | The default value of the multipicklist otherwise the first value | //                                                  |
+| Text                   | getTextDefaultValue          | 'test0'                                                          | 'test'+RecordIndex                                  |
+| TextArea               | getTextAreaDefaultValue      | 'test0'                                                          | 'test'+RecordIndex                                  |
+| Time                   | getTimeDefaultValue          | Time.newInstance(12, 0, 0, 0)                                    | //                                                  |
+| URL                    | getURLDefaultValue           | 'http://test0.com'                                               | 'http://test'+RecordIndex+'.com'                    |
+
+
+*RecordIndex* : index number (starting from 0) of each record when creating a list of sObjects
+
+*//* : same value
  
 #### Define required fields and/or optional fields 
 
