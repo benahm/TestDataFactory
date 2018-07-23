@@ -54,7 +54,7 @@ public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
 * You can force  non-required field to behave as a required field (example if a field is part of a validation rule)
 * You can force a required field to behave as a non-required field (example if a field is required but get its value from a trigger)
 
-In the example below the fields Firstname, Description and Email of the Contact are defined as required fields so the Test Data Factory will generate default values for those fields each time a Contact is created 
+In the example below the fields *Firstname*, *Description* and *Email* of the Contact are defined as required fields so the Test Data Factory will auto-generate default values for those fields each time a Contact is created 
 
 The field Lastname of the Contact is defined as optional so the Test Data Factory will not generate a default value for it
 
@@ -93,7 +93,7 @@ TDF.defaultValueProvider = new MyDefaultValueProvider();
  
 **Apply it globally**:
  
-In the TDF class, change default value provider from the `DefaultValueProvider` to your custom default value provider 
+In the TDF class, change default value provider from the `DefaultValueProvider` to your custom default value provider class
 
 ```apex
 /** Default value provider instance */
