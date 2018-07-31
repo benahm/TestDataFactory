@@ -20,7 +20,7 @@ Inserted data*:
 
 <br/>
 
-Assign values to fields of the main and the related sObjects
+Assign values to fields of the main sObject and the related sObjects
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'Email' => 'test@email.com',
