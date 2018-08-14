@@ -124,12 +124,14 @@ public class TDFTest {
 	}
 	@isTest static void createSObjectTest14(){
 		if(TDF.PERSON_ACCOUNT_IS_ENABLED){
+			// Positive test
 			try{
 				SObject sObj = TDF.createSObject('Account',true);
-				System.assert(false);
-			}catch(TDF.TestDataFactoryException e){
 				System.assert(true);
-			}	
+			}catch(TDF.TestDataFactoryException e){
+				System.assert(false);
+			}
+			// Negative test
 			try{
 				SObject sObj = TDF.createSObject('Account',new Map<String,Object>{
 					'RecordTypeId' => 'BadId'
