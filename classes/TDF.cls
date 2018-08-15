@@ -1022,8 +1022,8 @@ public class TDF {
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
         * @return currency default value
         */
-        public virtual String getCurrencyDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
-            return recordIndex.format();
+        public virtual Decimal getCurrencyDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
+            return getNumberDefaultValue(sObjectDesc, fieldDesc, recordIndex);
         }
         /**
         * @description get the default value for Date field type
