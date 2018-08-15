@@ -796,7 +796,7 @@ public class TDFTest {
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
 		System.assertEquals(Blob.valueOf('0'),dvProvider.getBase64DefaultValue(null,null,0));
 		System.assertEquals(true,dvProvider.getCheckboxDefaultValue(null,null,0));
-		System.assertEquals('0',dvProvider.getCurrencyDefaultValue(null,null,0));
+		System.assertEquals(0,dvProvider.getCurrencyDefaultValue(null,null,0));
 		System.assertEquals(Date.today(),dvProvider.getDateDefaultValue(null,null,0));
 		System.assertEquals(Datetime.now(),dvProvider.getDateTimeDefaultValue(null,null,0));
 		System.assertEquals('test0@email.com',dvProvider.getEmailDefaultValue(null,null,0));
