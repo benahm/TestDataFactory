@@ -137,7 +137,7 @@ The following code creates 10 users with different usernames and nicknames
 
 Create a list of 5 Account sObjects with different names and a same description
   ```apex
-  List<Account> accountList = TDF.createSObjectList('Account', new Map<String,Object>{
+  List<Account> accList = TDF.createSObjectList('Account', new Map<String,Object>{
     'Name' => new List<String>{'Alex','Jack','Susie','Sarah','Paul'}
     'Description' => 'Same description'
   },true,5);
@@ -148,15 +148,15 @@ Create a list of 5 Account sObjects with different names and a same description
 
 Create a list of Acount sObjects and link them to a list of 10 Case sObjects
   ```apex
-  List<Account> accountList = TDF.createSObjectList('Account', new Map<String,Object>{
+  List<Account> accList = TDF.createSObjectList('Account', new Map<String,Object>{
     'Description' => 'Account Description'
   },true,10);
   ```
   
   ```apex
   List<Case> caseList = TDF.createSObjectList('Case', new Map<String,Object>{
-    'AccountId' => AccountList,
-    'Contact.AccountId' => AccountList
+    'AccountId' => AccList,
+    'Contact.AccountId' => AccList
   },true,10);
   ```
 
