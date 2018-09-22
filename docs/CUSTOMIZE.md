@@ -81,7 +81,7 @@ public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
 }
   ```  
   
-Use your custom default value provider class
+Using your custom default value provider class
   
 **Apply it to the current transaction**:
   
