@@ -1023,7 +1023,7 @@ public class TDF {
         * @return currency default value
         */
         public virtual Decimal getCurrencyDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
-            return getNumberDefaultValue(sObjectDesc, fieldDesc, recordIndex);
+            return recordIndex;
         }
         /**
         * @description get the default value for Date field type
@@ -1386,7 +1386,7 @@ public class TDF {
     }
 
     /**
-    * @description Exceptions
+    * @description Test Data Factory Exception
     */
     public class TestDataFactoryException extends Exception {}
 
