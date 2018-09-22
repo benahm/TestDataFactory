@@ -20,25 +20,44 @@ public class TDFTest {
 
 
 	/************************* TDF tests *************************/
-	@isTest static void createSObjectTest3(){
+    /**
+    * @description create an Account sObject instance (insert flag = false)
+    */
+	@isTest static void createSObjectTest1(){
+        Test.startTest();
 		SObject sObj = TDF.createSObject('Account',false);
+        Test.stopTest();
 		System.assertNotEquals(null,sObj);
 	}	
-	@isTest static void createSObjectTest4(){
+    /**
+    * @description create an Account sObject instance (insert flag = false) and passing an empty map
+    */
+	@isTest static void createSObjectTest2(){
+        Test.startTest();
 		SObject sObj = TDF.createSObject('Account',new Map<String,Object>(),false);
+        Test.stopTest();
 		System.assertNotEquals(null,sObj);
 	}	
-	@isTest static void createSObjectTest5(){
+    /**
+    * @description create a Case sObject instance (insert flag = false) and passing an complex map of values
+    */
+	@isTest static void createSObjectTest3(){
+        Test.startTest();
 		Case cse = (Case)TDF.createSObject('Case', new Map<String,Object>{
 				'Contact.FirstName' => 'test',
 				'Contact.Account.Name' => 'test',
 				'Contact.Account.Parent.Name' => 'test'
 			},false);
+        Test.stopTest();
 		System.assertEquals('test',cse.Contact.FirstName);
 		System.assertEquals('test',cse.Contact.Account.Name);
 		System.assertEquals('test',cse.Contact.Account.Parent.Name);
 	}
-	@isTest static void createSObjectTest6(){
+    /**
+    * @description create a Case sObject instance (insert flag = true) and passing an complex map of values and DEFAULT_VALUE
+    */
+	@isTest static void createSObjectTest4(){
+        Test.startTest();
 		SObject sObj = TDF.createSObject('Case', new Map<String,Object>{
 				'id' => null,
 				'aCCount.Description' => 'test',
@@ -48,11 +67,16 @@ public class TDFTest {
 				'asset.contact.account.Description' => 'test',
 				'asset.Parent.contact.account.Description' => TDF.DEFAULT_VALUE
 			},true);
+        Test.stopTest();
 		Case cse = [select Asset.Parent.Contact.Account.Name, Asset.Parent.Contact.Account.Description from Case limit 1];
 		System.assertEquals('test0',cse.Asset.Parent.Contact.Account.Name);
 		System.assertEquals('test0',cse.Asset.Parent.Contact.Account.Description);
 	}
-	@isTest static void createSObjectTest7(){
+    /**
+    * @description create a Case sObject instance (insert flag = false) and passing an nested map of values
+    */
+	@isTest static void createSObjectTest5(){
+        Test.startTest();
 		Case cse = (Case)TDF.createSObject('Case', new Map<String,Object>{
 				'Contact' => new Map<String,Object>{
 					'Firstname' => 'test',
@@ -62,11 +86,17 @@ public class TDFTest {
 					}
 				}
 			},false);
+        Test.stopTest();
 		System.assertEquals('test',cse.Contact.FirstName);
 		System.assertEquals('test',cse.Contact.Account.Name);
 		System.assertEquals('test',cse.Contact.Account.Description);
 	}
-	@isTest static void createSObjectTest8(){
+    /**
+    * @description create an Account sObject instance (insert flag = true) 
+    *              create a Case (insert flag = false) and use the created account in a nested map of values
+    */
+	@isTest static void createSObjectTest6(){
+        Test.startTest();
 		Account acc = (Account)TDF.createSObject('Account',new Map<String,Object>{
 			'Name' => 'test',
 			'Description' => 'test'
@@ -77,127 +107,209 @@ public class TDFTest {
 					'Account' => acc
 				}
 			},false);
+        Test.stopTest();
 		System.assertEquals('test',cse.Contact.FirstName);
 		System.assertEquals(acc.Id,cse.Contact.AccountId);
 	}
-	@isTest static void createSObjectTest9(){
+    /**
+    * @description create an Account sObject instance (insert flag = true) pass an Id in the map of values
+    */
+	@isTest static void createSObjectTest7(){
+        Test.startTest();
 		SObject sObj = TDF.createSObject('Account', new Map<String,Object>{
 				'Name'=> 'test',
 				'OwnerId'=> UserInfo.getUserId()
 			},true);
+        Test.stopTest();
 		Account acc = [select OwnerId from Account limit 1];
 		System.assertEquals(UserInfo.getUserId(),acc.OwnerId);
 	}
-	@isTest static void createSObjectTest10(){
+    /**
+    * @description create an Account sObject instance (insert flag = true) that trigger the creation of a user, by pass an username & profileId in the map of values
+    */
+	@isTest static void createSObjectTest8(){
+        Test.startTest();
 		SObject sObj = TDF.createSObject('Account', new Map<String,Object>{
 			'Owner.Username' => 'test123456789@mycompanydomain.developer',
 			'Owner.ProfileId' => UserInfo.getProfileId()
 			},true);
+        Test.stopTest();
 		List<User> uList = [select Id,ProfileId from User where Username = 'test123456789@mycompanydomain.developer'];
 		System.assertNotEquals(null,uList);
 		System.assertEquals(1,uList.size());
 		System.assertEquals(UserInfo.getProfileId(),uList.get(0).ProfileId);
 	}
+    /**
+    * @description create an sobject that does not exists
+    */
+	@isTest static void createSObjectTest9(){
+		try{
+            Test.startTest();
+			SObject sObj = TDF.createSObject('TEST',true);
+            Test.stopTest();
+			System.assert(false);
+		}catch(TDF.TestDataFactoryException e){
+			System.assert(true);
+		}	
+	}
+    /**
+    * @description create an object that cannot be created via Apex
+    */
+	@isTest static void createSObjectTest10(){
+		try{
+            Test.startTest();
+			SObject sObj = TDF.createSObject('Profile',true);
+            Test.stopTest();
+			System.assert(false);
+		}catch(TDF.TestDataFactoryException e){
+			System.assert(true);
+		}	
+	}
+    /**
+    * @description create an asset object without specifying an AccountId of ContactId
+    */
 	@isTest static void createSObjectTest11(){
 		try{
-			SObject sObj = TDF.createSObject('TEST',true);
-			System.assert(false);
-		}catch(TDF.TestDataFactoryException e){
-			System.assert(true);
-		}	
-	}
-	@isTest static void createSObjectTest12(){
-		try{
-			SObject sObj = TDF.createSObject('Profile',true);
-			System.assert(false);
-		}catch(TDF.TestDataFactoryException e){
-			System.assert(true);
-		}	
-	}
-	@isTest static void createSObjectTest13(){
-		try{
+            Test.startTest();
 			SObject sObj = TDF.createSObject('Asset',true);
+            Test.stopTest();
 			System.assert(false);
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}	
 	}
-	@isTest static void createSObjectTest14(){
+    /**
+    * @description create an Account sobject instance in a Person Account enabled org the record type should be set automatically
+    */
+	@isTest static void createSObjectTest12(){
 		if(TDF.PERSON_ACCOUNT_IS_ENABLED){
 			// Positive test
 			try{
+                Test.startTest();
 				SObject sObj = TDF.createSObject('Account',true);
+                Test.stopTest();
 				System.assert(true);
 			}catch(TDF.TestDataFactoryException e){
 				System.assert(false);
 			}
-			// Negative test
+
+		}
+	}
+    /**
+    * @description create an Account sobject instance in a Person Account enabled org by passing a bad record type id
+    */
+    @isTest static void createSObjectTest13(){
+        if(TDF.PERSON_ACCOUNT_IS_ENABLED){
+        	// Negative test
 			try{
+                Test.startTest();
 				SObject sObj = TDF.createSObject('Account',new Map<String,Object>{
 					'RecordTypeId' => 'BadId'
 				},true);
+                Test.stopTest();
 				System.assert(false);
 			}catch(TDF.TestDataFactoryException e){
 				System.assert(true);
 			}
 		}
-	}
-	@isTest static void createSObjectTest15(){
+    }
+    /**
+    * @description create a Contact sobject instance with a bad field name in the map of values
+    */
+	@isTest static void createSObjectTest14(){
 		try{
+            Test.startTest();
 			SObject sObj = TDF.createSObject('Contact',new Map<String,Object>{
 			'Test' => 'test'
 			},true);
+            Test.stopTest();
 			System.assert(false);
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}	
+    }
+    /**
+    * @description create a Contact sobject instance with a bad field name in the map of values
+    */
+    @isTest static void createSObjectTest15(){
 		try{
+            Test.startTest();
 			SObject sObj = TDF.createSObject('Contact',new Map<String,Object>{
 			'Account.Test' => 'test'
 			},true);
+            Test.stopTest();
 			System.assert(false);
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}	
+    }
+    /**
+    * @description create a Contact sobject instance with a bad value for an id in the map of values
+    */
+    @isTest static void createSObjectTest16(){
 		try{
+            Test.startTest();
 			SObject sObj = TDF.createSObject('Contact',new Map<String,Object>{
 			'Account.Test.Parent.Id' => 'test'
 			},true);
+            Test.stopTest();
 			System.assert(false);
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
-		}	
+		}
+    }
+    /**
+    * @description create a Contact sobject instance with a bad type of value in the map of values
+    */
+    @isTest static void createSObjectTest17(){	
 		try{
+            Test.startTest();
 			SObject sObj = TDF.createSObject('Contact',new Map<String,Object>{
 			'Description' => Date.today()
 			},true);
+            Test.stopTest();
 			System.assert(false);
 		}catch(TDF.TestDataFactoryException e){
 			System.assert(true);
 		}	
 	}
-	@isTest static void createSObjectListTest5(){
+    /**
+    * @description create a list of 5 Contact sobject instances (insert flag = false)
+    */
+	@isTest static void createSObjectListTest1(){
+        Test.startTest();
 		List<SObject> sObjList = TDF.createSObjectList('Contact',false,5);
+        Test.stopTest();
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
 	}
-	@isTest static void createSObjectListTest6(){
-		List<SObject> sObjList = TDF.createSObjectList('Contact',false,5);
+    /**
+    * @description create a list of 200 Contact sobject instances (insert flag = true)
+    */
+	@isTest static void createSObjectListTest2(){
+        Test.startTest();
+		List<SObject> sObjList = TDF.createSObjectList('Contact',true,200);
+        Test.stopTest();
 		System.assertNotEquals(null,sObjList);
-		System.assertEquals(5,sObjList.size());
+		System.assertEquals(200,sObjList.size());
 	}	
-	@isTest static void createSObjectListTest7(){
+    /**
+    * @description create a list of 200 Contact sobject instances (insert flag = false) with an empty map of values
+    */
+	@isTest static void createSObjectListTest3(){
+        Test.startTest();
 		List<SObject> sObjList = TDF.createSObjectList('Contact',new Map<String,Object>(),false,5);
+        Test.stopTest();
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
 	}
-	@isTest static void createSObjectListTest8(){
-		List<SObject> sObjList = TDF.createSObjectList('Contact',new Map<String,Object>(),false,5);
-		System.assertNotEquals(null,sObjList);
-		System.assertEquals(5,sObjList.size());
-	}
-	@isTest static void createSObjectListTest9(){
-		List<Contact> sObjList = TDF.createSObjectList('Contact',new Map<String,Object>(),false,5);
+    /**
+    * @description create a list of 5 Contact sobject instances (insert flag = true) with an empty map of values
+    */
+	@isTest static void createSObjectListTest4(){
+        Test.startTest();
+		List<Contact> sObjList = TDF.createSObjectList('Contact',new Map<String,Object>(),true,5);
+        Test.stopTest();
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
 		System.assertEquals('test0',sObjList.get(0).Lastname);
@@ -206,10 +318,15 @@ public class TDFTest {
 		System.assertEquals('test3',sObjList.get(3).Lastname);
 		System.assertEquals('test4',sObjList.get(4).Lastname);
 	}
-	@isTest static void createSObjectListTest10(){
+    /**
+    * @description create a list of 5 Contact sobject instances (insert flag = true) with a list for lastname in the map of values
+    */
+	@isTest static void createSObjectListTest5(){
+        Test.startTest();
 		List<Contact> sObjList = TDF.createSObjectList('Contact',new Map<String,Object>{
 			'Lastname' => new List<String>{'test4','test3','test2','test1','test0'}
 		},false,5);
+        Test.stopTest();
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
 		System.assertEquals('test4',sObjList.get(0).Lastname);
@@ -218,7 +335,12 @@ public class TDFTest {
 		System.assertEquals('test1',sObjList.get(3).Lastname);
 		System.assertEquals('test0',sObjList.get(4).Lastname);
 	}
-	@isTest static void createSObjectListTest11(){
+    /**
+    * @description create a list of 2 Account sobject instances (insert flag = true)
+    *              create a list of 2 Contact sobject instances with the created account in the map of values
+    */
+	@isTest static void createSObjectListTest6(){
+        Test.startTest();
 		List<Account> accList = TDF.createSObjectList('Account',new Map<String,Object>{
 			'Name' => 'test',
 			'Description' => 'test'
@@ -229,22 +351,31 @@ public class TDFTest {
 					'Account' => accList
 				}
 			},false,2);
+        Test.stopTest();
 		System.assertEquals('test',cseList.get(0).Contact.FirstName);
 		System.assertEquals('test',cseList.get(1).Contact.FirstName);
 		System.assertEquals(accList.get(0).Id,cseList.get(0).Contact.AccountId);
 		System.assertEquals(accList.get(1).Id,cseList.get(1).Contact.AccountId);
 	}
-	@isTest static void createSObjectListTest12(){
+    /**
+    * @description create a list of 5 Account sobject instances (insert flag = true) that trigger the create of a list of users for the ower field
+    */
+	@isTest static void createSObjectListTest7(){
+        Test.startTest();
 		List<SObject> sObjList = TDF.createSObjectList('Account', new Map<String,Object>{
 			'Owner.Username' => 'test123456789@mycompanydomain.developer{!index}',
 			'Owner.CommunityNickname' => 'testd{!index}',
 			'Owner.ProfileId' => UserInfo.getProfileId()
 			},true,5);
+        Test.stopTest();
 		List<User> uList = [select Id,ProfileId from User where Username LIKE 'test123456789@mycompanydomain.developer%'];
 		System.assertNotEquals(null,uList);
 		System.assertEquals(5,uList.size());
 		System.assertEquals(UserInfo.getProfileId(),uList.get(0).ProfileId);
 	}
+    /**
+    * @description setting the default value provider
+    */
 	@isTest static void setDefaultValueProviderTest(){
 		System.assertNotEquals(null,TDF.defaultValueProvider);
 		TDF.defaultValueProvider = null;
