@@ -124,12 +124,14 @@ public class TDFTest {
 	}
 	@isTest static void createSObjectTest14(){
 		if(TDF.PERSON_ACCOUNT_IS_ENABLED){
+			// Positive test
 			try{
 				SObject sObj = TDF.createSObject('Account',true);
-				System.assert(false);
-			}catch(TDF.TestDataFactoryException e){
 				System.assert(true);
-			}	
+			}catch(TDF.TestDataFactoryException e){
+				System.assert(false);
+			}
+			// Negative test
 			try{
 				SObject sObj = TDF.createSObject('Account',new Map<String,Object>{
 					'RecordTypeId' => 'BadId'
@@ -773,7 +775,7 @@ public class TDFTest {
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
 		System.assertEquals(Blob.valueOf('0'),dvProvider.getDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.Body.getDescribe(),0)); // base64
  		System.assertEquals(true,dvProvider.getDefaultValue(Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe(),0)); // checkbox
-		System.assertEquals('0',dvProvider.getDefaultValue(Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe(),0)); // currency
+		System.assertEquals(0,dvProvider.getDefaultValue(Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe(),0)); // currency
 		System.assertEquals(Date.today(),dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe(),0)); // date
 		System.assertEquals(Datetime.now(),dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.CreatedDate.getDescribe(),0)); // datetime
 		System.assertEquals('test0@email.com',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe(),0)); // email
@@ -794,7 +796,7 @@ public class TDFTest {
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
 		System.assertEquals(Blob.valueOf('0'),dvProvider.getBase64DefaultValue(null,null,0));
 		System.assertEquals(true,dvProvider.getCheckboxDefaultValue(null,null,0));
-		System.assertEquals('0',dvProvider.getCurrencyDefaultValue(null,null,0));
+		System.assertEquals(0,dvProvider.getCurrencyDefaultValue(null,null,0));
 		System.assertEquals(Date.today(),dvProvider.getDateDefaultValue(null,null,0));
 		System.assertEquals(Datetime.now(),dvProvider.getDateTimeDefaultValue(null,null,0));
 		System.assertEquals('test0@email.com',dvProvider.getEmailDefaultValue(null,null,0));
@@ -830,7 +832,7 @@ public class TDFTest {
 		TDF.IFieldDefaultValue fieldDV4 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe());
 		System.assertEquals(true,fieldDV4.getValue(0));
 		TDF.IFieldDefaultValue fieldDV5 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe());
-		System.assertEquals('0',fieldDV5.getValue(0));
+		System.assertEquals(0,fieldDV5.getValue(0));
 		TDF.IFieldDefaultValue fieldDV6 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe());
 		System.assertEquals(Date.today(),fieldDV6.getValue(0));
 		TDF.IFieldDefaultValue fieldDV7 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.CreatedDate.getDescribe());
