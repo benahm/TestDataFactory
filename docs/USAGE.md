@@ -4,7 +4,7 @@
 
 #### Installation
 
-Install the ``TDF`` class by copying the Apex code or using the Ant Migration Tool
+Install the ``TDF`` class by copying the [TDF Apex class](https://github.com/benahm/TDF/blob/master/classes/TDF.cls) or using the Ant Migration Tool
 
 The ``TDF`` class is provided with a test class ``TDFTest``
 
