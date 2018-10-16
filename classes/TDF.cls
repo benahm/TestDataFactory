@@ -19,7 +19,7 @@ public class TDF {
     @TestVisible
     // Org config
     // ==========================================================================
-    private static final Boolean PERSON_ACCOUNT_IS_ENABLED = false;
+    private static final Boolean PERSON_ACCOUNT_IS_ENABLED = isPersonAccountEnabled();
     // ==========================================================================
 
     /** Default value generator, used to auto-generate default values for non required fields  */
@@ -46,6 +46,19 @@ public class TDF {
         }
     }
 
+    /**
+     * Determines if person accounts are enabled in the org. An exception is thrown
+     * if the 'IsPersonAccount' field doesn't exist, and we return false.
+     */
+    private static Boolean isPersonAccountEnabled () {
+        try {
+            SObject testObject = new Account();
+            testObject.get('IsPersonAccount');
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
 
     /**
      * @description create an sObject
