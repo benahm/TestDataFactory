@@ -1,7 +1,7 @@
 # Apex Test Data Factory
 
 
-<p align="center"><img src ="/docs/assets/TDF.png" width="500"/></p>
+<p align="center"><img src ="/docs/assets/TDF.png" width="400"/></p>
 
 
 
