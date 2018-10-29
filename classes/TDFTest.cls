@@ -1000,7 +1000,7 @@ private class TDF {
 	static void getTypeDefaultValueTest(){
 		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
 		System.assertEquals(Blob.valueOf('0'),dvProvider.getBase64DefaultValue(null,null,0));
-		System.assertEquals(true,dvProvider.getCheckboxDefaultValue(null,null,0));
+		System.assertEquals(false,dvProvider.getCheckboxDefaultValue(null,null,0));
 		System.assertEquals(0,dvProvider.getCurrencyDefaultValue(null,null,0));
 		System.assertEquals(Date.today(),dvProvider.getDateDefaultValue(null,null,0));
 		System.assertEquals(Datetime.now(),dvProvider.getDateTimeDefaultValue(null,null,0));
@@ -1037,7 +1037,7 @@ private class TDF {
 		TDF.IFieldDefaultValue fieldDV3 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Attachment.SObjectType.getDescribe(),Attachment.fields.Body.getDescribe());
 		System.assertEquals(Blob.valueOf('0'),fieldDV3.getValue(0));		
 		TDF.IFieldDefaultValue fieldDV4 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe());
-		System.assertEquals(true,fieldDV4.getValue(0));
+		System.assertEquals(false,fieldDV4.getValue(0));
 		TDF.IFieldDefaultValue fieldDV5 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe());
 		System.assertEquals(0,fieldDV5.getValue(0));
 		TDF.IFieldDefaultValue fieldDV6 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe());
