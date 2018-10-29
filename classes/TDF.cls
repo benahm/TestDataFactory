@@ -1029,7 +1029,7 @@ public class TDF {
         * @return checkbox default value
         */
         public virtual Boolean getCheckboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
-            return true;
+            return false;
         }
         /**
         * @description get the default value for Currency field type
