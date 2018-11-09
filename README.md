@@ -44,7 +44,7 @@ Inserted data*:
   Click on the package image to access the *TDF* Unmanaged Package
   
   <p align="center">
-    <a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04t1n0000021jUU&isdtp=p1">
+    <a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04t1n0000021jUZ">
       <img src ="/docs/assets/package.png" width="80"/>
     </a>
   </p>
