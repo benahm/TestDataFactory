@@ -33,7 +33,7 @@ public class TDF {
     /** Constant that contains a dot '.' */
     private static final String DOT = '.';
 
-    /** Map of sObject type with their corresponding map of field Tokens  */
+    /** Map of sObject types with their corresponding map of field Tokens  */
     @TestVisible
     private static Map<Schema.SObjectType,Map<String, Schema.SObjectField>> mapOfFieldTokensMap = new Map<Schema.SObjectType,Map<String, Schema.SObjectField>>();
 
@@ -48,6 +48,16 @@ public class TDF {
         }
     }
 
+    /**
+     * @description create an sObject
+     * @param sObjectName (String): name of the sObject to be created
+     * @return sObject instance
+     * @example 
+     * Account acc = (Account)TDF.createSObject('Account');
+     */
+    public static SObject createSObject(String sObjectName){
+        return createSObject(sObjectName,new Map<String,Object>(),true);
+    }
 
     /**
      * @description create an sObject
@@ -55,10 +65,24 @@ public class TDF {
      * @param Boolean (Boolean): if true the sObject instance is inserted to the Salesforce database
      * @return sObject instance
      * @example 
-     * Account acc = (Account)TDF.createSObject('Account',true);
+     * Account acc = (Account)TDF.createSObject('Account',false);
      */
     public static SObject createSObject(String sObjectName, Boolean doInsert){
         return createSObject(sObjectName,new Map<String,Object>(),doInsert);
+    }
+
+    /**
+     * @description create an sObject with a map to override field values
+     * @param sObjectName (String): name of the sObject to be created
+     * @param mapOfValuesOverride (Map<String,Object>): map of values
+     * @return sObject instance
+     * @example 
+     * Account acc = (Account)TDF.createSObject('Account',new Map<String,Object>{
+     *  'Description' => 'Test'
+     * });
+     */
+    public static SObject createSObject(String sObjectName, Map<String,Object> mapOfValuesOverride){
+        return createSObject(sObjectName,mapOfValuesOverride,true);
     }
 
     /**
@@ -70,10 +94,22 @@ public class TDF {
      * @example 
      * Account acc = (Account)TDF.createSObject('Account',new Map<String,Object>{
      *  'Description' => 'Test'
-     * },true);
+     * },false);
      */
     public static SObject createSObject(String sObjectName, Map<String,Object> mapOfValuesOverride, Boolean doInsert){
         return createSObjectList(sObjectName,mapOfValuesOverride,doInsert,1).get(0);
+    }
+
+    /**
+     * @description create a list of sObjects
+     * @param sObjectName (String): name of the sObject to be created
+     * @param numberOfSObjects (Integer): number of sObjects to be created
+     * @return list of sObject instances
+     * @example 
+     * List<Account> accList = TDF.createSObjectList('Account',10);
+     */
+    public static List<SObject> createSObjectList(String sObjectName, Integer numberOfSObjects){
+        return createSObjectList(sObjectName,new Map<String,Object>(),true,numberOfSObjects);
     }
     
     /**
@@ -83,10 +119,25 @@ public class TDF {
      * @param numberOfSObjects (Integer): number of sObjects to be created
      * @return list of sObject instances
      * @example 
-     * List<Account> accList = TDF.createSObjectList('Account',true,10);
+     * List<Account> accList = TDF.createSObjectList('Account',false,10);
      */
     public static List<SObject> createSObjectList(String sObjectName, Boolean doInsert, Integer numberOfSObjects){
         return createSObjectList(sObjectName,new Map<String,Object>(),doInsert,numberOfSObjects);
+    }
+
+    /**
+     * @description create a list of sObjects with a map to override field values
+     * @param sObjectName (String): name of the sObject to be created
+     * @param mapOfValuesOverride (Map<String,Object>): map of values
+     * @param numberOfSObjects (Integer): number of sObjects to be created
+     * @return list of sObject instances
+     * @example 
+     * List<Account> accList = TDF.createSObjectList('Account',new Map<String,Object>{
+     *  'Description' => 'Test'
+     * },10);
+     */
+    public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Integer numberOfSObjects){
+        return createSObjectList(sObjectName,mapOfValuesOverride,true,numberOfSObjects);
     }
 
     /**
@@ -99,7 +150,7 @@ public class TDF {
      * @example 
      * List<Account> accList = TDF.createSObjectList('Account',new Map<String,Object>{
      *  'Description' => 'Test'
-     * },true,10);
+     * },false,10);
      */
     public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Boolean doInsert, Integer numberOfSObjects){
         Schema.SObjectType sObjectType = Schema.getGlobalDescribe().get(sObjectName); 
@@ -304,8 +355,8 @@ public class TDF {
 
         /**
         * @description execute a DML insert operation on a list of sObjects
-        * @param errorMessageMergeValue (String): merge value provided only for error message generation (example : .contact.account)
         * @param sObjList (List<SObject>): list of sObjects to be inserted
+        * @param errorMessageMergeValue (String): merge value provided only for error message generation (example : .contact.account)
         */
         @testVisible
         private void insertList(List<SObject> sObjList, String errorMessageMergeValue){
@@ -422,7 +473,6 @@ public class TDF {
             if(doInsert){
                 sObjMgr.insertAll(); // insert all if doInsert = true
             }
-            
 
             return sObjMgr.getMainSObjectList();
         }
@@ -672,9 +722,9 @@ public class TDF {
             Set<String> definedRequiredFields = getDefinedSObjectRequiredFields(sObjectType);
             // get the defined optional fields set
             Set<String> definedOptionalFields = getDefinedSObjectOptionalFields(sObjectType);
-            // Person Account enabled
+            // Mange Person Account Org enabled
             if(sObjectType == Account.sObjectType && PERSON_ACCOUNT_IS_ENABLED){ 
-            managePersonAccountOrgEnabled(mapOfValues,prefix,definedRequiredFields);
+            	managePersonAccountOrgEnabled(mapOfValues,prefix,definedRequiredFields);
             }
             // loop through fields map
             for(String fieldName : fieldsMap.keySet()){
@@ -810,7 +860,7 @@ public class TDF {
         * @example 
         * keySetOverride = {Contact.Account.Name,Contact.FirstName}
         * Prefix : Contact.
-        * Result : Account
+        * Result : {Account}
         */
         @TestVisible
         private Set<String> getRelationshipKeySet(Set<String> keySetOverride, String prefix){
@@ -1405,7 +1455,7 @@ public class TDF {
     * @description This is a dummy test method needed in order to create a managed package for TDF
     */
     @IsTest
-    private static void dummy(){}
+    private static void dummyTest(){}
 
     /**
     * @description Test Data Factory Exception
