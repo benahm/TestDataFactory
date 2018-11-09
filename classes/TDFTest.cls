@@ -16,7 +16,7 @@
 * @description TDF Test Class
 */
 @isTest
-private class TDF {
+private class TDFTest {
 
 
 	/************************* TDF tests *************************/
