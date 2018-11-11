@@ -19,8 +19,10 @@
   </td>
   <td>
 <pre lang='apex'>  
-* createSObject(String sObjectName,Boolean doInsert) // create an sObject with all required fields auto-filled and insert all if the doInsert = true
-* createSObject(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride, Boolean doInsert) // create an sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all if the doInsert = true
+* createSObject(String sObjectName) // create an sObject with all required fields auto-filled and insert all sObjects
+* createSObject(String sObjectName,Boolean doInsert) // create an sObject with all required fields auto-filled and insert all sObjects if the doInsert = true
+* createSObject(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride) // create an sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all sObjects if the doInsert = true
+* createSObject(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride, Boolean doInsert) // create an sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all sObjects if the doInsert = true
 
 </pre>
   </td>
@@ -33,8 +35,10 @@
   </td>
   <td>
 <pre lang='apex'>  
-* createSObjectList(String sObjectName, Boolean doInsert, Integer numberOfSObjects) // create a list of sObject with all required fields auto-filled and insert all if the doInsert = true
-* createSObjectList(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride, Boolean doInsert, Integer numberOfSObjects) // create a list of sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all if the doInsert = true
+* createSObjectList(String sObjectName, Integer numberOfSObjects) // create a list of sObject with all required fields auto-filled and insert all sObjects
+* createSObjectList(String sObjectName, Integer numberOfSObjects, Boolean doInsert) // create a list of sObject with all required fields auto-filled and insert all sObjects if the doInsert = true
+* createSObjectList(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride, Integer numberOfSObjects) // create a list of sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all sObjects
+* createSObjectList(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride, Integer numberOfSObjects, Boolean doInsert) // create a list of sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all sObjects if the doInsert = true
 
 </pre>
   </td>
@@ -46,7 +50,7 @@
 
 ##### Create a Contact 
   ```apex
-  Contact con = (Contact)TDF.createSObject('Contact',false);
+  Contact con = (Contact)TDF.createSObject('Contact');
   ```
 
 ##### Create a Contact by providing a map to assign values to fields in the main and the related sObjects
@@ -58,17 +62,7 @@ You can assign values to the main sObject or any related sObject, all sObjects w
     'LastName' => 'John',
     'Account.Description' => 'Description of the related account',
     'Account.Parent.Name' => 'Name of the parent Account'
-  },false);
-  ```
-
-##### Create and insert a Contact
-
-By providing the *doInsert* set to true, the main and related sObjects will be automatically inserted  
-  ```apex
-  Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
-    'FirstName' => 'Doe',
-    'LastName' => 'John'
-  },true /* <-- doInsert flag */);
+  });
   ```
 
 ##### Auto-generate values for non required fields
@@ -78,7 +72,7 @@ You can auto-generate a value for a non required field by assigning the TDF.DEFA
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'Description' => TDF.DEFAULT_VALUE,
     'Account.Phone' => TDF.DEFAULT_VALUE
-  },true);
+  });
   ```
 
 ##### Force the instantiation of a related sObject
@@ -87,7 +81,7 @@ For example when creating a Contact you can force the Test Data Factory to creat
   ```apex
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'AccountId' => TDF.DEFAULT_VALUE
-  },true);
+  });
   ```
 
 ##### Provide a map for a related sObject
@@ -100,7 +94,7 @@ You can provide a sub map of values for a related sObject
       'Name' => 'Account Name',
       'Description' => 'Account Description'
     }
-  },true);
+  });
   ```
 
 ##### Provide an Id for a required related sObject to avoid its instantiation
@@ -129,7 +123,7 @@ The following code creates 10 users with different usernames and nicknames
     'ProfileId' => UserInfo.getProfileId(),
     'Username' => 'test{!index}@mytestdomain.developer',
     'CommunityNickname' => 'test{!index}'
-  },true,10);
+  },10);
   ```
 
 
@@ -140,7 +134,7 @@ Create a list of 5 Account sObjects with different names and a same description
   List<Account> accList = TDF.createSObjectList('Account', new Map<String,Object>{
     'Name' => new List<String>{'Alex','Jack','Susie','Sarah','Paul'}
     'Description' => 'Same description'
-  },true,5);
+  },5);
   ```
 
 
@@ -150,14 +144,14 @@ Create a list of Acount sObjects and link them to a list of 10 Case sObjects
   ```apex
   List<Account> accList = TDF.createSObjectList('Account', new Map<String,Object>{
     'Description' => 'Account Description'
-  },true,10);
+  },10);
   ```
   
   ```apex
   List<Case> caseList = TDF.createSObjectList('Case', new Map<String,Object>{
     'AccountId' => AccList,
     'Contact.AccountId' => AccList
-  },true,10);
+  },10);
   ```
 
 ## Next
