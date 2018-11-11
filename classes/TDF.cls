@@ -17,18 +17,12 @@
 */
 @IsTest
 public class TDF {
-    @TestVisible
-    // Org config
-    // ==========================================================================
-    private static final Boolean PERSON_ACCOUNT_IS_ENABLED = false;
-    // ==========================================================================
 
-    /** Default value generator, used to auto-generate default values for non required fields  */
-    public static final IFieldDefaultValue DEFAULT_VALUE = new AutoFieldDefaultValue();
-    
     /** Default value provider instance */
     private static DefaultValueProvider dvPrvdr = new DefaultValueProvider();
     
+    /** Default value generator, used to auto-generate default values for non required fields  */
+    public static final IFieldDefaultValue DEFAULT_VALUE = new AutoFieldDefaultValue();
 
     /** Constant that contains a dot '.' */
     private static final String DOT = '.';
@@ -48,6 +42,15 @@ public class TDF {
         }
     }
 
+    /** Determine if person account is enabled in current org **/
+    @TestVisible
+    private static Boolean isPersonAccountEnabled{
+        get{
+            return Account.SObjectType.getDescribe().hasSubtypes;
+        }
+    }
+
+    /* ===========================  Public methods =========================== */
     /**
      * @description create an sObject
      * @param sObjectName (String): name of the sObject to be created
@@ -97,7 +100,7 @@ public class TDF {
      * },false);
      */
     public static SObject createSObject(String sObjectName, Map<String,Object> mapOfValuesOverride, Boolean doInsert){
-        return createSObjectList(sObjectName,mapOfValuesOverride,doInsert,1).get(0);
+        return createSObjectList(sObjectName,mapOfValuesOverride,1,doInsert).get(0);
     }
 
     /**
@@ -109,20 +112,20 @@ public class TDF {
      * List<Account> accList = TDF.createSObjectList('Account',10);
      */
     public static List<SObject> createSObjectList(String sObjectName, Integer numberOfSObjects){
-        return createSObjectList(sObjectName,new Map<String,Object>(),true,numberOfSObjects);
+        return createSObjectList(sObjectName,new Map<String,Object>(),numberOfSObjects,true);
     }
     
     /**
      * @description create a list of sObjects
      * @param sObjectName (String): name of the sObject to be created
-     * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
      * @param numberOfSObjects (Integer): number of sObjects to be created
+     * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
      * @return list of sObject instances
      * @example 
-     * List<Account> accList = TDF.createSObjectList('Account',false,10);
+     * List<Account> accList = TDF.createSObjectList('Account',10,false);
      */
-    public static List<SObject> createSObjectList(String sObjectName, Boolean doInsert, Integer numberOfSObjects){
-        return createSObjectList(sObjectName,new Map<String,Object>(),doInsert,numberOfSObjects);
+    public static List<SObject> createSObjectList(String sObjectName, Integer numberOfSObjects, Boolean doInsert){
+        return createSObjectList(sObjectName,new Map<String,Object>(),numberOfSObjects, doInsert);
     }
 
     /**
@@ -137,22 +140,22 @@ public class TDF {
      * },10);
      */
     public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Integer numberOfSObjects){
-        return createSObjectList(sObjectName,mapOfValuesOverride,true,numberOfSObjects);
+        return createSObjectList(sObjectName,mapOfValuesOverride,numberOfSObjects,true);
     }
 
     /**
      * @description create a list of sObjects with a map to override field values
      * @param sObjectName (String): name of the sObject to be created
      * @param mapOfValuesOverride (Map<String,Object>): map of values
-     * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
      * @param numberOfSObjects (Integer): number of sObjects to be created
+     * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
      * @return list of sObject instances
      * @example 
      * List<Account> accList = TDF.createSObjectList('Account',new Map<String,Object>{
      *  'Description' => 'Test'
-     * },false,10);
+     * },10,false);
      */
-    public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Boolean doInsert, Integer numberOfSObjects){
+    public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Integer numberOfSObjects, Boolean doInsert){
         Schema.SObjectType sObjectType = Schema.getGlobalDescribe().get(sObjectName); 
         SObjectFactory sObjFactory = new SObjectFactory(sObjectType);
         List<SObject> listSObjectInstance = sObjFactory.getListSObjectInstance(mapOfValuesOverride, doInsert, numberOfSObjects);
@@ -659,7 +662,7 @@ public class TDF {
         private Set<Id> personAccountRecordTypes{ 
             get{
                 if(personAccountRecordTypes == null){
-                    if(PERSON_ACCOUNT_IS_ENABLED){
+                    if(isPersonAccountEnabled){
                         String account = 'Account';
                         personAccountRecordTypes = new Map<Id,SObject>(Database.query('select Id from RecordType where SObjectType=:account and isPersonType=true')).keySet();
                     }else {
@@ -723,8 +726,8 @@ public class TDF {
             // get the defined optional fields set
             Set<String> definedOptionalFields = getDefinedSObjectOptionalFields(sObjectType);
             // Mange Person Account Org enabled
-            if(sObjectType == Account.sObjectType && PERSON_ACCOUNT_IS_ENABLED){ 
-            	managePersonAccountOrgEnabled(mapOfValues,prefix,definedRequiredFields);
+            if(sObjectType == Account.sObjectType && isPersonAccountEnabled){ 
+                managePersonAccountOrgEnabled(mapOfValues,prefix,definedRequiredFields);
             }
             // loop through fields map
             for(String fieldName : fieldsMap.keySet()){
@@ -969,55 +972,55 @@ public class TDF {
             if(fieldDesc != null){
                 // DisplayType Enum -> https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_enum_Schema_DisplayType.htm
                 switch on fieldDesc.getType() {
-					when Base64 {
-						return getBase64DefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Boolean {
-						return getCheckboxDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Currency {
-						return getCurrencyDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Date {
-						return getDateDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Datetime {
-						return getDateTimeDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Email {
-						return getEmailDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Location {
-						return getGeolocationDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Integer, Double {
-						return getNumberDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Percent {
-						return getPercentDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Phone {
-						return getPhoneDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Picklist {
-						return getPicklistDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when MultiPicklist {
-						return getMultiPicklistDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when String {
-						return getTextDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when TextArea {
-						return getTextAreaDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Time {
-						return getTimeDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when URL {
-						return getURLDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-				}
+                    when Base64 {
+                        return getBase64DefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Boolean {
+                        return getCheckboxDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Currency {
+                        return getCurrencyDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Date {
+                        return getDateDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Datetime {
+                        return getDateTimeDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Email {
+                        return getEmailDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Location {
+                        return getGeolocationDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Integer, Double {
+                        return getNumberDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Percent {
+                        return getPercentDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Phone {
+                        return getPhoneDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Picklist {
+                        return getPicklistDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when MultiPicklist {
+                        return getMultiPicklistDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when String {
+                        return getTextDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when TextArea {
+                        return getTextAreaDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Time {
+                        return getTimeDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when URL {
+                        return getURLDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                }
             }
             return null;
         }
@@ -1452,7 +1455,7 @@ public class TDF {
     }
     
     /**
-    * @description This is a dummy test method needed in order to create a managed package for TDF
+    * @description this is a dummy test method needed in order to create a managed package for TDF
     */
     @IsTest
     private static void dummyTest(){}
