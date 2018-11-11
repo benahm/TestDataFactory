@@ -10,7 +10,7 @@
 
 Generate & insert an sObject with all the required fields & relationships auto-filled
   ```apex
-  Contact con = (Contact)TDF.createSObject('Contact',true);
+  Contact con = (Contact)TDF.createSObject('Contact');
   ```
 
 Inserted data*:
@@ -25,7 +25,7 @@ Assign values to fields of the main sObject and the related sObjects
   Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
     'Email' => 'test@email.com',
     'Account.Description' => 'Text for the Description field on the Account'
-  },true);
+  });
   ```
  
 Inserted data*:
