@@ -28,7 +28,7 @@ public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
 | Salesforce    Datatype | Method                       | Default value for the creation of a single sObject               | Default value for the creation of a list of sObject |
 |------------------------|------------------------------|------------------------------------------------------------------|-----------------------------------------------------|
 | Base64                 | getBase64DefaultValue        | Blob.valueOf(0)                                                  | Blob.valueOf(recordIndex)                           |
-| Checkbox               | getCheckboxDefaultValue      | True                                                             | //                                                  |
+| Checkbox               | getCheckboxDefaultValue      | False                                                            | //                                                  |
 | Currency               | getCurrencyDefaultValue      | 0                                                                | recordIndex                                         |
 | Date                   | getDateDefaultValue          | Date.today()                                                     | //                                                  |
 | DateTime               | getDateTimeDefaultValue      | Datetime.now()                                                   | //                                                  |

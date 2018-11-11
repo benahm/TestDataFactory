@@ -19,12 +19,12 @@ TDF internal classes list
 | **TDF**                               | The containing class                                  |
 | **ObjectFactory**                     | Instantiate the sObject and all the related sObjects  |
 | **ObjectManager**                     | Contains all the sObjects instances, insertAll method |
-| **DefaultValueProvider**              | Provide all default field values                      |
+| **DefaultValueProvider**              | Virtual class that provide all default field values   |
 | **AutoFieldDefaultValue**             | Wrapper of an auto generated default value            |
 | **FieldDefaultValue**                 | Wrapper of a field default value                      |
-| **ListFieldDefaultValue**             | Wrapper of a list of field default value              |
+| **ListFieldDefaultValue**             | Wrapper of a list of field default values             |
 | **RelationshipFieldDefaultValue**     | Wrapper of a lookup field default value               |
-| **ListRelationshipFieldDefaultValue** | Wrapper of a list of lookup field default value       |
+| **ListRelationshipFieldDefaultValue** | Wrapper of a list of lookup field default values      |
 
 ## Next
 

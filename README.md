@@ -1,7 +1,7 @@
 # Apex Test Data Factory
 
 
-<p align="center"><img src ="/docs/assets/TDF.png" width="500"/></p>
+<p align="center"><img src ="/docs/assets/TDF.png" width="400"/></p>
 
 
 
@@ -38,6 +38,17 @@ Inserted data*:
 
 
   \* *in a vanilla org*
+  
+  
+  ### Install :
+  Click on the package image to access the *TDF* Unmanaged Package
+  
+  <p align="center">
+    <a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04t1n0000021jUZ">
+      <img src ="/docs/assets/package.png" width="80"/>
+    </a>
+  </p>
+
   
   ### More :
 * [Usage](/docs/USAGE.md)

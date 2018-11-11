@@ -15,24 +15,19 @@
 * @date 2017
 * @description Apex Test Data Factory 
 */
+@IsTest
 public class TDF {
-    @TestVisible
-    // Org config
-    // ==========================================================================
-    private static final Boolean PERSON_ACCOUNT_IS_ENABLED = isPersonAccountEnabled();
-    // ==========================================================================
 
-    /** Default value generator, used to auto-generate default values for non required fields  */
-    public static final IFieldDefaultValue DEFAULT_VALUE = new AutoFieldDefaultValue();
-    
     /** Default value provider instance */
     private static DefaultValueProvider dvPrvdr = new DefaultValueProvider();
     
+    /** Default value generator, used to auto-generate default values for non required fields  */
+    public static final IFieldDefaultValue DEFAULT_VALUE = new AutoFieldDefaultValue();
 
     /** Constant that contains a dot '.' */
     private static final String DOT = '.';
 
-    /** Map of sObject type with their corresponding map of field Tokens  */
+    /** Map of sObject types with their corresponding map of field Tokens  */
     @TestVisible
     private static Map<Schema.SObjectType,Map<String, Schema.SObjectField>> mapOfFieldTokensMap = new Map<Schema.SObjectType,Map<String, Schema.SObjectField>>();
 
@@ -41,23 +36,30 @@ public class TDF {
     public static DefaultValueProvider defaultValueProvider {
         get { return dvPrvdr; }
         set {
-            if(value != null)
+            if(value != null){
                 dvPrvdr = value;
+            }
         }
     }
 
-    /**
-     * Determines if person accounts are enabled in the org. An exception is thrown
-     * if the 'IsPersonAccount' field doesn't exist, and we return false.
-     */
-    private static Boolean isPersonAccountEnabled () {
-        try {
-            SObject testObject = new Account();
-            testObject.get('IsPersonAccount');
-            return true;
-        } catch (Exception ex) {
-            return false;
+    /** Determine if person account is enabled in current org **/
+    @TestVisible
+    private static Boolean isPersonAccountEnabled{
+        get{
+            return Account.SObjectType.getDescribe().hasSubtypes;
         }
+    }
+
+    /* ===========================  Public methods =========================== */
+    /**
+     * @description create an sObject
+     * @param sObjectName (String): name of the sObject to be created
+     * @return sObject instance
+     * @example 
+     * Account acc = (Account)TDF.createSObject('Account');
+     */
+    public static SObject createSObject(String sObjectName){
+        return createSObject(sObjectName,new Map<String,Object>(),true);
     }
 
     /**
@@ -66,10 +68,24 @@ public class TDF {
      * @param Boolean (Boolean): if true the sObject instance is inserted to the Salesforce database
      * @return sObject instance
      * @example 
-     * Account acc = (Account)TDF.createSObject('Account',true);
+     * Account acc = (Account)TDF.createSObject('Account',false);
      */
     public static SObject createSObject(String sObjectName, Boolean doInsert){
         return createSObject(sObjectName,new Map<String,Object>(),doInsert);
+    }
+
+    /**
+     * @description create an sObject with a map to override field values
+     * @param sObjectName (String): name of the sObject to be created
+     * @param mapOfValuesOverride (Map<String,Object>): map of values
+     * @return sObject instance
+     * @example 
+     * Account acc = (Account)TDF.createSObject('Account',new Map<String,Object>{
+     *  'Description' => 'Test'
+     * });
+     */
+    public static SObject createSObject(String sObjectName, Map<String,Object> mapOfValuesOverride){
+        return createSObject(sObjectName,mapOfValuesOverride,true);
     }
 
     /**
@@ -81,38 +97,65 @@ public class TDF {
      * @example 
      * Account acc = (Account)TDF.createSObject('Account',new Map<String,Object>{
      *  'Description' => 'Test'
-     * },true);
+     * },false);
      */
     public static SObject createSObject(String sObjectName, Map<String,Object> mapOfValuesOverride, Boolean doInsert){
-        return createSObjectList(sObjectName,mapOfValuesOverride,doInsert,1).get(0);
+        return createSObjectList(sObjectName,mapOfValuesOverride,1,doInsert).get(0);
+    }
+
+    /**
+     * @description create a list of sObjects
+     * @param sObjectName (String): name of the sObject to be created
+     * @param numberOfSObjects (Integer): number of sObjects to be created
+     * @return list of sObject instances
+     * @example 
+     * List<Account> accList = TDF.createSObjectList('Account',10);
+     */
+    public static List<SObject> createSObjectList(String sObjectName, Integer numberOfSObjects){
+        return createSObjectList(sObjectName,new Map<String,Object>(),numberOfSObjects,true);
     }
     
     /**
      * @description create a list of sObjects
      * @param sObjectName (String): name of the sObject to be created
-     * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
      * @param numberOfSObjects (Integer): number of sObjects to be created
+     * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
      * @return list of sObject instances
      * @example 
-     * List<Account> accList = TDF.createSObjectList('Account',true,10);
+     * List<Account> accList = TDF.createSObjectList('Account',10,false);
      */
-    public static List<SObject> createSObjectList(String sObjectName, Boolean doInsert, Integer numberOfSObjects){
-        return createSObjectList(sObjectName,new Map<String,Object>(),doInsert,numberOfSObjects);
+    public static List<SObject> createSObjectList(String sObjectName, Integer numberOfSObjects, Boolean doInsert){
+        return createSObjectList(sObjectName,new Map<String,Object>(),numberOfSObjects, doInsert);
     }
 
     /**
      * @description create a list of sObjects with a map to override field values
      * @param sObjectName (String): name of the sObject to be created
      * @param mapOfValuesOverride (Map<String,Object>): map of values
-     * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
      * @param numberOfSObjects (Integer): number of sObjects to be created
      * @return list of sObject instances
      * @example 
      * List<Account> accList = TDF.createSObjectList('Account',new Map<String,Object>{
      *  'Description' => 'Test'
-     * },true,10);
+     * },10);
      */
-    public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Boolean doInsert, Integer numberOfSObjects){
+    public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Integer numberOfSObjects){
+        return createSObjectList(sObjectName,mapOfValuesOverride,numberOfSObjects,true);
+    }
+
+    /**
+     * @description create a list of sObjects with a map to override field values
+     * @param sObjectName (String): name of the sObject to be created
+     * @param mapOfValuesOverride (Map<String,Object>): map of values
+     * @param numberOfSObjects (Integer): number of sObjects to be created
+     * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
+     * @return list of sObject instances
+     * @example 
+     * List<Account> accList = TDF.createSObjectList('Account',new Map<String,Object>{
+     *  'Description' => 'Test'
+     * },10,false);
+     */
+    public static List<SObject> createSObjectList(String sObjectName, Map<String,Object> mapOfValuesOverride, Integer numberOfSObjects, Boolean doInsert){
         Schema.SObjectType sObjectType = Schema.getGlobalDescribe().get(sObjectName); 
         SObjectFactory sObjFactory = new SObjectFactory(sObjectType);
         List<SObject> listSObjectInstance = sObjFactory.getListSObjectInstance(mapOfValuesOverride, doInsert, numberOfSObjects);
@@ -143,18 +186,18 @@ public class TDF {
         /** Main sObject name */
         private String sObjectName = null; 
         /** List of main sObject instances */
-        @testVisible
+        @TestVisible
         private List<SObject> mainSObjectList = new List<SObject>();
         /** Map of relationship names with their related list of sObject instances */
-        @testVisible
+        @TestVisible
         private Map<String,List<SObject>> relatedSObjMapList = new Map<String,List<SObject>>();
         /** List of ordered relationship names by dot notation */
-        @testVisible
+        @TestVisible
         private List<String> orderedRelationshipList = new List<String>();
 
         /* ===========================  Error Messages =========================== */
         /** Unable to insert "{0}" records: {1} */
-        private String ERR_INSERT_SOBJECT = 'Unable to insert "{0}" records: \n{1}';
+        private final String ERR_INSERT_SOBJECT = 'Unable to insert "{0}" records: \n{1}';
 
 
         /**
@@ -281,7 +324,7 @@ public class TDF {
         * @param sObjParentList (List<SObject>): list of parent sObject instances
         * @param relationshipName (String): relationship name that links the child sObject to the parent sObject
         */
-        @testVisible
+        @TestVisible
         private void setChildParentRelationship(List<SObject> sObjChildList, List<SObject> sObjParentList, String relationshipName){
             Integer index = 0;
             for(SObject sObjChild: sObjChildList){
@@ -315,8 +358,8 @@ public class TDF {
 
         /**
         * @description execute a DML insert operation on a list of sObjects
-        * @param errorMessageMergeValue (String): merge value provided only for error message generation (example : .contact.account)
         * @param sObjList (List<SObject>): list of sObjects to be inserted
+        * @param errorMessageMergeValue (String): merge value provided only for error message generation (example : .contact.account)
         */
         @testVisible
         private void insertList(List<SObject> sObjList, String errorMessageMergeValue){
@@ -346,8 +389,9 @@ public class TDF {
                     i++;
                 }
             }
-            if(!listErrors.isEmpty())
+            if(!listErrors.isEmpty()){
                 throw new TestDataFactoryException(formatErrorMessage(ERR_INSERT_SOBJECT,new List<String>{sObjectName+errorMessageMergeValue,String.join(listErrors,'\n')},''));
+            }
         }
     }
 
@@ -374,13 +418,13 @@ public class TDF {
 
         /* ===========================  Error Messages =========================== */
         /** Unable to find the sObject */
-        private String ERR_NOT_FOUND_SOBJECT = 'Unable to find the sObject';
+        private final String ERR_NOT_FOUND_SOBJECT = 'Unable to find the sObject';
         /** The field "{0}" does not exist on "{1}" or the value type provided is incorrect */
-        private String ERR_FIELD_NOT_EXIST = 'The field "{0}" does not exist on "{1}" or the value type provided is incorrect';
+        private final String ERR_FIELD_NOT_EXIST = 'The field "{0}" does not exist on "{1}" or the value type provided is incorrect';
         /** The relationship "{0}" does not exist on "{1}" */
-        private String ERR_RELATIONSHIP_NOT_EXIST = 'The relationship "{0}" does not exist on "{1}"';
+        private final String ERR_RELATIONSHIP_NOT_EXIST = 'The relationship "{0}" does not exist on "{1}"';
         /** Unable to get the value for the field "{0}" */
-        private String ERR_UNABLE_TO_GET_FIELD_VALUE = 'Unable to get the value for the field "{0}"';
+        private final String ERR_UNABLE_TO_GET_FIELD_VALUE = 'Unable to get the value for the field "{0}"';
 
 
         /**
@@ -388,8 +432,9 @@ public class TDF {
         * @param sObjectType (Schema.SObjectType): main sObject type to be instantiated
         */
         public SObjectFactory(Schema.SObjectType sObjectType){
-            if(sObjectType == null) 
+            if(sObjectType == null){
                 throw new TestDataFactoryException(formatErrorMessage(ERR_NOT_FOUND_SOBJECT,new List<String>{},''));
+            }
             this.sObjectType = sObjectType;
             this.sObjectName = sObjectType.getDescribe().getName();
             this.sObjMgr = new SObjectManager(this.sObjectName);
@@ -428,7 +473,9 @@ public class TDF {
                 initSObjectInstance(mapOfValues,i); // init sObject instance
             }
 
-            if(doInsert) sObjMgr.insertAll(); // insert all if doInsert = true
+            if(doInsert){
+                sObjMgr.insertAll(); // insert all if doInsert = true
+            }
 
             return sObjMgr.getMainSObjectList();
         }
@@ -443,7 +490,7 @@ public class TDF {
         *           This map contains the default values provided as input by the user and the auto-generated default values for the required fields
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
         */
-        @testVisible
+        @TestVisible
         private void initSObjectInstance(Map<String,IFieldDefaultValue> mapOfValues, Integer recordIndex){
             // add the main sObject instance to the sObject Manager
             sObjMgr.setSObject(recordIndex,sObjectType.newSObject()); 
@@ -478,12 +525,14 @@ public class TDF {
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
         * @return main sObject instance with all related sObjects attached to it
         */
-        @testVisible
+        @TestVisible
         private SObject getRelationshipInstance(String fullyQualifiedRelationshipName, Integer recordIndex){
             // get the sObject instance from the sObject Manager
             SObject sObj = sObjMgr.getRelationship(recordIndex,fullyQualifiedRelationshipName);
             // return the sObject instance if already exists in the sObject Manager
-            if(sObj != null) return sObj; 
+            if(sObj != null){
+                return sObj; 
+            } 
 
             // last relationship name in the dot notation
             String leafRelationshipName = (DOT+fullyQualifiedRelationshipName).substringAfterLast(DOT); 
@@ -516,7 +565,7 @@ public class TDF {
         * @param errorMessageMergeValue (String): merge value provided only for error message generation (example : Contact.Account)
         * @return the generated related sObject instance
         */
-        @testVisible
+        @TestVisible
         private SObject getRelatedSObjectInstance(Schema.SObjectType sObjectType, String relationshipName, String errorMessageMergeValue){
             Map<String, Schema.SObjectField> fieldsMap = getFieldTokensMap(sObjectType);
             Schema.DescribeFieldResult fieldDesc;
@@ -539,7 +588,7 @@ public class TDF {
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
         * @return field value
         */
-        @testVisible
+        @TestVisible
         private Object getFieldValueFromMapOfValues(Map<String,IFieldDefaultValue> mapOfValues, String fullyQualifiedFieldName, Integer recordIndex){
             Object fieldValue;
             try{
@@ -559,7 +608,7 @@ public class TDF {
         * @param errorMessageMergeValue (String): merge value provided only for error message generation (example : Contact.Account)
         * @return main sObject instance
         */
-        @testVisible
+        @TestVisible
         private SObject putSObject(SObject sObj, String relationshipName , SObject sObjectValue, String errorMessageMergeValue){
             try{
                 sObj.putSObject(relationshipName,sObjectValue);
@@ -577,7 +626,7 @@ public class TDF {
         * @param errorMessageMergeValue (String): merge value provided only for error message generation (example : Contact.Account)
         * @return main sObject instance
         */
-        @testVisible
+        @TestVisible
         private SObject putField(SObject sObj, String fieldName, Object fieldValue, String errorMessageMergeValue){
             try{
                 sObj.put(fieldName,fieldValue);
@@ -603,9 +652,9 @@ public class TDF {
 
         /* ===========================  Error Messages =========================== */
         /** List values is not supported for field {0} */
-        private String ERR_LIST_VALUE_NOT_SUPPORTED = 'List values is not supported for field {0}';
+        private final String ERR_LIST_VALUE_NOT_SUPPORTED = 'List values is not supported for field {0}';
         /** Bad record type Id provided for Account */
-        private String ERR_BAD_RECORDTYPE_ID_FOR_ACCOUNT = 'Bad record type Id provided for Account';
+        private final String ERR_BAD_RECORDTYPE_ID_FOR_ACCOUNT = 'Bad record type Id provided for Account';
 
         /* ===========================  Properties =========================== */
         /** Person Account record type Ids */
@@ -613,7 +662,7 @@ public class TDF {
         private Set<Id> personAccountRecordTypes{ 
             get{
                 if(personAccountRecordTypes == null){
-                    if(PERSON_ACCOUNT_IS_ENABLED){
+                    if(isPersonAccountEnabled){
                         String account = 'Account';
                         personAccountRecordTypes = new Map<Id,SObject>(Database.query('select Id from RecordType where SObjectType=:account and isPersonType=true')).keySet();
                     }else {
@@ -676,9 +725,9 @@ public class TDF {
             Set<String> definedRequiredFields = getDefinedSObjectRequiredFields(sObjectType);
             // get the defined optional fields set
             Set<String> definedOptionalFields = getDefinedSObjectOptionalFields(sObjectType);
-            // Person Account enabled
-            if(sObjectType == Account.sObjectType && PERSON_ACCOUNT_IS_ENABLED){ 
-            managePersonAccountOrgEnabled(mapOfValues,prefix,definedRequiredFields);
+            // Mange Person Account Org enabled
+            if(sObjectType == Account.sObjectType && isPersonAccountEnabled){ 
+                managePersonAccountOrgEnabled(mapOfValues,prefix,definedRequiredFields);
             }
             // loop through fields map
             for(String fieldName : fieldsMap.keySet()){
@@ -782,8 +831,9 @@ public class TDF {
         private Set<String> getDefinedSObjectRequiredFields(Schema.SObjectType sObjectType){
             Set<String> definedRequiredFields = new Set<String>();
             Set<String> definedRequiredFieldsByDeveloper = defineSObjectRequiredFields(sObjectType);
-            if(definedRequiredFieldsByDeveloper != null)
+            if(definedRequiredFieldsByDeveloper != null){
                 definedRequiredFields.addAll(convertSetToLowerCase(definedRequiredFieldsByDeveloper));
+            }
             
             return definedRequiredFields;
         }
@@ -798,8 +848,9 @@ public class TDF {
         private Set<String> getDefinedSObjectOptionalFields(Schema.SObjectType sObjectType){
             Set<String> definedOptionalFields = new Set<String>();
             Set<String> definedOptionalFieldsByDeveloper = defineSObjectOptionalFields(sObjectType);
-            if(definedOptionalFieldsByDeveloper != null)
+            if(definedOptionalFieldsByDeveloper != null){
                 definedOptionalFields.addAll(convertSetToLowerCase(definedOptionalFieldsByDeveloper));
+            }
             
             return definedOptionalFields;
         }
@@ -812,7 +863,7 @@ public class TDF {
         * @example 
         * keySetOverride = {Contact.Account.Name,Contact.FirstName}
         * Prefix : Contact.
-        * Result : Account
+        * Result : {Account}
         */
         @TestVisible
         private Set<String> getRelationshipKeySet(Set<String> keySetOverride, String prefix){
@@ -823,9 +874,10 @@ public class TDF {
                 fullyQualifiedFieldName = fullyQualifiedFieldName.toLowerCase();
                 if(fullyQualifiedFieldName.startsWith(prefixLowerCase)){ // starts with the prefix
                     String fullyQualifiedFieldNameAfterPrefix = fullyQualifiedFieldName.substringAfter(prefixLowerCase)+'';
-                    if(fullyQualifiedFieldNameAfterPrefix.contains(DOT)) // if there is a relationship after the prefix
+                    if(fullyQualifiedFieldNameAfterPrefix.contains(DOT)){ // if there is a relationship after the prefix
                         // add the relationship name after the prefix
                         relationshipKeySet.add(fullyQualifiedFieldName.substringBetween(prefixLowerCase,DOT));
+                    }
                 }
             }
             return relationshipKeySet;
@@ -840,7 +892,9 @@ public class TDF {
         @TestVisible
         private Map<String,IFieldDefaultValue> convertMapValueTypes(String prefix, Map<String,Object> mapOfValues){ 
             Map<String,IFieldDefaultValue> convertedMap = new Map<String,IFieldDefaultValue>();
-            if(mapOfValues == null) return convertedMap;
+            if(mapOfValues == null){
+                return convertedMap;
+            } 
             for(String name : mapOfValues.keySet()){
                 if(name != null){
                     Object value = mapOfValues.get(name);
@@ -880,7 +934,9 @@ public class TDF {
         @TestVisible
         private Set<String> convertSetToLowerCase(Set<String> setOfValues){
             Set<String> convertedSet = new Set<String>();
-            if(setOfValues == null) return convertedSet;
+            if(setOfValues == null){
+                return convertedSet;
+            } 
             for(String value : setOfValues){
                 if(value != null){
                     convertedSet.add(value.trim().toLowerCase());
@@ -916,55 +972,55 @@ public class TDF {
             if(fieldDesc != null){
                 // DisplayType Enum -> https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_enum_Schema_DisplayType.htm
                 switch on fieldDesc.getType() {
-					when Base64 {
-						return getBase64DefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Boolean {
-						return getCheckboxDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Currency {
-						return getCurrencyDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Date {
-						return getDateDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Datetime {
-						return getDateTimeDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Email {
-						return getEmailDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Location {
-						return getGeolocationDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Integer, Double {
-						return getNumberDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Percent {
-						return getPercentDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Phone {
-						return getPhoneDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Picklist {
-						return getPicklistDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when MultiPicklist {
-						return getMultiPicklistDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when String {
-						return getTextDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when TextArea {
-						return getTextAreaDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when Time {
-						return getTimeDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-					when URL {
-						return getURLDefaultValue(sObjectDesc,fieldDesc,recordIndex);
-					}
-				}
+                    when Base64 {
+                        return getBase64DefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Boolean {
+                        return getCheckboxDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Currency {
+                        return getCurrencyDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Date {
+                        return getDateDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Datetime {
+                        return getDateTimeDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Email {
+                        return getEmailDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Location {
+                        return getGeolocationDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Integer, Double {
+                        return getNumberDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Percent {
+                        return getPercentDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Phone {
+                        return getPhoneDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Picklist {
+                        return getPicklistDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when MultiPicklist {
+                        return getMultiPicklistDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when String {
+                        return getTextDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when TextArea {
+                        return getTextAreaDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when Time {
+                        return getTimeDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                    when URL {
+                        return getURLDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                    }
+                }
             }
             return null;
         }
@@ -1026,7 +1082,7 @@ public class TDF {
         * @return checkbox default value
         */
         public virtual Boolean getCheckboxDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
-            return true;
+            return false;
         }
         /**
         * @description get the default value for Currency field type
@@ -1345,7 +1401,7 @@ public class TDF {
      * @param sObjectType (Schema.SObjectType): sObject type for which the map of field tokens will be returned
      * @return field tokens map
      */
-	@testVisible
+     @TestVisible
     private static Map<String, Schema.SObjectField> getFieldTokensMap(Schema.SObjectType sObjectType){
         if(mapOfFieldTokensMap.containsKey(sObjectType)){
             return mapOfFieldTokensMap.get(sObjectType);
@@ -1361,7 +1417,7 @@ public class TDF {
     * @param relationshipName (String): relationship name
     * @return field name 
     */
-	@testVisible
+    @TestVisible
     private static String getFieldNameFromRelationshipName(String relationshipName){
         String relationshipNameLowerCase = relationshipName.toLowerCase();
         if(relationshipNameLowerCase.contains('__r')) // custom relationship 
@@ -1376,7 +1432,7 @@ public class TDF {
     * @param value (String): value to be merged
     * @return text with merged value
     */
-	@testVisible
+    @TestVisible
     private static String mergeValue(String text, String name, String value){
         if(text == null) return null;
         String pattern = '(?i)\\{!'+name+'\\}';
@@ -1390,13 +1446,19 @@ public class TDF {
     * @param originalMessage (String): original error message
     * @return error message
     */
-	@testVisible
+    @TestVisible
     private static String formatErrorMessage(String message, List<String> mergeValues, String originalMessage){
         String errorMessage = String.format(message,mergeValues);
         // if originalMessage is passed as param it will be include in the errorMessage
         if(!String.isBlank(originalMessage)) errorMessage +='\n'+'Original error message : '+originalMessage;
         return errorMessage;
     }
+    
+    /**
+    * @description this is a dummy test method needed in order to create a managed package for TDF
+    */
+    @IsTest
+    private static void dummyTest(){}
 
     /**
     * @description Test Data Factory Exception
