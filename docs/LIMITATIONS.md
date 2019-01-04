@@ -7,7 +7,7 @@
 
 In case of an sObject with multiple record types, TDF will assign the default picklist value and if the default value is not visible for the used recrod type, you will get the error below
 
-*Example: Contact has multiple record types and the field CustomField__c the 'TEST' value as default, but it's not assigned to the record types*
+*Example: Contact has multiple record types and the field CustomField__c has 'TEST' value as default, but it's not assigned to the record types*
 	
     TDF.TestDataFactoryException: Unable to insert "Contact" records: 
     INVALID_OR_NULL_FOR_RESTRICTED_PICKLIST: PicklistExample: bad value for restricted picklist field: TEST [CustomField__c=TEST]
