@@ -34,8 +34,10 @@ public class TestDefaultValueProvider extends TDF.DefaultValueProvider{
       Map<String,Schema.RecordTypeInfo> recordTypesMap = sObjectDesc.getRecordTypeInfosByDeveloperName();
       if(sObjectDesc.getSObjectType() == Contact.SObjectType){
         if(fieldDesc.getName() == 'CustomField__c'){
-          if(recordTypesMap.get('SomeRecordType').getRecordTypeId() == recordTypeId ){
-            return 'Value Assigned to the Record Type';
+          if(recordTypesMap.get('RecordType1').getRecordTypeId() == recordTypeId ){
+            return 'Value Assigned to the Record Type 1';
+          }else if(recordTypesMap.get('RecordType2').getRecordTypeId() == recordTypeId ){
+            return 'Value Assigned to the Record Type 2';
           }
         }
       }
