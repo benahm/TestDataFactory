@@ -56,6 +56,7 @@ Inserted data*:
 * [Core Concepts](/docs/CONCEPT.md)
 * [Performance](/docs/PERFORMANCE.md)
 * [Customize](/docs/CUSTOMIZE.md)
+* [Limitations](/docs/LIMITATIONS.md)
 * [Contribute](/docs/CONTRIBUTE.md)
 
 
