@@ -2,7 +2,7 @@
 ## Limitations 
 
 
-#### Predefault values for picklist/mulipicklist fields 
+#### Default values for picklist/mulipicklist fields 
 
 
 In case of an sObject with multiple record types, TDF will assign the default picklist value and if the default value is not visible for the used recrod type, you will get the error below
