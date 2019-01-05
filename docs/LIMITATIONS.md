@@ -19,7 +19,7 @@ In case of an sObject with multiple record types, TDF will assign the default pi
     Class.TestDataFactory: line 149, column 1
     Class.TestDataFactory: line 91, column 1
     Class.TestDataFactory: line 76, column 1
-    Class.WS_ScoreIntegration_Test.testSetup: line 44, column 1
+    Class.YourTestClass_Test.yourTestMethod: line 44, column 1
 
 This restriction is due to Apex limitation [no way to get picklist values based on Record Type](https://success.salesforce.com/ideaView?id=08730000000gNpLAAU) 
 
