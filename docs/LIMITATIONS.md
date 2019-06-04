@@ -5,7 +5,7 @@
 #### Default values for picklist/mulipicklist fields 
 
 
-In case of an sObject with multiple record types, TDF will assign the default picklist value and if the default value is not visible for the used recrod type, you will get the error below
+In case of an sObject with multiple record types, TDF will assign the default picklist value and if the default value is not assigned for the used recrod type, you will get the error below
 
 *Example: Contact has multiple record types and the field CustomField__c has 'TEST' value as default, but it's not assigned to the record types*
 	
@@ -19,7 +19,7 @@ In case of an sObject with multiple record types, TDF will assign the default pi
     Class.TestDataFactory: line 149, column 1
     Class.TestDataFactory: line 91, column 1
     Class.TestDataFactory: line 76, column 1
-    Class.YourTestClass_Test.yourTestMethod: line 44, column 1
+    Class.YourTestClass_Test.yourTestMethod: line XX, column XX
 
 This restriction is due to Apex limitation [no way to get picklist values based on Record Type](https://success.salesforce.com/ideaView?id=08730000000gNpLAAU) 
 
