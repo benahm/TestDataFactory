@@ -149,8 +149,8 @@ Create a list of Acount sObjects and link them to a list of 10 Case sObjects
   
   ```apex
   List<Case> caseList = TDF.createSObjectList('Case', new Map<String,Object>{
-    'AccountId' => AccList,
-    'Contact.AccountId' => AccList
+    'Account' => AccList,
+    'Contact.Account' => AccList
   },10);
   ```
 
