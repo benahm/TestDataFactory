@@ -41,11 +41,11 @@ Inserted data*:
   
   
   ### Install :
-  Click on the package image to install the *TDF* Unlocked Package 🔓📦
+  Click on the package image to install the TDF Unlocked Package 🔓📦
   
   <p align="center">
     <a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04t1n000001YV7nAAG">
-      <img src ="/docs/assets/package.png" width="80"/>
+      <img src ="/docs/assets/package.png" width="100"/>
     </a>
   </p>
 
