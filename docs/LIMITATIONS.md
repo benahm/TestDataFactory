@@ -25,7 +25,7 @@ This restriction is due to Apex limitation [no way to get picklist values based 
 
 ###### Workaround
 
-Define a custom ``TDF.DefaultValueProvider`` implementation and handle the picklist default value per sObject & field
+Define a custom ``TDF.DefaultValueProvider`` implementation and handle the picklist default value per sObject, RecordType & field
 
 
   ```apex
