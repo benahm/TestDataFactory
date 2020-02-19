@@ -5,11 +5,11 @@
 #### Default values for picklist/mulipicklist fields 
 
 
-For an sObject that has multiple record types, TDF will assign the default picklist value and if the default value is not assigned to the used recrod type, you will get the error below
+For an sObject that has multiple record types, TestDataFactory will assign the default picklist value and if the default value is not assigned to the used recrod type, you will get the error below
 
 *Example: Contact has multiple record types and the field CustomField__c has 'TEST' value as default, but it's not assigned to the record types*
 	
-    TDF.TestDataFactoryException: Unable to insert "Contact" records: 
+    TestDataFactory.TestDataFactoryException: Unable to insert "Contact" records: 
     INVALID_OR_NULL_FOR_RESTRICTED_PICKLIST: PicklistExample: bad value for restricted picklist field: TEST [CustomField__c=TEST]
     Stack Trace 
 
@@ -25,11 +25,11 @@ This restriction is due to Apex limitation [no way to get picklist values based 
 
 ###### Workaround
 
-Define a custom ``TDF.DefaultValueProvider`` implementation and handle the picklist default value per sObject, RecordType & field
+Define a custom ``TestDataFactory.DefaultValueProvider`` implementation and handle the picklist default value per sObject, RecordType & field
 
 
   ```apex
-public class TestDefaultValueProvider extends TDF.DefaultValueProvider{
+public class TestDefaultValueProvider extends TestDataFactory.DefaultValueProvider{
     public override String getPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Id recordTypeId, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
       Map<String,Schema.RecordTypeInfo> recordTypesMap = sObjectDesc.getRecordTypeInfosByDeveloperName();
       if(sObjectDesc.getSObjectType() == Contact.SObjectType){

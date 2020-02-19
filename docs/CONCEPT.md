@@ -1,22 +1,22 @@
 
 ## Core concepts 
 
-This Apex Test Data Factory (TDF) uses the [Apex Describe Information](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dynamic_describe_objects_understanding.htm) to automatically detect and fill all the required fields of an sObject
+This Apex Test Data Factory (TestDataFactory) uses the [Apex Describe Information](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dynamic_describe_objects_understanding.htm) to automatically detect and fill all the required fields of an sObject
 
 ### Overview
 
-Overview of the internal classes of the TDF
+Overview of the internal classes of the TestDataFactory
 
 
-<p align="center"><img src ="./assets/TDF-CoreConcept.png"/></p>
+<p align="center"><img src ="./assets/overview.png"/></p>
 
 
 
-TDF internal classes list
+TestDataFactory internal classes list
 
 | Class name                            | Description                                           |
 |---------------------------------------|-------------------------------------------------------|
-| **TDF**                               | The containing class                                  |
+| **TestDataFactory**                               | The containing class                                  |
 | **ObjectFactory**                     | Instantiate the sObject and all the related sObjects  |
 | **ObjectManager**                     | Contains all the sObjects instances, insertAll method |
 | **DefaultValueProvider**              | Virtual class that provide all default field values   |

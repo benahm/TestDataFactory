@@ -1,0 +1,20 @@
+{
+  "orgName": "Test Data Factory Scratch Org",
+  "description": "Test Data Factory Scratch Org",
+  "language": "en_US",
+  "edition": "Developer",
+  "features": [
+    "Sites",
+    "PersonAccounts",
+    "AuthorApex",
+    "DebugApex",
+    "ProcessBuilder",
+    "Workflow"
+  ],
+  "settings": {
+    "orgPreferenceSettings": {
+      "s1DesktopEnabled": true,
+      "s1EncryptedStoragePref2": false
+    }
+  }
+}

@@ -1,7 +1,7 @@
 # Apex Test Data Factory
 
 
-<p align="center"><img src ="/docs/assets/TDF.png" width="400"/></p>
+<p align="center"><img src ="/docs/assets/logo.png" width="400"/></p>
 
 
 
@@ -10,7 +10,7 @@
 
 Generate & insert an sObject with all the required fields & relationships auto-filled
   ```apex
-  Contact con = (Contact)TDF.createSObject('Contact');
+  Contact con = (Contact)TestDataFactory.createSObject('Contact');
   ```
 
 Inserted data*:
@@ -22,7 +22,7 @@ Inserted data*:
 
 Assign values to fields of the main sObject and the related sObjects
   ```apex
-  Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
+  Contact con = (Contact)TestDataFactory.createSObject('Contact', new Map<String,Object>{
     'Email' => 'test@email.com',
     'Account.Description' => 'Text for the Description field on the Account'
   });
@@ -41,7 +41,7 @@ Inserted data*:
   
   
   ### Install :
-  Click on the package image to install the TDF Unlocked Package 🔓📦
+  Click on the package image to install the TestDataFactory Unlocked Package 🔓📦
   
   <p align="center">
     <a href="https://login.salesforce.com/packaging/installPackage.apexp?p0=04t1n000001YV7nAAG">
@@ -61,7 +61,7 @@ Inserted data*:
 
 
 
-### [Releases](https://github.com/benahm/TDF/releases)
+### [Releases](https://github.com/benahm/TestDataFactory/releases)
 ### [License](LICENSE)
 
 Apache 2.0

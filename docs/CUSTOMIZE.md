@@ -1,20 +1,20 @@
 ## Customize
 
-* [Extend TDF.DefaultValueProvider class](#extend-tdfdefaultvalueprovider-class)
-* [Implement TDF.IFieldDefaultValue interface](#implement-tdfifielddefaultvalue-interface)
+* [Extend TestDataFactory.DefaultValueProvider class](#extend-TestDataFactorydefaultvalueprovider-class)
+* [Implement TestDataFactory.IFieldDefaultValue interface](#implement-TestDataFactoryifielddefaultvalue-interface)
 
 You can customize the auto-generated data of the Test Data Factory 
 
-### Extend TDF.DefaultValueProvider class
+### Extend TestDataFactory.DefaultValueProvider class
 
 #### Customize the auto-generated data
 
-Create a default value provider class by extending the virtual class ``TDF.DefaultValueProvider`` 
+Create a default value provider class by extending the virtual class ``TestDataFactory.DefaultValueProvider`` 
 
 Implement the methods ``get{Type}DefaultValue`` that you want to override (available methods are listed in the table below)
 
   ```apex
-public class MyDefaultValueProvider extends TDF.DefaultValueProvider{
+public class MyDefaultValueProvider extends TestDataFactory.DefaultValueProvider{
 
 	public override String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer counter){
 		return 'mycustomtestemail'+counter.format()+'@gmail.com';
@@ -59,7 +59,7 @@ In the example below the fields *Firstname*, *Description* and *Email* of the Co
 The field Lastname of the Contact is defined as optional so the Test Data Factory will not generate a default value for it
 
   ```apex
-public class MyDefaultValueProvider extends TDF.DefaultValueProvider{     
+public class MyDefaultValueProvider extends TestDataFactory.DefaultValueProvider{     
     public override Set<String> defineSObjectRequiredFields(Schema.SObjectType sObjectType){
         if(sObjectType == Contact.SObjectType){
             return new Set<String>{
@@ -88,12 +88,12 @@ Using your custom default value provider class
 Set your default value provider class as the default one before using the Test Data Factory
   
 ```apex
-TDF.defaultValueProvider = new MyDefaultValueProvider();
+TestDataFactory.defaultValueProvider = new MyDefaultValueProvider();
 ```
  
 **Apply it globally**:
  
-In the TDF class, change default value provider from the `DefaultValueProvider` to your custom default value provider class
+In the TestDataFactory class, change default value provider from the `DefaultValueProvider` to your custom default value provider class
 
 ```apex
 /** Default value provider instance */
@@ -108,16 +108,16 @@ private static DefaultValueProvider dvPrvdr = new MyDefaultValueProvider();
 ```
  
   
- ### Implement TDF.IFieldDefaultValue interface
+ ### Implement TestDataFactory.IFieldDefaultValue interface
  
- Create a class that implements ``TDF.IFieldDefaultValue`` 
+ Create a class that implements ``TestDataFactory.IFieldDefaultValue`` 
  
  ``getValue`` method give access to the counter
  
  In this example we will create 100 Accounts that will be used to create 100 Cases 
   
   ```apex
-public class AccountIdWrapper implements TDF.IFieldDefaultValue{
+public class AccountIdWrapper implements TestDataFactory.IFieldDefaultValue{
 	private List<Account> AccountList = null;
 
 	public AccountIdWrapper(List<Account> accountList){
@@ -129,20 +129,20 @@ public class AccountIdWrapper implements TDF.IFieldDefaultValue{
 	}
 }
   ```
-  Provide the instance of your field default value in the map override for the ``TDF.createSObjectList`` method
+  Provide the instance of your field default value in the map override for the ``TestDataFactory.createSObjectList`` method
   
   ```apex
 
 
 // creating 100 Accounts
-List<Account> accountList = TDF.createSObjectList('Account', new Map<String,Object>{
+List<Account> accountList = TestDataFactory.createSObjectList('Account', new Map<String,Object>{
 	'Description' => 'test'
 },true,100);
 
 AccountIdWrapper accIdWrapped = new AccountIdWrapper(accountList);
 
 // creating 100 Cases
-List<Case> caseList = TDF.createSObjectList('Case',new Map<String,Object>{
+List<Case> caseList = TestDataFactory.createSObjectList('Case',new Map<String,Object>{
 	'AccountId' => accIdWrapped
 	'Contact.Description' => 'Create the related Contact',
 	'Contact.AccountId' => accIdWrapped

@@ -14,9 +14,10 @@
 * @author benahm
 * @date 2017
 * @description Apex Test Data Factory 
+* @group TestDataFactory
 */
 @IsTest
-public class TDF {
+public class TestDataFactory {
 
     /** Default value provider instance */
     private static DefaultValueProvider dvPrvdr = new DefaultValueProvider();
@@ -56,7 +57,7 @@ public class TDF {
      * @param sObjectName (String): name of the sObject to be created
      * @return sObject instance
      * @example 
-     * Account acc = (Account)TDF.createSObject('Account');
+     * Account acc = (Account)TestDataFactory.createSObject('Account');
      */
     public static SObject createSObject(String sObjectName){
         return createSObject(sObjectName,new Map<String,Object>(),true);
@@ -68,7 +69,7 @@ public class TDF {
      * @param Boolean (Boolean): if true the sObject instance is inserted to the Salesforce database
      * @return sObject instance
      * @example 
-     * Account acc = (Account)TDF.createSObject('Account',false);
+     * Account acc = (Account)TestDataFactory.createSObject('Account',false);
      */
     public static SObject createSObject(String sObjectName, Boolean doInsert){
         return createSObject(sObjectName,new Map<String,Object>(),doInsert);
@@ -80,7 +81,7 @@ public class TDF {
      * @param mapOfValuesOverride (Map<String,Object>): map of values
      * @return sObject instance
      * @example 
-     * Account acc = (Account)TDF.createSObject('Account',new Map<String,Object>{
+     * Account acc = (Account)TestDataFactory.createSObject('Account',new Map<String,Object>{
      *  'Description' => 'Test'
      * });
      */
@@ -95,7 +96,7 @@ public class TDF {
      * @param doInsert (Boolean): if true the sObject instance is inserted to the Salesforce database
      * @return sObject instance
      * @example 
-     * Account acc = (Account)TDF.createSObject('Account',new Map<String,Object>{
+     * Account acc = (Account)TestDataFactory.createSObject('Account',new Map<String,Object>{
      *  'Description' => 'Test'
      * },false);
      */
@@ -109,7 +110,7 @@ public class TDF {
      * @param numberOfSObjects (Integer): number of sObjects to be created
      * @return list of sObject instances
      * @example 
-     * List<Account> accList = TDF.createSObjectList('Account',10);
+     * List<Account> accList = TestDataFactory.createSObjectList('Account',10);
      */
     public static List<SObject> createSObjectList(String sObjectName, Integer numberOfSObjects){
         return createSObjectList(sObjectName,new Map<String,Object>(),numberOfSObjects,true);
@@ -122,7 +123,7 @@ public class TDF {
      * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
      * @return list of sObject instances
      * @example 
-     * List<Account> accList = TDF.createSObjectList('Account',10,false);
+     * List<Account> accList = TestDataFactory.createSObjectList('Account',10,false);
      */
     public static List<SObject> createSObjectList(String sObjectName, Integer numberOfSObjects, Boolean doInsert){
         return createSObjectList(sObjectName,new Map<String,Object>(),numberOfSObjects, doInsert);
@@ -135,7 +136,7 @@ public class TDF {
      * @param numberOfSObjects (Integer): number of sObjects to be created
      * @return list of sObject instances
      * @example 
-     * List<Account> accList = TDF.createSObjectList('Account',new Map<String,Object>{
+     * List<Account> accList = TestDataFactory.createSObjectList('Account',new Map<String,Object>{
      *  'Description' => 'Test'
      * },10);
      */
@@ -151,7 +152,7 @@ public class TDF {
      * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
      * @return list of sObject instances
      * @example 
-     * List<Account> accList = TDF.createSObjectList('Account',new Map<String,Object>{
+     * List<Account> accList = TestDataFactory.createSObjectList('Account',new Map<String,Object>{
      *  'Description' => 'Test'
      * },10,false);
      */
@@ -725,7 +726,7 @@ public class TDF {
             Set<String> definedRequiredFields = getDefinedSObjectRequiredFields(sObjectType);
             // get the defined optional fields set
             Set<String> definedOptionalFields = getDefinedSObjectOptionalFields(sObjectType);
-            // Mange Person Account Org enabled
+            // Manage Person Account Org enabled
             if(sObjectType == Account.sObjectType && isPersonAccountEnabled){ 
                 managePersonAccountOrgEnabled(mapOfValues,prefix,definedRequiredFields);
             }
@@ -1455,7 +1456,7 @@ public class TDF {
     }
     
     /**
-    * @description this is a dummy test method needed in order to create a managed package for TDF
+    * @description this is a dummy test method needed in order to create a managed package for TestDataFactory
     */
     @IsTest
     private static void dummyTest(){}

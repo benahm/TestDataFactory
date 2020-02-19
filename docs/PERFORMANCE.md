@@ -8,7 +8,7 @@ Performance tests executed in a Developer Org
 
 * Person Account is not enabled 
 
-**Note** : in an org where Person Account is enabled a SOQL query per transaction is made by the TDF class to get the list of person account record types  
+**Note** : in an org where Person Account is enabled a SOQL query per transaction is made by the TestDataFactory class to get the list of person account record types  
 
 
 #### Test #1
@@ -16,7 +16,7 @@ Performance tests executed in a Developer Org
 Create one instance of the Contact sObject
 
   ```apex
-  Contact con = (Contact)TDF.createSObject('Contact',true);
+  Contact con = (Contact)TestDataFactory.createSObject('Contact',true);
   ```
 
 
@@ -40,7 +40,7 @@ LIMIT_USAGE_… Number of Mobile Apex push calls: 0 out of 10
 Create 10 instances of the Contact sObject
 
   ```apex
-  List<Contact> conList = TDF.createSObjectList('Contact',true,10);
+  List<Contact> conList = TestDataFactory.createSObjectList('Contact',true,10);
   ```
 
 
@@ -64,7 +64,7 @@ LIMIT_USAGE_… Number of Mobile Apex push calls: 0 out of 10
 Create one instance of the Contact sObject and its related Account sObject
 
   ```apex
-  Contact con = (Contact)TDF.createSObject('Contact',new Map<String,Object>{
+  Contact con = (Contact)TestDataFactory.createSObject('Contact',new Map<String,Object>{
 	  'Account.Description' => 'Create the related Account'
   },true);
   ```
@@ -90,7 +90,7 @@ LIMIT_USAGE_… Number of Mobile Apex push calls: 0 out of 10
 Create 10 instances of the Contact sObject and its related Account sObjects
 
   ```apex
-  List<Contact> conList = TDF.createSObjectList('Contact',new Map<String,Object>{
+  List<Contact> conList = TestDataFactory.createSObjectList('Contact',new Map<String,Object>{
     'Account.Description' => 'Create the related Account'
   },true,10);
   ```
@@ -117,7 +117,7 @@ LIMIT_USAGE_… Number of Mobile Apex push calls: 0 out of 10
 Create 200 instances of the Case sObject and its related Account, Contact and Contact of Account sObjects
 
   ```apex
-  List<Case> caseList = TDF.createSObjectList('Case',new Map<String,Object>{
+  List<Case> caseList = TestDataFactory.createSObjectList('Case',new Map<String,Object>{
     'Account.Description' => 'Create the related Account',
     'Contact.Description' => 'Create the related Contact',
     'Contact.Account.Description' => 'Create the related Account for the related Contact'
@@ -145,7 +145,7 @@ LIMIT_USAGE_… Number of Mobile Apex push calls: 0 out of 10
 Create 1000 instances of the Case sObject and its related Account, Contact and Contact of Account sObjects
 
   ```apex
-  List<Case> caseList = TDF.createSObjectList('Case',new Map<String,Object>{
+  List<Case> caseList = TestDataFactory.createSObjectList('Case',new Map<String,Object>{
     'Account.Description' => 'Create the related Account',
     'Contact.Description' => 'Create the related Contact',
     'Contact.Account.Description' => 'Create the related Account for the related Contact'

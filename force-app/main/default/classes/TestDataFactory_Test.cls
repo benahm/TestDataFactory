@@ -13,20 +13,21 @@
 /**
  * @author benahm
  * @date 2017
- * @description TDFTest Class
+ * @group Test
+ * @description TestDataFactory_Test Class
  */
 @isTest
-public class TDFTest {
+public class TestDataFactory_Test {
 
 
-	/************************* TDF tests *************************/
+	/************************* TestDataFactory tests *************************/
 	/**
 	 * @description create an Account sObject instance (insert flag = false)
 	 */
 	@isTest
 	static void createSObjectTest1(){
 		Test.startTest();
-		SObject sObj = TDF.createSObject('Account',false);
+		SObject sObj = TestDataFactory.createSObject('Account',false);
 		Test.stopTest();
 		System.assertNotEquals(null,sObj);
 	}
@@ -36,7 +37,7 @@ public class TDFTest {
 	@isTest
 	static void createSObjectTest2(){
 		Test.startTest();
-		SObject sObj = TDF.createSObject('Account',new Map<String,Object>(),false);
+		SObject sObj = TestDataFactory.createSObject('Account',new Map<String,Object>(),false);
 		Test.stopTest();
 		System.assertNotEquals(null,sObj);
 	}
@@ -46,7 +47,7 @@ public class TDFTest {
 	@isTest
 	static void createSObjectTest3(){
 		Test.startTest();
-		Case cse = (Case)TDF.createSObject('Case', new Map<String,Object> {
+		Case cse = (Case)TestDataFactory.createSObject('Case', new Map<String,Object> {
 			'Contact.FirstName' => 'test',
 			'Contact.Account.Name' => 'test',
 			'Contact.Account.Parent.Name' => 'test'
@@ -63,7 +64,7 @@ public class TDFTest {
 	static void createSObjectTest4(){
 		BusinessHours caseBusinessHours = [SELECT Id FROM BusinessHours WHERE IsDefault = TRUE LIMIT 1];
         Test.startTest();
-        SObject sObj = TDF.createSObject('Case', new Map<String,Object>{
+        SObject sObj = TestDataFactory.createSObject('Case', new Map<String,Object>{
             'Id' => null,
 				'id' => null,
 				'BusinessHoursId' => caseBusinessHours.Id,
@@ -72,7 +73,7 @@ public class TDFTest {
 				'Description' => 'test',
 				'asset.accounT.Name' => 'test',
 				'asset.contact.account.Description' => 'test',
-				'asset.Parent.contact.account.Description' => TDF.DEFAULT_VALUE
+				'asset.Parent.contact.account.Description' => TestDataFactory.DEFAULT_VALUE
         }, true);
         Test.stopTest();
 		Case cse = [select Asset.Parent.Contact.Account.Name, Asset.Parent.Contact.Account.Description from Case limit 1];
@@ -85,7 +86,7 @@ public class TDFTest {
 	@isTest
 	static void createSObjectTest5(){
 		Test.startTest();
-		Case cse = (Case)TDF.createSObject('Case', new Map<String,Object> {
+		Case cse = (Case)TestDataFactory.createSObject('Case', new Map<String,Object> {
 			'Contact' => new Map<String,Object> {
 			        'Firstname' => 'test',
 			        'Account' => new Map<String,Object> {
@@ -106,11 +107,11 @@ public class TDFTest {
 	@isTest
 	static void createSObjectTest6(){
 		Test.startTest();
-		Account acc = (Account)TDF.createSObject('Account',new Map<String,Object> {
+		Account acc = (Account)TestDataFactory.createSObject('Account',new Map<String,Object> {
 			'Name' => 'test',
 			'Description' => 'test'
 		},true);
-		Case cse = (Case)TDF.createSObject('Case', new Map<String,Object> {
+		Case cse = (Case)TestDataFactory.createSObject('Case', new Map<String,Object> {
 			'Contact' => new Map<String,Object> {
 			        'Firstname' => 'test',
 			        'Account' => acc
@@ -126,7 +127,7 @@ public class TDFTest {
 	@isTest
 	static void createSObjectTest7(){
 		Test.startTest();
-		SObject sObj = TDF.createSObject('Account', new Map<String,Object> {
+		SObject sObj = TestDataFactory.createSObject('Account', new Map<String,Object> {
 			'Name'=> 'test',
 			'OwnerId'=> UserInfo.getUserId()
 		});
@@ -140,7 +141,7 @@ public class TDFTest {
 	@isTest
 	static void createSObjectTest8(){
         Test.startTest();
-		Account acc = (Account)TDF.createSObject('Account', new Map<String,Object>{
+		Account acc = (Account)TestDataFactory.createSObject('Account', new Map<String,Object>{
 			'Owner.Username' => 'test123456789@mycompanydomain.developer',
 			'Owner.ProfileId' => UserInfo.getProfileId()
 			},false);
@@ -155,10 +156,10 @@ public class TDFTest {
 	static void createSObjectTest9(){
 		try{
 			Test.startTest();
-			SObject sObj = TDF.createSObject('TEST');
+			SObject sObj = TestDataFactory.createSObject('TEST');
 			Test.stopTest();
 			System.assert (false);
-		}catch(TDF.TestDataFactoryException e) {
+		}catch(TestDataFactory.TestDataFactoryException e) {
 			System.assert (true);
 		}
 	}
@@ -169,10 +170,10 @@ public class TDFTest {
 	static void createSObjectTest10(){
 		try{
 			Test.startTest();
-			SObject sObj = TDF.createSObject('Profile');
+			SObject sObj = TestDataFactory.createSObject('Profile');
 			Test.stopTest();
 			System.assert (false);
-		}catch(TDF.TestDataFactoryException e) {
+		}catch(TestDataFactory.TestDataFactoryException e) {
 			System.assert (true);
 		}
 	}
@@ -183,10 +184,10 @@ public class TDFTest {
 	static void createSObjectTest11(){
 		try{
 			Test.startTest();
-			SObject sObj = TDF.createSObject('Asset');
+			SObject sObj = TestDataFactory.createSObject('Asset');
 			Test.stopTest();
 			System.assert (false);
-		}catch(TDF.TestDataFactoryException e) {
+		}catch(TestDataFactory.TestDataFactoryException e) {
 			System.assert (true);
 		}
 	}
@@ -195,14 +196,14 @@ public class TDFTest {
 	 */
 	@isTest
 	static void createSObjectTest12(){
-		if(TDF.isPersonAccountEnabled) {
+		if(TestDataFactory.isPersonAccountEnabled) {
 			// Positive test
 			try{
 				Test.startTest();
-				SObject sObj = TDF.createSObject('Account');
+				SObject sObj = TestDataFactory.createSObject('Account');
 				Test.stopTest();
 				System.assert (true);
-			}catch(TDF.TestDataFactoryException e) {
+			}catch(TestDataFactory.TestDataFactoryException e) {
 				System.assert (false);
 			}
 
@@ -213,16 +214,16 @@ public class TDFTest {
 	 */
 	@isTest
 	static void createSObjectTest13(){
-		if(TDF.isPersonAccountEnabled) {
+		if(TestDataFactory.isPersonAccountEnabled) {
 			// Negative test
 			try{
 				Test.startTest();
-				SObject sObj = TDF.createSObject('Account',new Map<String,Object> {
+				SObject sObj = TestDataFactory.createSObject('Account',new Map<String,Object> {
 					'RecordTypeId' => 'BadId'
 				});
 				Test.stopTest();
 				System.assert (false);
-			}catch(TDF.TestDataFactoryException e) {
+			}catch(TestDataFactory.TestDataFactoryException e) {
 				System.assert (true);
 			}
 		}
@@ -234,12 +235,12 @@ public class TDFTest {
 	static void createSObjectTest14(){
 		try{
 			Test.startTest();
-			SObject sObj = TDF.createSObject('Contact',new Map<String,Object> {
+			SObject sObj = TestDataFactory.createSObject('Contact',new Map<String,Object> {
 				'Test' => 'test'
 			});
 			Test.stopTest();
 			System.assert (false);
-		}catch(TDF.TestDataFactoryException e) {
+		}catch(TestDataFactory.TestDataFactoryException e) {
 			System.assert (true);
 		}
 	}
@@ -250,12 +251,12 @@ public class TDFTest {
 	static void createSObjectTest15(){
 		try{
 			Test.startTest();
-			SObject sObj = TDF.createSObject('Contact',new Map<String,Object> {
+			SObject sObj = TestDataFactory.createSObject('Contact',new Map<String,Object> {
 				'Account.Test' => 'test'
 			});
 			Test.stopTest();
 			System.assert (false);
-		}catch(TDF.TestDataFactoryException e) {
+		}catch(TestDataFactory.TestDataFactoryException e) {
 			System.assert (true);
 		}
 	}
@@ -266,12 +267,12 @@ public class TDFTest {
 	static void createSObjectTest16(){
 		try{
 			Test.startTest();
-			SObject sObj = TDF.createSObject('Contact',new Map<String,Object> {
+			SObject sObj = TestDataFactory.createSObject('Contact',new Map<String,Object> {
 				'Account.Test.Parent.Id' => 'test'
 			});
 			Test.stopTest();
 			System.assert (false);
-		}catch(TDF.TestDataFactoryException e) {
+		}catch(TestDataFactory.TestDataFactoryException e) {
 			System.assert (true);
 		}
 	}
@@ -282,12 +283,12 @@ public class TDFTest {
 	static void createSObjectTest17(){
 		try{
 			Test.startTest();
-			SObject sObj = TDF.createSObject('Contact',new Map<String,Object> {
+			SObject sObj = TestDataFactory.createSObject('Contact',new Map<String,Object> {
 				'Description' => Date.today()
 			});
 			Test.stopTest();
 			System.assert (false);
-		}catch(TDF.TestDataFactoryException e) {
+		}catch(TestDataFactory.TestDataFactoryException e) {
 			System.assert (true);
 		}
 	}
@@ -297,7 +298,7 @@ public class TDFTest {
 	@isTest
 	static void createSObjectListTest1(){
 		Test.startTest();
-		List<SObject> sObjList = TDF.createSObjectList('Contact',5,false);
+		List<SObject> sObjList = TestDataFactory.createSObjectList('Contact',5,false);
 		Test.stopTest();
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
@@ -308,7 +309,7 @@ public class TDFTest {
 	@isTest
 	static void createSObjectListTest2(){
 		Test.startTest();
-		List<SObject> sObjList = TDF.createSObjectList('Contact',200);
+		List<SObject> sObjList = TestDataFactory.createSObjectList('Contact',200);
 		Test.stopTest();
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(200,sObjList.size());
@@ -319,7 +320,7 @@ public class TDFTest {
 	@isTest
 	static void createSObjectListTest3(){
 		Test.startTest();
-		List<SObject> sObjList = TDF.createSObjectList('Contact',new Map<String,Object>(),5,false);
+		List<SObject> sObjList = TestDataFactory.createSObjectList('Contact',new Map<String,Object>(),5,false);
 		Test.stopTest();
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
@@ -330,7 +331,7 @@ public class TDFTest {
 	@isTest
 	static void createSObjectListTest4(){
 		Test.startTest();
-		List<Contact> sObjList = TDF.createSObjectList('Contact',new Map<String,Object>(),5);
+		List<Contact> sObjList = TestDataFactory.createSObjectList('Contact',new Map<String,Object>(),5);
 		Test.stopTest();
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
@@ -346,7 +347,7 @@ public class TDFTest {
 	@isTest
 	static void createSObjectListTest5(){
 		Test.startTest();
-		List<Contact> sObjList = TDF.createSObjectList('Contact',new Map<String,Object> {
+		List<Contact> sObjList = TestDataFactory.createSObjectList('Contact',new Map<String,Object> {
 			'Lastname' => new List<String> {'test4','test3','test2','test1','test0'}
 		},5,false);
 		Test.stopTest();
@@ -365,11 +366,11 @@ public class TDFTest {
 	@isTest
 	static void createSObjectListTest6(){
 		Test.startTest();
-		List<Account> accList = TDF.createSObjectList('Account',new Map<String,Object> {
+		List<Account> accList = TestDataFactory.createSObjectList('Account',new Map<String,Object> {
 			'Name' => 'test',
 			'Description' => 'test'
 		},2);
-		List<Case> cseList = TDF.createSObjectList('Case', new Map<String,Object> {
+		List<Case> cseList = TestDataFactory.createSObjectList('Case', new Map<String,Object> {
 			'Contact' => new Map<String,Object> {
 			        'Firstname' => 'test',
 			        'Account' => accList
@@ -387,7 +388,7 @@ public class TDFTest {
 	@isTest
 	static void createSObjectListTest7(){
 		Test.startTest();
-		List<SObject> sObjList = TDF.createSObjectList('Account', new Map<String,Object> {
+		List<SObject> sObjList = TestDataFactory.createSObjectList('Account', new Map<String,Object> {
 			'Owner.Username' => 'test123456789@mycompanydomain.developer{!index}',
 			'Owner.CommunityNickname' => 'testd{!index}',
 			'Owner.ProfileId' => UserInfo.getProfileId()
@@ -403,11 +404,11 @@ public class TDFTest {
 	 */
 	@isTest
 	static void setDefaultValueProviderTest(){
-		System.assertNotEquals(null,TDF.defaultValueProvider);
-		TDF.defaultValueProvider = null;
-		System.assertNotEquals(null,TDF.defaultValueProvider);
-		TDF.defaultValueProvider = new TDF.DefaultValueProvider();
-		System.assertNotEquals(null,TDF.defaultValueProvider);
+		System.assertNotEquals(null,TestDataFactory.defaultValueProvider);
+		TestDataFactory.defaultValueProvider = null;
+		System.assertNotEquals(null,TestDataFactory.defaultValueProvider);
+		TestDataFactory.defaultValueProvider = new TestDataFactory.DefaultValueProvider();
+		System.assertNotEquals(null,TestDataFactory.defaultValueProvider);
 	}
 
 
@@ -417,7 +418,7 @@ public class TDFTest {
 	 */
 	@isTest
 	static void getMainSObjectListTest(){
-		TDF.SObjectManager sObjManager = new TDF.SObjectManager('Case');
+		TestDataFactory.SObjectManager sObjManager = new TestDataFactory.SObjectManager('Case');
 		System.assertNotEquals(null,sObjManager.getMainSObjectList());
 		System.assertEquals(0,sObjManager.getMainSObjectList().size());
 		sObjManager.mainSObjectList.add(new Contact());
@@ -428,7 +429,7 @@ public class TDFTest {
 	 */
 	@isTest
 	static void setSObjectTest(){
-		TDF.SObjectManager sObjManager = new TDF.SObjectManager('Case');
+		TestDataFactory.SObjectManager sObjManager = new TestDataFactory.SObjectManager('Case');
 		try{
 			sObjManager.setSObject(1,new Contact(FirstName='test1'));
 			System.assert (false);
@@ -452,7 +453,7 @@ public class TDFTest {
 	 */
 	@isTest
 	static void getSObjectTest(){
-		TDF.SObjectManager sObjManager = new TDF.SObjectManager('Case');
+		TestDataFactory.SObjectManager sObjManager = new TestDataFactory.SObjectManager('Case');
 		try{
 			sObjManager.getSObject(0);
 			System.assert (false);
@@ -467,7 +468,7 @@ public class TDFTest {
 	 */
 	@isTest
 	static void setRelationshipTest(){
-		TDF.SObjectManager sObjManager = new TDF.SObjectManager('Case');
+		TestDataFactory.SObjectManager sObjManager = new TestDataFactory.SObjectManager('Case');
 		sObjManager.setRelationship(0,'contact',new Contact(FirstName='test1'));
 		System.assertNotEquals(null,sObjManager.relatedSObjMapList.get('contact'));
 		System.assertEquals(1,sObjManager.relatedSObjMapList.get('contact').size());
@@ -486,7 +487,7 @@ public class TDFTest {
 	 */
 	@isTest
 	static void getRelationshipTest(){
-		TDF.SObjectManager sObjManager = new TDF.SObjectManager('Case');
+		TestDataFactory.SObjectManager sObjManager = new TestDataFactory.SObjectManager('Case');
 		System.assertEquals(null,sObjManager.getRelationship(0,'contact'));
 		System.assertEquals(null,sObjManager.getRelationship(100,'contact'));
 		sObjManager.relatedSObjMapList.put('contact',new List<SObject>());
@@ -499,7 +500,7 @@ public class TDFTest {
 	 */
 	@isTest
 	static void insertAllTest(){
-		TDF.SObjectManager sObjManager = new TDF.SObjectManager('Case');
+		TestDataFactory.SObjectManager sObjManager = new TestDataFactory.SObjectManager('Case');
 		Account acc = new Account(Name='test');
 		Contact con = new Contact(LastName='test');
 		sObjManager.mainSObjectList.add(con);
@@ -521,7 +522,7 @@ public class TDFTest {
 	 */
 	@isTest
 	static void setChildParentRelationshipTest(){
-		TDF.SObjectManager sObjManager = new TDF.SObjectManager('Case');
+		TestDataFactory.SObjectManager sObjManager = new TestDataFactory.SObjectManager('Case');
 		List<Account> accList = new List<Account> {new Account(Name='test')};
 		List<Contact> conList = new List<Contact> {new Contact(LastName='test')};
 		try {
@@ -537,7 +538,7 @@ public class TDFTest {
 	 */
 	@isTest
 	static void addRelationshipNameTest(){
-		TDF.SObjectManager sObjManager = new TDF.SObjectManager('Case');
+		TestDataFactory.SObjectManager sObjManager = new TestDataFactory.SObjectManager('Case');
 		sObjManager.addRelationshipName('contact');
 		System.assertNotEquals(null,sObjManager.orderedRelationshipList);
 		System.assertEquals(1,sObjManager.orderedRelationshipList.size());
@@ -555,7 +556,7 @@ public class TDFTest {
 	 */
 	@isTest
 	static void insertListTest(){
-		TDF.SObjectManager sObjManager = new TDF.SObjectManager('Case');
+		TestDataFactory.SObjectManager sObjManager = new TestDataFactory.SObjectManager('Case');
 		List<Account> accList = new List<Account> {new Account(Name='test')};
 		try {
 			sObjManager.insertList(accList,'');
@@ -569,19 +570,19 @@ public class TDFTest {
 	/************************* SObjectFactory tests *************************/
 	@isTest
 	static void getSObjectFactoryTest(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory(Contact.SObjectType);
+		TestDataFactory.SObjectFactory sObjFactory = new TestDataFactory.SObjectFactory(Contact.SObjectType);
 		System.assertNotEquals(null,sObjFactory.getSObjectManager());
 	}
 	@isTest
 	static void getSObjectInstanceTest(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory(Contact.SObjectType);
+		TestDataFactory.SObjectFactory sObjFactory = new TestDataFactory.SObjectFactory(Contact.SObjectType);
 		SObject sObj = sObjFactory.getSObjectInstance(new Map<String,Object>(),false);
 		System.assertNotEquals(null,sObj);
 		System.assertEquals(Contact.SObjectType,sObj.getSObjectType());
 	}
 	@isTest
 	static void getListSObjectInstanceTest(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory(Contact.SObjectType);
+		TestDataFactory.SObjectFactory sObjFactory = new TestDataFactory.SObjectFactory(Contact.SObjectType);
 		List<SObject> sObjList = sObjFactory.getListSObjectInstance(new Map<String,Object> {'Account.Description' => 'test'},false,5);
 		System.assertNotEquals(null,sObjList);
 		System.assertEquals(5,sObjList.size());
@@ -591,8 +592,8 @@ public class TDFTest {
 	}
 	@isTest
 	static void initSObjectInstanceTest(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory(Contact.SObjectType);
-		sObjFactory.initSObjectInstance(new Map<String,TDF.IFieldDefaultValue> {'Account.Description' => new TDF.FieldDefaultValue('test')},0);
+		TestDataFactory.SObjectFactory sObjFactory = new TestDataFactory.SObjectFactory(Contact.SObjectType);
+		sObjFactory.initSObjectInstance(new Map<String,TestDataFactory.IFieldDefaultValue> {'Account.Description' => new TestDataFactory.FieldDefaultValue('test')},0);
 		System.assertNotEquals(null,sObjFactory.getSObjectManager());
 		System.assertNotEquals(null,sObjFactory.getSObjectManager().getMainSObjectList());
 		System.assertEquals(1,sObjFactory.getSObjectManager().getMainSObjectList().size());
@@ -603,24 +604,24 @@ public class TDFTest {
 	}
 	@isTest
 	static void getRelationshipInstanceTest(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory(Case.SObjectType);
+		TestDataFactory.SObjectFactory sObjFactory = new TestDataFactory.SObjectFactory(Case.SObjectType);
 		SObject sObj = sObjFactory.getRelationshipInstance('Contact.Account',0);
 		System.assertNotEquals(null,sObj);
 		System.assertEquals(Account.SObjectType,sObj.getSObjectType());
 	}
 	@isTest
 	static void getRelatedSObjectInstanceTest(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory(Contact.SObjectType);
+		TestDataFactory.SObjectFactory sObjFactory = new TestDataFactory.SObjectFactory(Contact.SObjectType);
 		SObject sObj = sObjFactory.getRelatedSObjectInstance(Contact.SObjectType,'Account','');
 		System.assertNotEquals(null,sObj);
 		System.assertEquals(Account.SObjectType,sObj.getSObjectType());
 	}
 	@isTest
 	static void getFieldValueFromMapOfValuesTest(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory(Contact.SObjectType);
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue> {
-			'Lastname' => new TDF.FieldDefaultValue('Test'),
-			'Description' => new TDF.ListFieldDefaultValue(new List<String> {'Test'})
+		TestDataFactory.SObjectFactory sObjFactory = new TestDataFactory.SObjectFactory(Contact.SObjectType);
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
+			'Lastname' => new TestDataFactory.FieldDefaultValue('Test'),
+			'Description' => new TestDataFactory.ListFieldDefaultValue(new List<String> {'Test'})
 		};
 
 		System.assertEquals('Test',sObjFactory.getFieldValueFromMapOfValues(mapOfValues,'Lastname',0));
@@ -628,33 +629,33 @@ public class TDFTest {
 		try{
 			sObjFactory.getFieldValueFromMapOfValues(mapOfValues,'Description',1);
 			System.assert (false);
-		}catch(TDF.TestDataFactoryException e) {
+		}catch(TestDataFactory.TestDataFactoryException e) {
 			System.assert (true);
 		}
 	}
 	@isTest
 	static void putSObjectTest(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory(Contact.SObjectType);
+		TestDataFactory.SObjectFactory sObjFactory = new TestDataFactory.SObjectFactory(Contact.SObjectType);
 		Contact con = new Contact();
 		sObjFactory.putSObject(con,'Account',new Account(Name='Test'),'');
 		System.assertEquals('Test',con.Account.Name);
 		try{
 			sObjFactory.putSObject(con,'Test',new Account(),'');
 			System.assert (false);
-		}catch(TDF.TestDataFactoryException e) {
+		}catch(TestDataFactory.TestDataFactoryException e) {
 			System.assert (true);
 		}
 	}
 	@isTest
 	static void putFieldTest(){
-		TDF.SObjectFactory sObjFactory = new TDF.SObjectFactory(Contact.SObjectType);
+		TestDataFactory.SObjectFactory sObjFactory = new TestDataFactory.SObjectFactory(Contact.SObjectType);
 		Contact con = new Contact();
 		sObjFactory.putField(con,'FirstName','Test','');
 		System.assertEquals('Test',con.FirstName);
 		try{
 			sObjFactory.putField(con,'Test','Test','');
 			System.assert (false);
-		}catch(TDF.TestDataFactoryException e) {
+		}catch(TestDataFactory.TestDataFactoryException e) {
 			System.assert (true);
 		}
 	}
@@ -662,8 +663,8 @@ public class TDFTest {
 	/************************* DefaultValueProvider tests *************************/
 	@isTest
 	static void getDefaultMapOfValuesTest1(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = dvProvider.getDefaultMapOfValues(Opportunity.SObjectType,new Map<String,Object>());
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = dvProvider.getDefaultMapOfValues(Opportunity.SObjectType,new Map<String,Object>());
 		System.assertNotEquals(null,mapOfValues);
 		System.assertEquals('test0',mapOfValues.get('name').getValue(0));
 		System.assertNotEquals('',mapOfValues.get('stagename').getValue(0));
@@ -671,15 +672,15 @@ public class TDFTest {
 	}
 	@isTest
 	static void getDefaultMapOfValuesTest2(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = dvProvider.getDefaultMapOfValues(Contract.SObjectType,new Map<String,Object>());
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = dvProvider.getDefaultMapOfValues(Contract.SObjectType,new Map<String,Object>());
 		System.assertNotEquals(null,mapOfValues);
 		System.assertEquals(null,mapOfValues.get('account.id').getValue(0));
 	}
 	@isTest
 	static void getDefaultMapOfValuesTest3(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = dvProvider.getDefaultMapOfValues(Contact.SObjectType,new Map<String,Object> {
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = dvProvider.getDefaultMapOfValues(Contact.SObjectType,new Map<String,Object> {
 			'Lastname' => new List<String> {'test1','test2'}
 		});
 		System.assertNotEquals(null,mapOfValues);
@@ -688,8 +689,8 @@ public class TDFTest {
 	}
 	@isTest
 	static void getDefaultMapOfValuesTest4(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = dvProvider.getDefaultMapOfValues(Contact.SObjectType,new Map<String,Object> {
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = dvProvider.getDefaultMapOfValues(Contact.SObjectType,new Map<String,Object> {
 			'account' => new Map<String,Object> {
 			        'site' => 'test1',
 			        'description' => 'test2'
@@ -701,24 +702,24 @@ public class TDFTest {
 	}
 	@isTest
 	static void getDefaultMapOfValuesTest5(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = dvProvider.getDefaultMapOfValues(Contact.SObjectType,null);
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = dvProvider.getDefaultMapOfValues(Contact.SObjectType,null);
 		System.assertNotEquals(null,mapOfValues);
 		System.assertEquals('test0',mapOfValues.get('lastname').getValue(0));
 	}
 	@isTest
 	static void generateDefaultMapOfValuesTest1(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue>();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue>();
 		dvProvider.generateDefaultMapOfValues(Contract.SObjectType,mapOfValues,'');
 		System.assertNotEquals(null,mapOfValues);
 		System.assertEquals(null,mapOfValues.get('account.id').getValue(0));
 	}
 	@isTest
 	static void generateDefaultMapOfValuesTest2(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue> {
-			'contact.id' => new TDF.FieldDefaultValue(null)
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
+			'contact.id' => new TestDataFactory.FieldDefaultValue(null)
 		};
 		dvProvider.generateDefaultMapOfValues(Case.SObjectType,mapOfValues,'');
 		System.assertNotEquals(null,mapOfValues);
@@ -726,10 +727,10 @@ public class TDFTest {
 	}
 	@isTest
 	static void generateDefaultMapOfValuesTest3(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue> {
-			'contact.description' => TDF.DEFAULT_VALUE,
-			'subject' => TDF.DEFAULT_VALUE
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
+			'contact.description' => TestDataFactory.DEFAULT_VALUE,
+			'subject' => TestDataFactory.DEFAULT_VALUE
 		};
 		dvProvider.generateDefaultMapOfValues(Case.SObjectType,mapOfValues,'');
 		System.assertNotEquals(null,mapOfValues);
@@ -739,9 +740,9 @@ public class TDFTest {
 	}
 	@isTest
 	static void generateDefaultMapOfValuesTest4(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue> {
-			'description' => new TDF.ListFieldDefaultValue(new List<String> {'description1','description2'})
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
+			'description' => new TestDataFactory.ListFieldDefaultValue(new List<String> {'description1','description2'})
 		};
 		dvProvider.generateDefaultMapOfValues(Case.SObjectType,mapOfValues,'');
 		System.assertNotEquals(null,mapOfValues);
@@ -750,10 +751,10 @@ public class TDFTest {
 	}
 	@isTest
 	static void generateDefaultMapOfValuesTest5(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue> {
-			'contact.description' => TDF.DEFAULT_VALUE,
-			'subject' => TDF.DEFAULT_VALUE
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
+			'contact.description' => TestDataFactory.DEFAULT_VALUE,
+			'subject' => TestDataFactory.DEFAULT_VALUE
 		};
 		dvProvider.generateDefaultMapOfValues(Contact.SObjectType,mapOfValues,'contact.');
 		System.assertNotEquals(null,mapOfValues);
@@ -762,9 +763,9 @@ public class TDFTest {
 	}
 	@isTest
 	static void generateDefaultMapOfValuesTest6(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue> {
-			'contactid' => TDF.DEFAULT_VALUE
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
+			'contactid' => TestDataFactory.DEFAULT_VALUE
 		};
 		dvProvider.generateDefaultMapOfValues(Case.SObjectType,mapOfValues,'');
 		System.assertNotEquals(null,mapOfValues);
@@ -774,9 +775,9 @@ public class TDFTest {
 	}
 	@isTest
 	static void generateDefaultMapOfValuesTest7(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue> {
-			'asset.contactid' => TDF.DEFAULT_VALUE
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
+			'asset.contactid' => TestDataFactory.DEFAULT_VALUE
 		};
 		dvProvider.generateDefaultMapOfValues(Case.SObjectType,mapOfValues,'');
 		System.assertNotEquals(null,mapOfValues);
@@ -786,10 +787,10 @@ public class TDFTest {
 	}
 	@isTest
 	static void generateDefaultMapOfValuesTest8(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue> {
-			'asset.contact.description' => new TDF.FieldDefaultValue('test0'),
-			'asset.parent.contact.description' => new TDF.FieldDefaultValue('test0')
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
+			'asset.contact.description' => new TestDataFactory.FieldDefaultValue('test0'),
+			'asset.parent.contact.description' => new TestDataFactory.FieldDefaultValue('test0')
 		};
 		dvProvider.generateDefaultMapOfValues(Case.SObjectType,mapOfValues,'');
 		System.assertNotEquals(null,mapOfValues);
@@ -802,9 +803,9 @@ public class TDFTest {
 	}
 	@isTest
 	static void generateDefaultMapOfValuesTest9(){
-		TDF.DefaultValueProvider dvProvider = new DefaultValueProviderOverride(); // override instance
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue> {
-			'lastname' => new TDF.FieldDefaultValue('test0')
+		TestDataFactory.DefaultValueProvider dvProvider = new DefaultValueProviderOverride(); // override instance
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
+			'lastname' => new TestDataFactory.FieldDefaultValue('test0')
 		};
 		dvProvider.generateDefaultMapOfValues(Contact.SObjectType,mapOfValues,'');
 		System.assertNotEquals(null,mapOfValues);
@@ -815,8 +816,8 @@ public class TDFTest {
 	}
 	@isTest
 	static void generateDefaultMapOfValuesTest10(){
-		TDF.DefaultValueProvider dvProvider = new DefaultValueProviderOverride(); // override instance
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue>();
+		TestDataFactory.DefaultValueProvider dvProvider = new DefaultValueProviderOverride(); // override instance
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue>();
 		dvProvider.generateDefaultMapOfValues(Contact.SObjectType,mapOfValues,'');
 		System.assertNotEquals(null,mapOfValues);
 		System.assertEquals(null,mapOfValues.get('lastname'));
@@ -826,8 +827,8 @@ public class TDFTest {
 	}
 	@isTest
 	static void putRelationshipFieldTest1(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue>();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue>();
 		dvProvider.putRelationshipField(mapOfValues, Schema.SObjectType.Case.Fields.ContactId, '');
 		System.assertNotEquals(null,mapOfValues);
 		System.assertEquals(null,mapOfValues.get('contact.id').getValue(0));
@@ -835,8 +836,8 @@ public class TDFTest {
 	}
 	@isTest
 	static void putRelationshipFieldTest2(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue>();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue>();
 		dvProvider.putRelationshipField(mapOfValues, Schema.SObjectType.Case.Fields.ContactId, 'asset.');
 		System.assertNotEquals(null,mapOfValues);
 		System.assertEquals(null,mapOfValues.get('asset.contact.id').getValue(0));
@@ -844,9 +845,9 @@ public class TDFTest {
 	}
 	@isTest
 	static void managePersonAccountOrgEnabledTest1(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue>();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue>();
 		Set<String> definedRequiredFields = new Set<String>();
 
 		dvProvider.managePersonAccountOrgEnabled(mapOfValues,'',definedRequiredFields);
@@ -859,10 +860,10 @@ public class TDFTest {
 	}
 	@isTest
 	static void managePersonAccountOrgEnabledTest2(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		Id personAccountRecordTypeId = Account.SObjectType.getDescribe().getRecordTypeInfos().get(0).getRecordTypeId();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue> {
-			'account.recordtypeid' => new TDF.FieldDefaultValue(personAccountRecordTypeId)
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
+			'account.recordtypeid' => new TestDataFactory.FieldDefaultValue(personAccountRecordTypeId)
 		};
 		Set<String> definedRequiredFields = new Set<String>();
 
@@ -876,11 +877,11 @@ public class TDFTest {
 	}
 	@isTest
 	static void managePersonAccountOrgEnabledTest3(){
-		if(TDF.isPersonAccountEnabled) {
-			TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		if(TestDataFactory.isPersonAccountEnabled) {
+			TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 			Id personAccountRecordTypeId = new List<Id>(dvProvider.personAccountRecordTypes).get(0);
-			Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue> {
-				'account.recordtypeid' => new TDF.FieldDefaultValue(personAccountRecordTypeId)
+			Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
+				'account.recordtypeid' => new TestDataFactory.FieldDefaultValue(personAccountRecordTypeId)
 			};
 			Set<String> definedRequiredFields = new Set<String>();
 
@@ -895,61 +896,61 @@ public class TDFTest {
 	}
 	@isTest
 	static void managePersonAccountOrgEnabledTest4(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		Id personAccountRecordTypeId = Account.SObjectType.getDescribe().getRecordTypeInfos().get(0).getRecordTypeId();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue> {
-			'account.recordtypeid' => new TDF.ListFieldDefaultValue(new List<Id> {personAccountRecordTypeId})
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
+			'account.recordtypeid' => new TestDataFactory.ListFieldDefaultValue(new List<Id> {personAccountRecordTypeId})
 		};
 		Set<String> definedRequiredFields = new Set<String>();
 
 		try{
 			dvProvider.managePersonAccountOrgEnabled(mapOfValues,'account.',definedRequiredFields);
 			System.assert (false);
-		}catch(TDF.TestDataFactoryException e) {
+		}catch(TestDataFactory.TestDataFactoryException e) {
 			System.assert (true);
 		}
 	}
 	@isTest
 	static void managePersonAccountOrgEnabledTest5(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
-		Map<String,TDF.IFieldDefaultValue> mapOfValues = new Map<String,TDF.IFieldDefaultValue> {
-			'account.recordtypeid' => new TDF.FieldDefaultValue('BAD ID')
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
+			'account.recordtypeid' => new TestDataFactory.FieldDefaultValue('BAD ID')
 		};
 		Set<String> definedRequiredFields = new Set<String>();
 
 		try{
 			dvProvider.managePersonAccountOrgEnabled(mapOfValues,'account.',definedRequiredFields);
 			System.assert (false);
-		}catch(TDF.TestDataFactoryException e) {
+		}catch(TestDataFactory.TestDataFactoryException e) {
 			System.assert (true);
 		}
 	}
 	@isTest
 	static void getDefinedSObjectRequiredFieldsTest(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		Set<String> definedRequiredFields = dvProvider.getDefinedSObjectRequiredFields(Case.SObjectType);
 		System.assertNotEquals(null,definedRequiredFields);
 	}
 	@isTest
 	static void getDefinedSObjectOptionalFieldsTest(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		Set<String> definedOptionalFields = dvProvider.getDefinedSObjectOptionalFields(Case.SObjectType);
 		System.assertNotEquals(null,definedOptionalFields);
 	}
 	@isTest
 	static void getRelationshipKeySetTest(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		System.assertEquals(new Set<String> {'contact'},dvProvider.getRelationshipKeySet(new Set<String> {'Contact.AccountId','Contact.Account.ParentId'},''));
 		System.assertEquals(new Set<String> {'account'},dvProvider.getRelationshipKeySet(new Set<String> {'Contact.Account.Id','Contact.Account.ParentId','Contact.AccountId'},'Contact.'));
 		System.assertEquals(new Set<String> {'parent','user'},dvProvider.getRelationshipKeySet(new Set<String> {'Contact.Account.User.Id','Contact.Account.Parent.Id','Contact.Account.Description'},'Contact.Account.'));
 	}
 	@isTest
 	static void convertMapValueTypesTest(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		Map<String,Object> testMap = new Map<String,Object> {
 			'Test0' => 0,
 			'  tEst1  ' => 1,
-			'TesT2' => new TDF.FieldDefaultValue(2),
+			'TesT2' => new TestDataFactory.FieldDefaultValue(2),
 			'test3' => new List<String> {'value1','value2'},
 			'test4' => new Map<String,Object> {
 				'Test1' => 'value1',
@@ -961,7 +962,7 @@ public class TDFTest {
 			'test6' => new List<SObject> {new User(Id = null),new User(Id = UserInfo.getUserId())},
 			'test7__r' => new User(Id = UserInfo.getUserId())
 		};
-		Map<String,TDF.IFieldDefaultValue> convertedMap = dvProvider.convertMapValueTypes('',testMap);
+		Map<String,TestDataFactory.IFieldDefaultValue> convertedMap = dvProvider.convertMapValueTypes('',testMap);
 		System.assert (convertedMap.keySet().contains('test0'));
 		System.assert (convertedMap.keySet().contains('test1'));
 		System.assert (convertedMap.keySet().contains('test2'));
@@ -978,7 +979,7 @@ public class TDFTest {
 	}
 	@isTest
 	static void convertSetToLowerCaseTest(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		Set<String> testSet = new Set<String> {
 			'Test0',
 			'  tEst1  ',
@@ -991,20 +992,20 @@ public class TDFTest {
 	}
 	@isTest
 	static void getSFDefaultPicklistValueTest(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		String defaultValue = dvProvider.getSFDefaultPicklistValue(Contract.fields.Status.getDescribe());
 		System.assertNotEquals(null,defaultValue);
 		System.assertNotEquals('',defaultValue);
 	}
 	@isTest
 	static void isDefaultValueRequiredTest(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		System.assertEquals(true,dvProvider.isDefaultValueRequired(Contact.fields.Lastname.getDescribe()));
 		System.assertEquals(false,dvProvider.isDefaultValueRequired(Contact.fields.OwnerId.getDescribe()));
 	}
 	@isTest
 	static void getDefaultValueTest(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		System.assertEquals(Blob.valueOf('0'),dvProvider.getDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.Body.getDescribe(),0)); // base64
 		System.assertEquals(false,dvProvider.getDefaultValue(Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe(),0)); // checkbox
 		System.assertEquals(0,dvProvider.getDefaultValue(Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe(),0)); // currency
@@ -1026,7 +1027,7 @@ public class TDFTest {
 	}
 	@isTest
 	static void getTypeDefaultValueTest(){
-		TDF.DefaultValueProvider dvProvider = new TDF.DefaultValueProvider();
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		System.assertEquals(Blob.valueOf('0'),dvProvider.getBase64DefaultValue(null,null,0));
 		System.assertEquals(false,dvProvider.getCheckboxDefaultValue(null,null,0));
 		System.assertEquals(0,dvProvider.getCurrencyDefaultValue(null,null,0));
@@ -1051,50 +1052,50 @@ public class TDFTest {
 	/************************* AutoFieldDefaultValue inner class tests *************************/
 	@isTest
 	static void getValueTest1(){
-		TDF.IFieldDefaultValue autoFieldDV = new TDF.AutoFieldDefaultValue();
+		TestDataFactory.IFieldDefaultValue autoFieldDV = new TestDataFactory.AutoFieldDefaultValue();
 		System.assertEquals(null,autoFieldDV.getValue(0));
 	}
 
 	/************************* FieldDefaultValue inner class tests *************************/
 	@isTest
 	static void getValueTest2(){
-		TDF.IFieldDefaultValue fieldDV1 = new TDF.FieldDefaultValue(null);
-		System.assertEquals(null,(new TDF.FieldDefaultValue(null)).getValue(0));
-		TDF.IFieldDefaultValue fieldDV2 = new TDF.FieldDefaultValue('test');
+		TestDataFactory.IFieldDefaultValue fieldDV1 = new TestDataFactory.FieldDefaultValue(null);
+		System.assertEquals(null,(new TestDataFactory.FieldDefaultValue(null)).getValue(0));
+		TestDataFactory.IFieldDefaultValue fieldDV2 = new TestDataFactory.FieldDefaultValue('test');
 		System.assertEquals('test',fieldDV2.getValue(0));
-		TDF.IFieldDefaultValue fieldDV3 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Attachment.SObjectType.getDescribe(),Attachment.fields.Body.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV3 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Attachment.SObjectType.getDescribe(),Attachment.fields.Body.getDescribe());
 		System.assertEquals(Blob.valueOf('0'),fieldDV3.getValue(0));
-		TDF.IFieldDefaultValue fieldDV4 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV4 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe());
 		System.assertEquals(false,fieldDV4.getValue(0));
-		TDF.IFieldDefaultValue fieldDV5 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV5 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe());
 		System.assertEquals(0,fieldDV5.getValue(0));
-		TDF.IFieldDefaultValue fieldDV6 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV6 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe());
 		System.assertEquals(Date.today(),fieldDV6.getValue(0));
-		TDF.IFieldDefaultValue fieldDV7 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.CreatedDate.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV7 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.CreatedDate.getDescribe());
 		System.assertEquals(Datetime.now(),fieldDV7.getValue(0));
-		TDF.IFieldDefaultValue fieldDV8 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Asset.SObjectType.getDescribe(),Asset.fields.Quantity.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV8 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Asset.SObjectType.getDescribe(),Asset.fields.Quantity.getDescribe());
 		System.assertEquals(0,fieldDV8.getValue(0));
-		TDF.IFieldDefaultValue fieldDV9 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV9 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe());
 		System.assertEquals('test0@email.com',fieldDV9.getValue(0));
-		TDF.IFieldDefaultValue fieldDV10 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.Id.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV10 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.Id.getDescribe());
 		System.assertEquals(null,fieldDV10.getValue(0));
-		TDF.IFieldDefaultValue fieldDV11 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Attachment.SObjectType.getDescribe(),Attachment.fields.BodyLength.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV11 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Attachment.SObjectType.getDescribe(),Attachment.fields.BodyLength.getDescribe());
 		System.assertEquals(0,fieldDV11.getValue(0));
-		TDF.IFieldDefaultValue fieldDV12 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Opportunity.SObjectType.getDescribe(),Opportunity.fields.Probability.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV12 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Opportunity.SObjectType.getDescribe(),Opportunity.fields.Probability.getDescribe());
 		System.assertEquals(0,fieldDV12.getValue(0));
-		TDF.IFieldDefaultValue fieldDV13 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Contact.SObjectType.getDescribe(),Contact.fields.Phone.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV13 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Contact.SObjectType.getDescribe(),Contact.fields.Phone.getDescribe());
 		System.assertEquals('01 23 45 67 89',fieldDV13.getValue(0));
-		TDF.IFieldDefaultValue fieldDV14 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV14 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe());
 		System.assertNotEquals('',fieldDV14.getValue(0));
-		TDF.IFieldDefaultValue fieldDV15 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Contact.SObjectType.getDescribe(),Contact.fields.FirstName.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV15 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Contact.SObjectType.getDescribe(),Contact.fields.FirstName.getDescribe());
 		System.assertEquals('test0',fieldDV15.getValue(0));
-		TDF.IFieldDefaultValue fieldDV16 = new TDF.FieldDefaultValue(new TDF.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.Description.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV16 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.Description.getDescribe());
 		System.assertEquals('test0',fieldDV16.getValue(0));
 	}
 	@isTest
 	static void getValueTest3(){
 		List<String> listValues = new List<String> {'test0','test1'};
-		TDF.ListFieldDefaultValue listFieldDV = new TDF.ListFieldDefaultValue(listValues);
+		TestDataFactory.ListFieldDefaultValue listFieldDV = new TestDataFactory.ListFieldDefaultValue(listValues);
 		System.assertEquals(2,listFieldDV.size());
 		System.assertEquals('test0',listFieldDV.getValue(0));
 		System.assertEquals('test1',listFieldDV.getValue(1));
@@ -1103,7 +1104,7 @@ public class TDFTest {
 	/* ============================================================================================= */
 	/* ======================================  inner test classes ================================== */
 	/* ============================================================================================= */
-	public class DefaultValueProviderOverride extends TDF.DefaultValueProvider {
+	public class DefaultValueProviderOverride extends TestDataFactory.DefaultValueProvider {
 		public override Set<String> defineSObjectRequiredFields(Schema.SObjectType sObjectType){
 			if(sObjectType == Contact.SObjectType) {
 				return new Set<String> {
@@ -1133,27 +1134,27 @@ public class TDFTest {
 	/************************* Util methods tests *************************/
 	@isTest
 	static void getFieldTokensMapTest(){
-		Map<String, Schema.SObjectField> accountFieldMap = TDF.getFieldTokensMap(Account.SObjectType);
+		Map<String, Schema.SObjectField> accountFieldMap = TestDataFactory.getFieldTokensMap(Account.SObjectType);
 		System.assertNotEquals(null,accountFieldMap);
-		System.assertEquals(1,TDF.mapOfFieldTokensMap.size());
+		System.assertEquals(1,TestDataFactory.mapOfFieldTokensMap.size());
 	}
 	@isTest
 	static void getFieldNameFromRelationshipNameTest(){
-		System.assertEquals('customrelationship__c',TDF.getFieldNameFromRelationshipName('customrelationshiP__r'));
-		System.assertEquals('standardrelationshipid',TDF.getFieldNameFromRelationshipName('standardRelationshiP'));
+		System.assertEquals('customrelationship__c',TestDataFactory.getFieldNameFromRelationshipName('customrelationshiP__r'));
+		System.assertEquals('standardrelationshipid',TestDataFactory.getFieldNameFromRelationshipName('standardRelationshiP'));
 	}
 	@isTest
 	static void mergeValueTest(){
-		System.assertEquals(null,TDF.mergeValue(null,'i','101'));
-		System.assertEquals('test101',TDF.mergeValue('test{!i}','i','101'));
-		System.assertEquals('test101',TDF.mergeValue('test{!iD}','id','101'));
-		System.assertEquals('test101',TDF.mergeValue('test{!Id}','ID','101'));
+		System.assertEquals(null,TestDataFactory.mergeValue(null,'i','101'));
+		System.assertEquals('test101',TestDataFactory.mergeValue('test{!i}','i','101'));
+		System.assertEquals('test101',TestDataFactory.mergeValue('test{!iD}','id','101'));
+		System.assertEquals('test101',TestDataFactory.mergeValue('test{!Id}','ID','101'));
 	}
 	@isTest
 	static void formatErrorMessageTest(){
-		System.assertEquals('test1',TDF.formatErrorMessage('test{0}',new List<String> {'1'},null));
-		System.assertEquals('test12',TDF.formatErrorMessage('test{0}{1}',new List<String> {'1','2'},null));
-		System.assertEquals('test1\nOriginal error message : Error',TDF.formatErrorMessage('test{0}',new List<String> {'1'},'Error'));
+		System.assertEquals('test1',TestDataFactory.formatErrorMessage('test{0}',new List<String> {'1'},null));
+		System.assertEquals('test12',TestDataFactory.formatErrorMessage('test{0}{1}',new List<String> {'1','2'},null));
+		System.assertEquals('test1\nOriginal error message : Error',TestDataFactory.formatErrorMessage('test{0}',new List<String> {'1'},'Error'));
 	}
 
 }

@@ -1,0 +1,26 @@
+engine:
+  source:
+    - path: "${workspaceFolder}/force-app/main/default/classes"
+  excludes:
+    - "*Test.cls"
+  title: Apex Documentation
+  subtitle: Test Data Factory
+  sortOrder: alpha
+  cleanDir: false
+  showTOCSnippets: true
+  scope:
+    - global
+    - public
+    - protected
+    - private
+    - webService
+    - testMethod
+  homePagePath: "${workspaceFolder}/docs/ApexDoxHome.html"
+  assets:
+    - "${workspaceFolder}/docs/assets/logo.png"
+    - "${workspaceFolder}/docs/assets/overview.png"
+  port: 9000
+docblock:
+  alignItems: false
+  spacious: true
+  omitDescriptionTag: true

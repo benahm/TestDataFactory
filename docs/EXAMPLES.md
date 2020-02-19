@@ -2,7 +2,7 @@
 ## More examples
 
 
-#### Methods of the TDF class :
+#### Methods of the TestDataFactory class :
 
 
 <table>
@@ -50,14 +50,14 @@
 
 ##### Create a Contact 
   ```apex
-  Contact con = (Contact)TDF.createSObject('Contact');
+  Contact con = (Contact)TestDataFactory.createSObject('Contact');
   ```
 
 ##### Create a Contact by providing a map to assign values to fields in the main and the related sObjects
 
 You can assign values to the main sObject or any related sObject, all sObjects will be created with the required fields auto-filled 
   ```apex
-  Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
+  Contact con = (Contact)TestDataFactory.createSObject('Contact', new Map<String,Object>{
     'FirstName' => 'Doe',
     'LastName' => 'John',
     'Account.Description' => 'Description of the related account',
@@ -67,11 +67,11 @@ You can assign values to the main sObject or any related sObject, all sObjects w
 
 ##### Auto-generate values for non required fields
 
-You can auto-generate a value for a non required field by assigning the TDF.DEFAULT_VALUE to it, in the Map of values
+You can auto-generate a value for a non required field by assigning the TestDataFactory.DEFAULT_VALUE to it, in the Map of values
   ```apex
-  Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
-    'Description' => TDF.DEFAULT_VALUE,
-    'Account.Phone' => TDF.DEFAULT_VALUE
+  Contact con = (Contact)TestDataFactory.createSObject('Contact', new Map<String,Object>{
+    'Description' => TestDataFactory.DEFAULT_VALUE,
+    'Account.Phone' => TestDataFactory.DEFAULT_VALUE
   });
   ```
 
@@ -79,8 +79,8 @@ You can auto-generate a value for a non required field by assigning the TDF.DEFA
 
 For example when creating a Contact you can force the Test Data Factory to create a related Account, even if an Account is not required
   ```apex
-  Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
-    'AccountId' => TDF.DEFAULT_VALUE
+  Contact con = (Contact)TestDataFactory.createSObject('Contact', new Map<String,Object>{
+    'AccountId' => TestDataFactory.DEFAULT_VALUE
   });
   ```
 
@@ -88,7 +88,7 @@ For example when creating a Contact you can force the Test Data Factory to creat
 
 You can provide a sub map of values for a related sObject
   ```apex
-  Contact con = (Contact)TDF.createSObject('Contact', new Map<String,Object>{
+  Contact con = (Contact)TestDataFactory.createSObject('Contact', new Map<String,Object>{
     'Description' => 'Contact description',
     'Account' => new Map<String,Object>{
       'Name' => 'Account Name',
@@ -101,7 +101,7 @@ You can provide a sub map of values for a related sObject
 
 You can provide an Id for a required related sObject, to force the use of that Id and prevent the instantiation of the related sObject
   ```apex
-  User u = (User)TDF.createSObject('User', new Map<String,Object>{
+  User u = (User)TestDataFactory.createSObject('User', new Map<String,Object>{
     'ProfileId' => UserInfo.getProfileId()
   });
   ```
@@ -112,14 +112,14 @@ You can provide an Id for a required related sObject, to force the use of that I
 
 Create & insert 10 contact sObject instances
   ```apex
-  List<Contact> conList = TDF.createSObjectList('Contact',true,10);
+  List<Contact> conList = TestDataFactory.createSObjectList('Contact',true,10);
   ```
 
 ##### Create and insert a list of Users using the index merge value
 
 The following code creates 10 users with different usernames and nicknames 
   ```apex
-  List<User> uList = TDF.createSObjectList('User', new Map<String,Object>{
+  List<User> uList = TestDataFactory.createSObjectList('User', new Map<String,Object>{
     'ProfileId' => UserInfo.getProfileId(),
     'Username' => 'test{!index}@mytestdomain.developer',
     'CommunityNickname' => 'test{!index}'
@@ -131,7 +131,7 @@ The following code creates 10 users with different usernames and nicknames
 
 Create a list of 5 Account sObjects with different names and a same description
   ```apex
-  List<Account> accList = TDF.createSObjectList('Account', new Map<String,Object>{
+  List<Account> accList = TestDataFactory.createSObjectList('Account', new Map<String,Object>{
     'Name' => new List<String>{'Alex','Jack','Susie','Sarah','Paul'}
     'Description' => 'Same description'
   },5);
@@ -142,13 +142,13 @@ Create a list of 5 Account sObjects with different names and a same description
 
 Create a list of Acount sObjects and link them to a list of 10 Case sObjects
   ```apex
-  List<Account> accList = TDF.createSObjectList('Account', new Map<String,Object>{
+  List<Account> accList = TestDataFactory.createSObjectList('Account', new Map<String,Object>{
     'Description' => 'Account Description'
   },10);
   ```
   
   ```apex
-  List<Case> caseList = TDF.createSObjectList('Case', new Map<String,Object>{
+  List<Case> caseList = TestDataFactory.createSObjectList('Case', new Map<String,Object>{
     'Account' => AccList,
     'Contact.Account' => AccList
   },10);
