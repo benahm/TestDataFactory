@@ -1,1 +1,1 @@
-classes/*.cls linguist-language=Apex
+force-app/main/default/classes/*.cls linguist-language=Apex
