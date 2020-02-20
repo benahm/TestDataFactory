@@ -16,7 +16,7 @@ Performance tests executed in a Developer Org
 Create one instance of the Contact sObject
 
   ```apex
-  Contact con = (Contact)TestDataFactory.createSObject('Contact',true);
+  Contact con = (Contact)TestDataFactory.createSObject('Contact');
   ```
 
 
@@ -40,7 +40,7 @@ LIMIT_USAGE_… Number of Mobile Apex push calls: 0 out of 10
 Create 10 instances of the Contact sObject
 
   ```apex
-  List<Contact> conList = TestDataFactory.createSObjectList('Contact',true,10);
+  List<Contact> conList = TestDataFactory.createSObjectList('Contact',10);
   ```
 
 
@@ -66,7 +66,7 @@ Create one instance of the Contact sObject and its related Account sObject
   ```apex
   Contact con = (Contact)TestDataFactory.createSObject('Contact',new Map<String,Object>{
 	  'Account.Description' => 'Create the related Account'
-  },true);
+  });
   ```
 
 
@@ -92,7 +92,7 @@ Create 10 instances of the Contact sObject and its related Account sObjects
   ```apex
   List<Contact> conList = TestDataFactory.createSObjectList('Contact',new Map<String,Object>{
     'Account.Description' => 'Create the related Account'
-  },true,10);
+  },10);
   ```
 
 
@@ -121,7 +121,7 @@ Create 200 instances of the Case sObject and its related Account, Contact and Co
     'Account.Description' => 'Create the related Account',
     'Contact.Description' => 'Create the related Contact',
     'Contact.Account.Description' => 'Create the related Account for the related Contact'
-  },true,200);
+  },200);
   ```
 
 
@@ -149,7 +149,7 @@ Create 1000 instances of the Case sObject and its related Account, Contact and C
     'Account.Description' => 'Create the related Account',
     'Contact.Description' => 'Create the related Contact',
     'Contact.Account.Description' => 'Create the related Account for the related Contact'
-  },true,1000);
+  },1000);
   ```
 
 
