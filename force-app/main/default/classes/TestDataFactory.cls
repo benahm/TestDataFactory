@@ -1,21 +1,19 @@
-/**
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
- *  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
- *  THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- *  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- *  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-**/
 
-
-/**
-* @author benahm
-* @date 2017
-* @description Apex Test Data Factory 
-* @group TestDataFactory
-*/
+ //  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ //  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+ //  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
+ //  THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+ //  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ //  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ //  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ /**
+ * @description Apex Test Data Factory 
+ * @author benahm
+ * @since 2017
+ * @group Apex Test Data Factory
+ */
 @IsTest
 public class TestDataFactory {
 
@@ -47,7 +45,7 @@ public class TestDataFactory {
     @TestVisible
     private static Boolean isPersonAccountEnabled{
         get{
-            return Account.SObjectType.getDescribe().hasSubtypes;
+            return Account.SObjectType.getDescribe(SObjectDescribeOptions.DEFERRED).hasSubtypes;
         }
     }
 
@@ -437,7 +435,7 @@ public class TestDataFactory {
                 throw new TestDataFactoryException(formatErrorMessage(ERR_NOT_FOUND_SOBJECT,new List<String>{},''));
             }
             this.sObjectType = sObjectType;
-            this.sObjectName = sObjectType.getDescribe().getName();
+            this.sObjectName = sObjectType.getDescribe(SObjectDescribeOptions.DEFERRED).getName();
             this.sObjMgr = new SObjectManager(this.sObjectName);
         }
 
@@ -680,7 +678,7 @@ public class TestDataFactory {
         private Id accountDefaultRecordTypeId {
             get{
                 if(accountDefaultRecordTypeId == null){
-                    Schema.DescribeSObjectResult dsr = Account.SObjectType.getDescribe();
+                    Schema.DescribeSObjectResult dsr = Account.SObjectType.getDescribe(SObjectDescribeOptions.DEFERRED);
                     for(Schema.RecordTypeInfo rti : dsr.getRecordTypeInfos()) {
                         if(rti.isDefaultRecordTypeMapping()) {
                             return rti.getRecordTypeId();
@@ -718,7 +716,7 @@ public class TestDataFactory {
         */
         @TestVisible
         private void generateDefaultMapOfValues(Schema.SObjectType sObjectType, Map<String,IFieldDefaultValue> mapOfValues, String prefix){
-            Schema.DescribeSObjectResult sObjectDesc = sObjectType.getDescribe();
+            Schema.DescribeSObjectResult sObjectDesc = sObjectType.getDescribe(SObjectDescribeOptions.DEFERRED);
             Map<String, Schema.SObjectField> fieldsMap = getFieldTokensMap(sObjectType); // get the field Tokens map
             Set<String> keySetOverride = mapOfValues.keySet();
             Set<String> relationshipKeySet = getRelationshipKeySet(keySetOverride,prefix);
@@ -1407,7 +1405,7 @@ public class TestDataFactory {
         if(mapOfFieldTokensMap.containsKey(sObjectType)){
             return mapOfFieldTokensMap.get(sObjectType);
         }else {
-            Map<String, Schema.SObjectField> fieldTokensMap = sObjectType.getDescribe().fields.getMap();
+            Map<String, Schema.SObjectField> fieldTokensMap = sObjectType.getDescribe(SObjectDescribeOptions.DEFERRED).fields.getMap();
             mapOfFieldTokensMap.put(sObjectType,fieldTokensMap);
             return fieldTokensMap;
         }
