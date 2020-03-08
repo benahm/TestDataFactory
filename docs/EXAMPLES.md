@@ -115,7 +115,7 @@ Create & insert 10 contacts
   List<Contact> conList = TestDataFactory.createSObjectList('Contact',10);
   ```
 
-##### Create and insert a list of Users using the index merge value
+##### Create and insert a list of users using the index merge value
 
 The following code creates 10 users with different usernames and nicknames 
   ```apex
@@ -132,7 +132,7 @@ The following code creates 10 users with different usernames and nicknames
 Create a list of 5 Account sObjects with different names and a same description
   ```apex
   List<Account> accList = TestDataFactory.createSObjectList('Account', new Map<String,Object>{
-    'Name' => new List<String>{'Alex','Jack','Susie','Sarah','Paul'}
+    'Name' => new List<String>{'Google','Amazon','Facebook','Apple','Microsoft'}
     'Description' => 'Same description'
   },5);
   ```
