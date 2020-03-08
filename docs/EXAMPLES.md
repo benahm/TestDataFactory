@@ -110,7 +110,7 @@ You can provide a sub map of values for a related sObject
 
 ##### Create and insert a list of Contact sObjects
 
-Create & insert 10 contact sObject instances
+Create & insert 10 contacts
   ```apex
   List<Contact> conList = TestDataFactory.createSObjectList('Contact',10);
   ```
