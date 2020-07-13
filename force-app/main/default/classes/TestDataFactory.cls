@@ -45,7 +45,7 @@ public class TestDataFactory {
     @TestVisible
     private static Boolean isPersonAccountEnabled{
         get{
-            return Account.SObjectType.getDescribe(SObjectDescribeOptions.DEFERRED).hasSubtypes;
+            return Schema.SObjectType.Account.fields.getMap().containsKey( 'isPersonAccount' );
         }
     }
 
