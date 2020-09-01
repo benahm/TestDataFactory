@@ -20,7 +20,7 @@
   <td>
 <pre lang='apex'>  
 * createSObject(String sObjectName) // create an sObject with all required fields auto-filled and insert all sObjects
-* createSObject(String sObjectName,Boolean doInsert) // create an sObject with all required fields auto-filled and insert all sObjects if the doInsert = true
+* createSObject(String sObjectName, Boolean doInsert) // create an sObject with all required fields auto-filled and insert all sObjects if the doInsert = true
 * createSObject(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride) // create an sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all sObjects if the doInsert = true
 * createSObject(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride, Boolean doInsert) // create an sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all sObjects if the doInsert = true
 
