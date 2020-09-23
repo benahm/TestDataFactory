@@ -20,7 +20,7 @@
   <td>
 <pre lang='apex'>  
 * createSObject(String sObjectName) // create an sObject with all required fields auto-filled and insert all sObjects
-* createSObject(String sObjectName,Boolean doInsert) // create an sObject with all required fields auto-filled and insert all sObjects if the doInsert = true
+* createSObject(String sObjectName, Boolean doInsert) // create an sObject with all required fields auto-filled and insert all sObjects if the doInsert = true
 * createSObject(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride) // create an sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all sObjects if the doInsert = true
 * createSObject(String sObjectName, Map&lt;String,Object&gt; mapValuesOverride, Boolean doInsert) // create an sObject with all required fields auto-filled, assign the values defined in the mapValuesOverride and insert all sObjects if the doInsert = true
 
@@ -83,6 +83,15 @@ For example when creating a Contact you can force the Test Data Factory to creat
     'AccountId' => TestDataFactory.DEFAULT_VALUE
   });
   ```
+  
+##### Provide an Id for a required related sObject to avoid its instantiation
+
+You can provide an Id for a required related sObject, to force the use of that Id and prevent the instantiation of the related sObject
+  ```apex
+  User u = (User)TestDataFactory.createSObject('User', new Map<String,Object>{
+    'ProfileId' => UserInfo.getProfileId()
+  });
+  ```
 
 ##### Provide a map for a related sObject
 
@@ -97,25 +106,16 @@ You can provide a sub map of values for a related sObject
   });
   ```
 
-##### Provide an Id for a required related sObject to avoid its instantiation
-
-You can provide an Id for a required related sObject, to force the use of that Id and prevent the instantiation of the related sObject
-  ```apex
-  User u = (User)TestDataFactory.createSObject('User', new Map<String,Object>{
-    'ProfileId' => UserInfo.getProfileId()
-  });
-  ```
-
 #### Create a list of sObjects:
 
 ##### Create and insert a list of Contact sObjects
 
-Create & insert 10 contact sObject instances
+Create & insert 10 contacts
   ```apex
-  List<Contact> conList = TestDataFactory.createSObjectList('Contact',true,10);
+  List<Contact> conList = TestDataFactory.createSObjectList('Contact',10);
   ```
 
-##### Create and insert a list of Users using the index merge value
+##### Create and insert a list of users using the index merge value
 
 The following code creates 10 users with different usernames and nicknames 
   ```apex
@@ -132,7 +132,7 @@ The following code creates 10 users with different usernames and nicknames
 Create a list of 5 Account sObjects with different names and a same description
   ```apex
   List<Account> accList = TestDataFactory.createSObjectList('Account', new Map<String,Object>{
-    'Name' => new List<String>{'Alex','Jack','Susie','Sarah','Paul'}
+    'Name' => new List<String>{'Google','Amazon','Facebook','Apple','Microsoft'}
     'Description' => 'Same description'
   },5);
   ```
