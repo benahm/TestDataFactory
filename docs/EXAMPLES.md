@@ -132,7 +132,7 @@ The following code creates 10 users with different usernames and nicknames
 Create a list of 5 Account sObjects with different names and a same description
   ```apex
   List<Account> accList = TestDataFactory.createSObjectList('Account', new Map<String,Object>{
-    'Name' => new List<String>{'Google','Amazon','Facebook','Apple','Microsoft'}
+    'Name' => new List<String>{'Google','Amazon','Facebook','Apple','Microsoft'},
     'Description' => 'Same description'
   },5);
   ```
