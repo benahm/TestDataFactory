@@ -145,6 +145,7 @@ Create a list of 100 Account sObjects with list of 5 different names that will l
     'Name' => new List<String>{'Google','Amazon','Facebook','Apple','Microsoft'},
     'Description' => 'Same description'
   },100);
+  ```
 
 ##### Create 10 Cases related to 10 Accounts
 
