@@ -3,18 +3,20 @@
         {
             "path": "force-app",
             "package": "ApexTestDataFactory",
-            "versionName": "ver 3.1",
-            "versionNumber": "3.1.0.NEXT",
+            "versionName": "ver 3.2",
+            "versionNumber": "3.2.0.NEXT",
             "versionDescription": "Apex Test Data Factory",
             "default": true
         }
     ],
     "namespace": "",
     "sfdcLoginUrl": "https://login.salesforce.com",
-    "sourceApiVersion": "51.0",
+    "sourceApiVersion": "52.0",
     "packageAliases": {
         "ApexTestDataFactory": "0Ho1n000000TN3pCAG",
         "ApexTestDataFactory@3.0.0-2": "04t1n000002aDxFAAU",
-        "ApexTestDataFactory@3.1.0-1": "04t1n000002aDxKAAU"
+        "ApexTestDataFactory@3.1.0-1": "004t1n000002WsK5AAK",
+        "ApexTestDataFactory@3.1.0-2": "04t1n000002WsK5AAK",
+        "ApexTestDataFactory@3.2.0-1": "04t1n000002WsK5AAK"
     }
 }

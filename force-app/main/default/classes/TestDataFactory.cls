@@ -1349,7 +1349,7 @@ public class TestDataFactory {
         * @return value at recordIndex position of list field default values
         */
         public Object getValue(Integer recordIndex){
-                return listValues.get(recordIndex);
+            return listValues.get(Math.mod(recordIndex,listValues.size()));
         }
 
         /**

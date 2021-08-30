@@ -37,31 +37,27 @@ Inserted data*:
 
 
 
-  \* *in a vanilla org*
+  \* *in a non-customized org*
   
   
   ### Install :
-  Click on the package image to install the TestDataFactory Unlocked Package 🔓📦
-  
-  <p align="center">
-    <a href="https://test.salesforce.com/packaging/installPackage.apexp?p0=04t1n000002aDxKAAU">
-      <img src ="/docs/assets/package.png" width="100"/>
-    </a>
-  </p>
+
+Get the ``TestDataFactory`` class by installing the [TestDataFactory Unlocked Package](https://test.salesforce.com/packaging/installPackage.apexp?p0=004t1n000002WsK5AAK) 🔓📦 in your org using the UI or by running the following sfdx command
+
+    sfdx force:package:install --wait 10 --publishwait 10 --package 004t1n000002WsK5AAK -r -u AliasOfYourOrg
 
   
   ### More :
-* [Usage](/docs/USAGE.md)
-* [Examples](/docs/EXAMPLES.md)
-* [Core Concepts](/docs/CONCEPT.md)
-* [Performance](/docs/PERFORMANCE.md)
-* [Customize](/docs/CUSTOMIZE.md)
-* [Limitations](/docs/LIMITATIONS.md)
-* [Contribute](/docs/CONTRIBUTE.md)
+* [Examples 💻](/docs/EXAMPLES.md)
+* [Core Concepts 💡](/docs/CONCEPT.md)
+* [Performance 🚀](/docs/PERFORMANCE.md)
+* [Customize ⚙️](/docs/CUSTOMIZE.md)
+* [Limitations 🛑](/docs/LIMITATIONS.md)
+* [Contribute 👐](/docs/CONTRIBUTE.md)
 
 
 
-### [Releases](https://github.com/benahm/TestDataFactory/releases)
-### [License](LICENSE)
+### [Releases 📦](https://github.com/benahm/TestDataFactory/releases)
+### [License 🔰](LICENSE)
 
 Apache 2.0

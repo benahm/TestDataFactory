@@ -1,4 +1,4 @@
-## Customize
+## Customize ⚙️
 
 * [Extend TestDataFactory.DefaultValueProvider class](#extend-TestDataFactorydefaultvalueprovider-class)
 * [Implement TestDataFactory.IFieldDefaultValue interface](#implement-TestDataFactoryifielddefaultvalue-interface)
@@ -151,4 +151,4 @@ List<Case> caseList = TestDataFactory.createSObjectList('Case',new Map<String,Ob
   
 ## Next
 
-* [Contribute](CONTRIBUTE.md)
+* [Contribute 👐](CONTRIBUTE.md)

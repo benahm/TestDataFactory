@@ -340,22 +340,27 @@ public class TestDataFactory_Test {
 		System.assertEquals('test4',sObjList.get(4).Lastname);
 	}
 	/**
-	 * @description create a list of 5 Contact sobject instances (insert flag = true) with a list for lastname in the map of values
+	 * @description create a list of 10 Contact sobject instances (insert flag = true) with a list for lastname in the map of values
 	 */
 	@isTest
 	static void createSObjectListTest5(){
 		Test.startTest();
 		List<Contact> sObjList = TestDataFactory.createSObjectList('Contact',new Map<String,Object> {
 			'Lastname' => new List<String> {'test4','test3','test2','test1','test0'}
-		},5,false);
+		},10,false);
 		Test.stopTest();
 		System.assertNotEquals(null,sObjList);
-		System.assertEquals(5,sObjList.size());
+		System.assertEquals(10,sObjList.size());
 		System.assertEquals('test4',sObjList.get(0).Lastname);
 		System.assertEquals('test3',sObjList.get(1).Lastname);
 		System.assertEquals('test2',sObjList.get(2).Lastname);
 		System.assertEquals('test1',sObjList.get(3).Lastname);
 		System.assertEquals('test0',sObjList.get(4).Lastname);
+		System.assertEquals('test4',sObjList.get(5).Lastname);
+		System.assertEquals('test3',sObjList.get(6).Lastname);
+		System.assertEquals('test2',sObjList.get(7).Lastname);
+		System.assertEquals('test1',sObjList.get(8).Lastname);
+		System.assertEquals('test0',sObjList.get(9).Lastname);
 	}
 	/**
 	 * @description create a list of 2 Account sobject instances (insert flag = true)
@@ -624,12 +629,9 @@ public class TestDataFactory_Test {
 
 		System.assertEquals('Test',sObjFactory.getFieldValueFromMapOfValues(mapOfValues,'Lastname',0));
 		System.assertEquals('Test',sObjFactory.getFieldValueFromMapOfValues(mapOfValues,'Description',0));
-		try{
-			sObjFactory.getFieldValueFromMapOfValues(mapOfValues,'Description',1);
-			System.assert (false);
-		}catch(TestDataFactory.TestDataFactoryException e) {
-			System.assert (true);
-		}
+		System.assertEquals('Test',sObjFactory.getFieldValueFromMapOfValues(mapOfValues,'Description',1));
+		System.assertEquals('Test',sObjFactory.getFieldValueFromMapOfValues(mapOfValues,'Description',2));
+		System.assertEquals('Test',sObjFactory.getFieldValueFromMapOfValues(mapOfValues,'Description',3));
 	}
 	@isTest
 	static void putSObjectTest(){

@@ -1,5 +1,5 @@
 
-## More examples
+## More examples 💻
 
 
 #### Methods of the TestDataFactory class :
@@ -137,6 +137,14 @@ Create a list of 5 Account sObjects with different names and a same description
   },5);
   ```
 
+##### Create 100 Accounts with a list of 5 different names 
+
+Create a list of 100 Account sObjects with list of 5 different names that will loop and a same description 
+  ```apex
+  List<Account> accList = TestDataFactory.createSObjectList('Account', new Map<String,Object>{
+    'Name' => new List<String>{'Google','Amazon','Facebook','Apple','Microsoft'},
+    'Description' => 'Same description'
+  },100);
 
 ##### Create 10 Cases related to 10 Accounts
 
@@ -156,4 +164,4 @@ Create a list of Acount sObjects and link them to a list of 10 Case sObjects
 
 ## Next
 
-* [Core Concepts](CONCEPT.md)
+* [Core Concepts 💡](CONCEPT.md)
