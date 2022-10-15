@@ -956,7 +956,7 @@ public class TestDataFactory {
                 return textValue;
             }
             if (textValue?.length() > fieldDesc?.getLength()) {
-                textValue = textValue.substring(0, fieldDesc?.getLength());
+                textValue = textValue.substring(textValue.length() - fieldDesc?.getLength());
             }
             return textValue;
         }
