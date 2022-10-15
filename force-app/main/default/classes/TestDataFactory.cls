@@ -945,6 +945,23 @@ public class TestDataFactory {
         }
 
         /**
+        * @description cut String value to its length
+        * @param fieldDesc (Schema.DescribeFieldResult): field describe information
+        * @param textValue (String): String field value
+        * @return String field value with its length 
+        */
+        @TestVisible
+        private String getSubstringByLength(Schema.DescribeFieldResult fieldDesc, String textValue){
+            if (fieldDesc == null || textValue == null) {
+                return textValue;
+            }
+            if (textValue?.length() > fieldDesc?.getLength()) {
+                textValue = textValue.substring(0, fieldDesc?.getLength());
+            }
+            return textValue;
+        }
+
+        /**
         * @description test if a field requires a default value
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @return true if a default value is required
@@ -1191,7 +1208,8 @@ public class TestDataFactory {
         * @return text default value
         */
         public virtual String getTextDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
-            return 'test'+recordIndex.format();
+            String textValue = 'test' + recordIndex.format();
+            return getSubstringByLength(fieldDesc, textValue);
         }
         /**
         * @description get the default value for TextArea field type
