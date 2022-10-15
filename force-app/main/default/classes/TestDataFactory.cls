@@ -959,7 +959,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description test if a field is unique
+        * @description check if a field is unique
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @return true if a value should be unique
         */
@@ -971,7 +971,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description return the unique 6 digit Integer
+        * @description return the unique 6 digits Integer
         * @return unique Integer
         */
         private Integer getUniqueNumber() {
