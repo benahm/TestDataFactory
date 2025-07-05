@@ -149,7 +149,7 @@ Create a list of 100 Account sObjects with list of 5 different names that will l
 
 ##### Create 10 Cases related to 10 Accounts
 
-Create a list of Acount sObjects and link them to a list of 10 Case sObjects
+Create a list of Account sObjects and link them to a list of 10 Case sObjects
   ```apex
   List<Account> accList = TestDataFactory.createSObjectList('Account', new Map<String,Object>{
     'Description' => 'Account Description'
