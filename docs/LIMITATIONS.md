@@ -2,10 +2,10 @@
 ## Limitations 🛑
 
 
-#### Default values for picklist/mulipicklist fields 
+#### Default values for picklist/multipicklist fields
 
 
-For an sObject that has multiple record types, TestDataFactory will assign the default picklist value and if the default value is not assigned to the used recrod type, you will get the error below
+For an sObject that has multiple record types, TestDataFactory will assign the default picklist value and if the default value is not assigned to the used record type, you will get the error below
 
 *Example: Contact has multiple record types and the field CustomField__c has 'TEST' value as default, but it's not assigned to the record types*
 	
