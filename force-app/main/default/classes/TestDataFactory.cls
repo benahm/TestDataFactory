@@ -1025,7 +1025,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description get the Saleforce default value for given picklist
+        * @description get the Salesforce default value for given picklist
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @return The picklist default value on Salesforce
         */
