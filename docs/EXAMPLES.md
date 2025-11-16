@@ -129,7 +129,7 @@ The following code creates 10 users with different usernames and nicknames
 
 ##### Create 5 Accounts with different names
 
-Create a list of 5 Account sObjects with different names and a same description
+Create a list of 5 Account sObjects with different names and the same description
   ```apex
   List<Account> accList = TestDataFactory.createSObjectList('Account', new Map<String,Object>{
     'Name' => new List<String>{'Google','Amazon','Facebook','Apple','Microsoft'},
@@ -139,7 +139,7 @@ Create a list of 5 Account sObjects with different names and a same description
 
 ##### Create 100 Accounts with a list of 5 different names 
 
-Create a list of 100 Account sObjects with list of 5 different names that will loop and a same description 
+Create a list of 100 Account sObjects while cycling through five different names with the same description
   ```apex
   List<Account> accList = TestDataFactory.createSObjectList('Account', new Map<String,Object>{
     'Name' => new List<String>{'Google','Amazon','Facebook','Apple','Microsoft'},
@@ -158,8 +158,8 @@ Create a list of Account sObjects and link them to a list of 10 Case sObjects
   
   ```apex
   List<Case> caseList = TestDataFactory.createSObjectList('Case', new Map<String,Object>{
-    'Account' => AccList,
-    'Contact.Account' => AccList
+    'Account' => accList,
+    'Contact.Account' => accList
   },10);
   ```
 

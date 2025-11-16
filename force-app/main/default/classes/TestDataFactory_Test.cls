@@ -40,7 +40,7 @@ public class TestDataFactory_Test {
 		System.assertNotEquals(null,sObj);
 	}
 	/**
-	 * @description create a Case sObject instance (insert flag = false) and passing an complex map of values
+	 * @description create a Case sObject instance (insert flag = false) and passing a complex map of values
 	 */
 	@isTest
 	static void createSObjectTest3(){
@@ -56,7 +56,7 @@ public class TestDataFactory_Test {
 		System.assertEquals('test',cse.Contact.Account.Parent.Name);
 	}
 	/**
-	 * @description create a Case sObject instance (insert flag = true) and passing an complex map of values and DEFAULT_VALUE
+	 * @description create a Case sObject instance (insert flag = true) and passing a complex map of values and DEFAULT_VALUE
 	 */
 	@isTest
 	static void createSObjectTest4(){
@@ -134,7 +134,7 @@ public class TestDataFactory_Test {
 		System.assertEquals(UserInfo.getUserId(),acc.OwnerId);
 	}
 	/**
-	 * @description create an Account sObject instance (insert flag = false) that trigger the creation of a user, by pass an username & profileId in the map of values
+	 * @description create an Account sObject instance (insert flag = false) that triggers the creation of a user by bypassing a username and ProfileId in the map of values
 	 */
 	@isTest
 	static void createSObjectTest8(){
@@ -148,7 +148,7 @@ public class TestDataFactory_Test {
 		System.assertEquals(UserInfo.getProfileId(),((User)acc.Owner).ProfileId);
 	}
 	/**
-	 * @description create an sobject that does not exists
+	 * @description create an sObject that does not exist
 	 */
 	@isTest
 	static void createSObjectTest9(){
@@ -190,7 +190,7 @@ public class TestDataFactory_Test {
 		}
 	}
 	/**
-	 * @description create an Account sobject instance in a Person Account enabled org the record type should be set automatically
+	 * @description create an Account sObject instance in a Person Account enabled org so the record type should be set automatically
 	 */
 	@isTest
 	static void createSObjectTest12(){
@@ -208,7 +208,7 @@ public class TestDataFactory_Test {
 		}
 	}
 	/**
-	 * @description create an Account sobject instance in a Person Account enabled org by passing a bad record type id
+	 * @description create an Account sObject instance in a Person Account enabled org by passing a bad RecordTypeId
 	 */
 	@isTest
 	static void createSObjectTest13(){
@@ -227,7 +227,7 @@ public class TestDataFactory_Test {
 		}
 	}
 	/**
-	 * @description create a Contact sobject instance with a bad field name in the map of values
+	 * @description create a Contact sObject instance with a bad field name in the map of values
 	 */
 	@isTest
 	static void createSObjectTest14(){
@@ -243,7 +243,7 @@ public class TestDataFactory_Test {
 		}
 	}
 	/**
-	 * @description create a Contact sobject instance with a bad field name in the map of values
+	 * @description create a Contact sObject instance with a bad field name in the map of values
 	 */
 	@isTest
 	static void createSObjectTest15(){
@@ -259,7 +259,7 @@ public class TestDataFactory_Test {
 		}
 	}
 	/**
-	 * @description create a Contact sobject instance with a bad value for an id in the map of values
+	 * @description create a Contact sObject instance with a bad value for an id in the map of values
 	 */
 	@isTest
 	static void createSObjectTest16(){
@@ -275,7 +275,7 @@ public class TestDataFactory_Test {
 		}
 	}
 	/**
-	 * @description create a Contact sobject instance with a bad type of value in the map of values
+	 * @description create a Contact sObject instance with a bad type of value in the map of values
 	 */
 	@isTest
 	static void createSObjectTest17(){
@@ -291,7 +291,7 @@ public class TestDataFactory_Test {
 		}
 	}
 	/**
-	 * @description create a list of 5 Contact sobject instances (insert flag = false)
+	 * @description create a list of 5 Contact sObject instances (insert flag = false)
 	 */
 	@isTest
 	static void createSObjectListTest1(){
@@ -302,7 +302,7 @@ public class TestDataFactory_Test {
 		System.assertEquals(5,sObjList.size());
 	}
 	/**
-	 * @description create a list of 200 Contact sobject instances (insert flag = true)
+	 * @description create a list of 200 Contact sObject instances (insert flag = true)
 	 */
 	@isTest
 	static void createSObjectListTest2(){
@@ -313,7 +313,7 @@ public class TestDataFactory_Test {
 		System.assertEquals(200,sObjList.size());
 	}
 	/**
-	 * @description create a list of 200 Contact sobject instances (insert flag = false) with an empty map of values
+	 * @description create a list of 200 Contact sObject instances (insert flag = false) with an empty map of values
 	 */
 	@isTest
 	static void createSObjectListTest3(){
@@ -324,7 +324,7 @@ public class TestDataFactory_Test {
 		System.assertEquals(5,sObjList.size());
 	}
 	/**
-	 * @description create a list of 5 Contact sobject instances (insert flag = true) with an empty map of values
+	 * @description create a list of 5 Contact sObject instances (insert flag = true) with an empty map of values
 	 */
 	@isTest
 	static void createSObjectListTest4(){
@@ -340,7 +340,7 @@ public class TestDataFactory_Test {
 		System.assertEquals('test4',sObjList.get(4).Lastname);
 	}
 	/**
-	 * @description create a list of 10 Contact sobject instances (insert flag = true) with a list for lastname in the map of values
+	 * @description create a list of 10 Contact sObject instances (insert flag = true) with a list for lastname in the map of values
 	 */
 	@isTest
 	static void createSObjectListTest5(){
@@ -363,8 +363,8 @@ public class TestDataFactory_Test {
 		System.assertEquals('test0',sObjList.get(9).Lastname);
 	}
 	/**
-	 * @description create a list of 2 Account sobject instances (insert flag = true)
-	 *              create a list of 2 Contact sobject instances with the created account in the map of values
+	 * @description create a list of 2 Account sObject instances (insert flag = true)
+	 *              create a list of 2 Contact sObject instances with the created account in the map of values
 	 */
 	@isTest
 	static void createSObjectListTest6(){
@@ -386,7 +386,7 @@ public class TestDataFactory_Test {
 		System.assertEquals(accList.get(1).Id,cseList.get(1).Contact.AccountId);
 	}
 	/**
-	 * @description create a list of 5 Account sobject instances (insert flag = true) that trigger the create of a list of users for the ower field
+	 * @description create a list of 5 Account sObject instances (insert flag = true) that triggers the creation of a list of users for the owner field
 	 */
 	@isTest
 	static void createSObjectListTest7(){
@@ -417,7 +417,7 @@ public class TestDataFactory_Test {
 
 	/************************* SObjectManager tests *************************/
 	/**
-	 * @description getting the main sobject list from the sObject Manager
+	 * @description getting the main sObject list from the sObject Manager
 	 */
 	@isTest
 	static void getMainSObjectListTest(){

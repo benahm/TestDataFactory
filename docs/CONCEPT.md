@@ -19,7 +19,7 @@ TestDataFactory internal classes list
 | **TestDataFactory**                               | The containing class                                  |
 | **ObjectFactory**                     | Instantiate the sObject and all the related sObjects  |
 | **ObjectManager**                     | Contains all the sObjects instances, insertAll method |
-| **DefaultValueProvider**              | Virtual class that provide all default field values   |
+| **DefaultValueProvider**              | Virtual class that provides all default field values   |
 | **AutoFieldDefaultValue**             | Wrapper of an auto generated default value            |
 | **FieldDefaultValue**                 | Wrapper of a field default value                      |
 | **ListFieldDefaultValue**             | Wrapper of a list of field default values             |

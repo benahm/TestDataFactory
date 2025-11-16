@@ -178,7 +178,7 @@ public class TestDataFactory {
     }
 
     /**
-    * @description class SObjectManager : manage all the sObjects instances and the insertion to the salesforce DB
+    * @description class SObjectManager : manages all the sObject instances and handles the insertion into Salesforce
     */
     public class SObjectManager implements ISObjectManager{
         
@@ -952,7 +952,7 @@ public class TestDataFactory {
         @TestVisible
         private Boolean isDefaultValueRequired(Schema.DescribeFieldResult fieldDesc){
             return 
-                !fieldDesc.isDefaultedOnCreate() // does not have a defaut value on creation
+                !fieldDesc.isDefaultedOnCreate() // does not have a default value on creation
                 && !fieldDesc.isAutoNumber() // is not an auto number
                 && !fieldDesc.isNillable() // is required
                 && fieldDesc.isCreateable(); // value can be set on creation 

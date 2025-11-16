@@ -42,7 +42,7 @@ public class MyDefaultValueProvider extends TestDataFactory.DefaultValueProvider
 | Text                   | getTextDefaultValue          | 'test0'                                                          | 'test'+recordIndex                                  |
 | TextArea               | getTextAreaDefaultValue      | 'test0'                                                          | 'test'+recordIndex                                  |
 | Time                   | getTimeDefaultValue          | Time.newInstance(12, 0, 0, 0)                                    | //                                                  |
-| URL                    | getURLDefaultValue           | 'http://test0.com'                                               | 'http://test'+RecordIndex+'.com'                    |
+| URL                    | getURLDefaultValue           | 'http://test0.com'                                               | 'http://test'+recordIndex+'.com'                    |
 
 
 *recordIndex* : index number (starting from 0) of each record when creating a list of sObjects
@@ -51,8 +51,8 @@ public class MyDefaultValueProvider extends TestDataFactory.DefaultValueProvider
  
 #### Define required fields and/or optional fields 
 
-* You can force  non-required field to behave as a required field (example if a field is part of a validation rule)
-* You can force a required field to behave as a non-required field (example if a field is required but get its value from a trigger)
+* You can force non-required field to behave as a required field (example if a field is part of a validation rule)
+* You can force a required field to behave as a non-required field (example if a field is required but gets its value from a trigger)
 
 In the example below the fields *Firstname*, *Description* and *Email* of the Contact are defined as required fields so the Test Data Factory will auto-generate default values for those fields each time a Contact is created 
 
@@ -143,7 +143,7 @@ AccountIdWrapper accIdWrapped = new AccountIdWrapper(accountList);
 
 // creating 100 Cases
 List<Case> caseList = TestDataFactory.createSObjectList('Case',new Map<String,Object>{
-	'AccountId' => accIdWrapped
+	'AccountId' => accIdWrapped,
 	'Contact.Description' => 'Create the related Contact',
 	'Contact.AccountId' => accIdWrapped
 },true,100);

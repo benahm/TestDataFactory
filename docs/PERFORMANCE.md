@@ -2,11 +2,11 @@
 
 Performance tests executed in a Scratch Org
 
-* Without any active automations(Worfklow rules/Process Builder/Flow), Triggers or Validations rules on the Case, Contact and Account objects
+* Without any active automations (Workflow rules/Process Builder/Flow), Triggers, or Validation rules on the Case, Contact, and Account objects.
 
-* Person Account is enabled 
+* Person Account is enabled.
 
-**Note** : in an org where Person Account is enabled, when creating an `Account` object, a SOQL query per transaction is made by the TestDataFactory class to get the list of person account record types  
+**Note**: in an org where Person Account is enabled, when creating an `Account` object, a SOQL query per transaction is made by the TestDataFactory class to get the list of person account record types  
 
 
 #### Test 🧪 #1
@@ -145,7 +145,7 @@ Create 200 instances of the Case sObject and its related Account, Contact and Co
 
 #### Test 🧪 #6
 
-Create 1000 instances of the Case sObject and its related Account, Contact and Contact of Account sObjects
+Create 500 instances of the Case sObject and its related Account, Contact and Contact of Account sObjects
 
   ```apex
   List<Case> caseList = TestDataFactory.createSObjectList('Case',new Map<String,Object>{
