@@ -2,3 +2,4 @@
 .vscode/settings.json
 .sf/
 apex-documentation
+node_modules/

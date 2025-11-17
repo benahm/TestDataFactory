@@ -1,0 +1,28 @@
+{
+  "name": "testdatafactory",
+  "version": "1.0.0",
+  "description": "Salesforce Apex test data factory",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benahm/TestDataFactory.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/benahm/TestDataFactory/issues"
+  },
+  "homepage": "https://github.com/benahm/TestDataFactory#readme",
+  "devDependencies": {
+    "@cparra/apexdocs": "^3.15.0",
+    "vitepress": "^0.1.1"
+  }
+}
