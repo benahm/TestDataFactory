@@ -8,8 +8,8 @@
  //  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
- /**
- * @description Apex Test Data Factory 
+/**
+ * Provides reusable utilities for generating test SObject records with default and override values.
  * @author benahm
  * @since 2017
  * @group Apex Test Data Factory
@@ -41,7 +41,7 @@ public class TestDataFactory {
         }
     }
 
-    /** Determine if person account is enabled in current org **/
+    /** Determines if person account is enabled in current org **/
     @TestVisible
     private static Boolean isPersonAccountEnabled{
         get{
@@ -51,7 +51,7 @@ public class TestDataFactory {
 
     /* ===========================  Public methods =========================== */
     /**
-     * @description create an sObject
+     * Creates an sObject.
      * @param sObjectName (String): name of the sObject to be created
      * @return sObject instance
      * @example 
@@ -62,7 +62,7 @@ public class TestDataFactory {
     }
 
     /**
-     * @description create an sObject
+     * Creates an sObject.
      * @param sObjectName (String): name of the sObject to be created
      * @param Boolean (Boolean): if true the sObject instance is inserted to the Salesforce database
      * @return sObject instance
@@ -74,7 +74,7 @@ public class TestDataFactory {
     }
 
     /**
-     * @description create an sObject with a map to override field values
+     * Creates an sObject with a map to override field values.
      * @param sObjectName (String): name of the sObject to be created
      * @param mapOfValuesOverride (Map<String,Object>): map of values
      * @return sObject instance
@@ -88,7 +88,7 @@ public class TestDataFactory {
     }
 
     /**
-     * @description create an sObject with a map to override field values
+     * Creates an sObject with a map to override field values.
      * @param sObjectName (String): name of the sObject to be created
      * @param mapOfValuesOverride (Map<String,Object>): map of values
      * @param doInsert (Boolean): if true the sObject instance is inserted to the Salesforce database
@@ -103,7 +103,7 @@ public class TestDataFactory {
     }
 
     /**
-     * @description create a list of sObjects
+     * Creates a list of sObjects.
      * @param sObjectName (String): name of the sObject to be created
      * @param numberOfSObjects (Integer): number of sObjects to be created
      * @return list of sObject instances
@@ -115,7 +115,7 @@ public class TestDataFactory {
     }
     
     /**
-     * @description create a list of sObjects
+     * Creates a list of sObjects.
      * @param sObjectName (String): name of the sObject to be created
      * @param numberOfSObjects (Integer): number of sObjects to be created
      * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
@@ -128,7 +128,7 @@ public class TestDataFactory {
     }
 
     /**
-     * @description create a list of sObjects with a map to override field values
+     * Creates a list of sObjects with a map to override field values.
      * @param sObjectName (String): name of the sObject to be created
      * @param mapOfValuesOverride (Map<String,Object>): map of values
      * @param numberOfSObjects (Integer): number of sObjects to be created
@@ -143,7 +143,7 @@ public class TestDataFactory {
     }
 
     /**
-     * @description create a list of sObjects with a map to override field values
+     * Creates a list of sObjects with a map to override field values.
      * @param sObjectName (String): name of the sObject to be created
      * @param mapOfValuesOverride (Map<String,Object>): map of values
      * @param numberOfSObjects (Integer): number of sObjects to be created
@@ -166,8 +166,8 @@ public class TestDataFactory {
     /* =======================================  inner classes & interfaces ==================================== */
     /* ======================================================================================================== */
     /**
-    * @description interface ISObjectManager
-    */
+     * Defines the contract for tracking SObject instances and their relationships during test data creation.
+     */
     public interface ISObjectManager{
         List<SObject> getMainSObjectList();
         void setSObject(Integer index, SObject sObj);
@@ -178,8 +178,8 @@ public class TestDataFactory {
     }
 
     /**
-    * @description class SObjectManager : manages all the sObject instances and handles the insertion into Salesforce
-    */
+     * Coordinates SObject instances and ensures their insertions respect parent-child ordering.
+     */
     public class SObjectManager implements ISObjectManager{
         
         /** Main sObject name */
@@ -200,15 +200,15 @@ public class TestDataFactory {
 
 
         /**
-        * @description constructor
-        * @return sObjectName (String): main sObject name
+        * Constructs a manager for the specified main SObject type.
+        * @param sObjectName (String): main sObject name
         */
         public SObjectManager(String sObjectName){
             this.sObjectName = sObjectName;
         }
 
         /**
-        * @description get the list of all main sObject instances
+        * Gets the list of all main sObject instances.
         * @return list of sObject instances
         */
         public List<SObject> getMainSObjectList(){
@@ -216,7 +216,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description set or add an sObject to the main sObject list for a given index
+        * Sets or add an sObject to the main sObject list for a given index.
         * @param index (Integer): index for which the sObject instance will be added or set
         * @param sObj (SObject): sObject instance to add or set to the main sObject list
         */
@@ -229,16 +229,16 @@ public class TestDataFactory {
         }
 
         /**
-        * @description get an sObject from the main sObject list for a given index
+        * Gets an sObject from the main sObject list for a given index.
         * @param index (Integer): index for which the sObject instance will be returned
-        * @return the returnd sObject instance
+        * @return the returned sObject instance
         */
         public SObject getSObject(Integer index){
             return mainSObjectList.get(index);
         }
 
         /**
-        * @description set or add a related sObject into the related sObject map list for a given index and relationship name
+        * Sets or add a related sObject into the related sObject map list for a given index and relationship name.
         * @param index (Integer): index for which the sObject instance will be added or set
         * @param fullyQualifiedRelationshipName (String): fully qualified relationship name for which the sObject instance will be added or set
         * @param sObj (SObject): sObject instance to add or set to the related sObject map list
@@ -265,10 +265,10 @@ public class TestDataFactory {
         }
 
         /**
-        * @description get a related sObject from the related sObject map list for a given index and relationship name
+        * Gets a related sObject from the related sObject map list for a given index and relationship name.
         * @param index (Integer): index for which the sObject instance will be returned
         * @param fullyQualifiedRelationshipName (String): fully qualified relationship name for which the sObject instance will be returned
-        * @return the returnd sObject instance
+        * @return the returned sObject instance
         */
         public SObject getRelationship(Integer index, String fullyQualifiedRelationshipName){
             try{
@@ -280,7 +280,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description insert all the sObjects stored in the sObject Manager into the Salesforce database  
+        * Inserts all the sObjects stored in the sObject Manager into the Salesforce database.
         */
         public void insertAll(){
             // loop through the ordered relationship list
@@ -318,7 +318,7 @@ public class TestDataFactory {
         /* ============================================================================================= */
 
         /**
-        * @description link a list of child sObject instances to a list of parent sObject instances for a given relationship name
+        * Links a list of child sObject instances to a list of parent sObject instances for a given relationship name.
         * @param sObjChildList (List<SObject>): list of child sObject instances
         * @param sObjParentList (List<SObject>): list of parent sObject instances
         * @param relationshipName (String): relationship name that links the child sObject to the parent sObject
@@ -336,7 +336,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description add relationship name to the ordered relationship list, ordered by the number of dots
+        * Adds relationship name to the ordered relationship list, ordered by the number of dots.
         * @param fullyQualifiedRelationshipName (String): fully qualified relationship name (example contact.account)
         */
         @testVisible
@@ -356,7 +356,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description execute a DML insert operation on a list of sObjects
+        * Execute a DML insert operation on a list of sObjects.
         * @param sObjList (List<SObject>): list of sObjects to be inserted
         * @param errorMessageMergeValue (String): merge value provided only for error message generation (example : .contact.account)
         */
@@ -395,8 +395,8 @@ public class TestDataFactory {
     }
 
     /**
-    * @description interface ISObjectFactory
-    */
+     * Declares how to create SObject instances and expose the SObject manager used during generation.
+     */
     public interface ISObjectFactory{
         ISObjectManager getSObjectManager();
         SObject getSObjectInstance(Map<String,Object> mapOfValuesOverride, Boolean doInsert);
@@ -404,8 +404,8 @@ public class TestDataFactory {
     }
 
     /**
-    * @description class SObjectFactory : manage the creation of all the sObjects instances 
-    */
+     * Builds SObject instances by combining default values, overrides, and relationship wiring.
+     */
     public class SObjectFactory implements ISObjectFactory{
 
         /** Main sObject type to instantiated */
@@ -427,7 +427,7 @@ public class TestDataFactory {
 
 
         /**
-        * @description construtor
+        * Constructor.
         * @param sObjectType (Schema.SObjectType): main sObject type to be instantiated
         */
         public SObjectFactory(Schema.SObjectType sObjectType){
@@ -440,7 +440,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description get the SObject Manager instance
+        * Gets the SObject Manager instance.
         * @return sObject Manager instance
         */
         public SObjectManager getSObjectManager(){
@@ -448,7 +448,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description generate an sObject instance and apply the override map of values
+        * Generates an sObject instance and apply the override map of values.
         * @param mapOfValuesOverride (Map<String,Object>): map of values to override when instanciating the sObject
         * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
         * @return sObject instance
@@ -458,7 +458,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description generate a list of sObject instances and apply the override map of values
+        * Generates a list of sObject instances and apply the override map of values.
         * @param mapOfValuesOverride (Map<String,Object>): map of values to override when instanciating the sObject
         * @param doInsert (Boolean): if true the sObject list instances is inserted to the Salesforce database
         * @param numberOfSObjects (Integer): number of sObjects to be instantiated
@@ -484,7 +484,7 @@ public class TestDataFactory {
         /* ============================================================================================= */
 
         /**
-        * @description initiate the main sObject instance with all related sObject and apply the map of values
+        * Initiates the main sObject instance with all related sObject and apply the map of values.
         * @param mapOfValues (Map<String,IFieldDefaultValue>): map of values with key as field name and value as the default value to be used when instantiating the sObject. 
         *           This map contains the default values provided as input by the user and the auto-generated default values for the required fields
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -519,7 +519,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description Recursive method that initiate all the related sObjects of a given fully qualified relationship name
+        * Recursively initiates all related SObjects for the specified fully qualified relationship name.
         * @param fullyQualifiedRelationshipName (String): fully qualified relationship name (example : Case.Contact.Account)
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
         * @return main sObject instance with all related sObjects attached to it
@@ -558,7 +558,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description get related sObject instance of an sObject type for a given relationship name
+        * Gets related sObject instance of an sObject type for a given relationship name.
         * @param sObjectType (Schema.SObjectType): sObject type to which the generate sObject is related
         * @param relationshipName (String): relationship name that links the sObject type and the sObject instance that will be generated
         * @param errorMessageMergeValue (String): merge value provided only for error message generation (example : Contact.Account)
@@ -581,7 +581,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description get the field value from the map of values for a given record index and fully qualified field name
+        * Gets the field value from the map of values for a given record index and fully qualified field name.
         * @param mapOfValues (Map<String,IFieldDefaultValue>): map of values with key as field name and value as the default value to be used when instantiating the sObject. 
         * @param fullyQualifiedFieldName (String): fully qualified field name (example : Contact.Account.Name)
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -600,7 +600,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description attach an sObject into a related sObject
+        * Attaches an sObject into a related sObject.
         * @param sObj (SObject): main sObject instance
         * @param relationshipName (String): sObject name of the related sObject
         * @param sObjectValue (SObject): related sObject instance to be attached to the main sObject instance
@@ -618,7 +618,7 @@ public class TestDataFactory {
         }       
 
         /**
-        * @description set field value in given sObject instance
+        * Sets field value in given sObject instance.
         * @param sObj (SObject): main sObject instance
         * @param fieldName (String): field name of the field to set
         * @param fieldValue (Object): value of the field to set
@@ -638,15 +638,15 @@ public class TestDataFactory {
     }
 
     /**
-    * @description interface IDefaultValueProvider
-    */
+     * Specifies how default field values are supplied for a given SObject type.
+     */
     public interface IDefaultValueProvider{
         Map<String,IFieldDefaultValue> getDefaultMapOfValues(Schema.SObjectType sObjectType, Map<String,Object> mapOfValuesOverride);
     }
 
     /**
-    * @description virtual class DefaultValueProvider : manage the creation of the defaultMap and getting field default values
-    */
+     * Provides a base implementation that builds default value maps and resolves per-field defaults.
+     */
     public virtual class DefaultValueProvider implements IDefaultValueProvider {
 
         /* ===========================  Error Messages =========================== */
@@ -691,7 +691,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description get the default map of values for a given sObjectType.
+        * Gets the default map of values for a given sObjectType.
         *                        The default map of value contains fully qualified field name as a key and the field value wrapped in FieldDefaultValue instance
         * @param sObjectType (Schema.SObjectType): sObject Type for which the map of values will be generated
         * @param mapOfValuesOverride (Map<String,Object>): map of values that will override the the auto-generated map of values
@@ -708,7 +708,7 @@ public class TestDataFactory {
         /* ============================================================================================= */
 
         /**
-        * @description generate the default map of values for a given sObjectType.
+        * Generates the default map of values for a given sObjectType.
         *               The default value map of values will contain the map of values overrided and generated value for all required fields of the sObjectType
         * @param sObjectType (Schema.SObjectType): sObject Type for which the map of values will generated
         * @param mapOfValues (Map<String,IFieldDefaultValue>): map of values
@@ -768,7 +768,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description put a relationship field into a map of values
+        * Puts a relationship field into a map of values.
         * @param mapOfValues (Map<String,IFieldDefaultValue>): map of values in which relationship field will be put
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information information of the relationship field
         * @param prefix (String): prefix of the relationship field (example : Contact.Account.)
@@ -787,7 +787,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description manage the map of values and the defined required fields for Account if person account enabled org
+        * Manages the map of values and the defined required fields for Account if person account enabled org.
         * @param mapOfValues (Map<String,IFieldDefaultValue>): map of values from which the field value id will be extracted
         * @param prefix (String): prefix of the relationship field (example : Contact.Account.)
         * @param definedRequiredFields (Set<String>): Set of defined required fields
@@ -821,7 +821,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description get defined set of required fields for a given sObject type and record type id
+        * Gets defined set of required fields for a given sObject type and record type id.
         * @param sObjectType (Schema.SObjectType): sObject type for which the defined required fields will be returned 
         * @param recordTypeValue (Object): record type id provided for to the sObject Type
         * @return set of defined required fields
@@ -838,7 +838,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description get defined set of optional fields for a given sObject type
+        * Gets defined set of optional fields for a given sObject type.
         * @param sObjectType (Schema.SObjectType): sObject type for which the defined optional fields will be returned 
         * @param recordTypeValue (Object): record type id provided for to the sObject Type
         * @return set of defined optional fields
@@ -855,7 +855,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description get relationship names keyset that starts with a given prefix
+        * Gets relationship names keyset that starts with a given prefix.
         * @param keySetOverride (Set<String>): keySet of fully qualified field names
         * @param prefix (String): prefix (example : Contact.Account.)
         * @return set of relationship names
@@ -883,7 +883,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description converting a map from Map(key:String,value:Object) to Map(key:String,value:IFieldDefaultValue)
+        * Converts a map from Map(key:String,value:Object) to Map(key:String,value:IFieldDefaultValue).
         * @param prefix (String): prefix (example : Contact.Account.)
         * @param mapOfValues (Map<String,Object>): map of values to convert
         * @return converted map
@@ -926,7 +926,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description converting a given set of String to set of lower case string values
+        * Converts a given set of String to set of lower case string values.
         * @param setOfValues (Set<String>): set of values to convert to lower case
         * @return converted set
         */
@@ -945,7 +945,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description test if a field requires a default value
+        * Tests if a field requires a default value.
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @return true if a default value is required
         */
@@ -959,7 +959,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description generate a default value for a given field of an sObject 
+        * Generates a default value for a given field of an sObject.
         *                       depending on the field type, the corresponding get{FieldType}DefaultValue method will be invoked to retrieve the default value
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
@@ -1025,7 +1025,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description get the Salesforce default value for given picklist
+        * Gets the Salesforce default value for given picklist.
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @return The picklist default value on Salesforce
         */
@@ -1048,7 +1048,7 @@ public class TestDataFactory {
         /* =======================================  virtual methods ==================================== */
         /* ============================================================================================= */
         /**
-        * @description define a set of required fields for a given sObject
+        * Defines a set of required fields for a given sObject.
         * @param sObjectType (Schema.SObjectType): sObject Type for which the required fields will be defined
         * @return set of defined required fields
         */
@@ -1056,7 +1056,7 @@ public class TestDataFactory {
             return null;
         }
         /**
-        * @description define a set of optional fields for a given sObject
+        * Defines a set of optional fields for a given sObject.
         * @param sObjectType (Schema.SObjectType): sObject Type for which the optional fields will be defined
         * @return set of defined optional fields
         */
@@ -1064,7 +1064,7 @@ public class TestDataFactory {
             return null;
         }
         /**
-        * @description get the default value for Base64 field type
+        * Gets the default value for Base64 field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1074,7 +1074,7 @@ public class TestDataFactory {
             return Blob.valueOf(recordIndex.format());
         }   
         /**
-        * @description get the default value for checkbox field type
+        * Gets the default value for checkbox field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1084,7 +1084,7 @@ public class TestDataFactory {
             return false;
         }
         /**
-        * @description get the default value for Currency field type
+        * Gets the default value for Currency field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1094,7 +1094,7 @@ public class TestDataFactory {
             return recordIndex;
         }
         /**
-        * @description get the default value for Date field type
+        * Gets the default value for Date field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1104,7 +1104,7 @@ public class TestDataFactory {
             return Date.today();
         }
         /**
-        * @description get the default value for Datetime field type
+        * Gets the default value for Datetime field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1114,7 +1114,7 @@ public class TestDataFactory {
             return Datetime.now();
         }
         /**
-        * @description get the default value for Email field type
+        * Gets the default value for Email field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1124,7 +1124,7 @@ public class TestDataFactory {
             return 'test'+recordIndex.format()+'@email.com';
         }
         /**
-        * @description get the default value for Geolocation field type
+        * Gets the default value for Geolocation field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1134,7 +1134,7 @@ public class TestDataFactory {
             return Location.newInstance(0,0);
         }       
         /**
-        * @description get the default value for Number field type
+        * Gets the default value for Number field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1144,7 +1144,7 @@ public class TestDataFactory {
             return recordIndex;
         }
         /**
-        * @description get the default value for Percent field type
+        * Gets the default value for Percent field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1154,7 +1154,7 @@ public class TestDataFactory {
             return recordIndex;
         }
         /**
-        * @description get the default value for Phone field type
+        * Gets the default value for Phone field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1164,7 +1164,7 @@ public class TestDataFactory {
             return '01 23 45 67 89';
         }
         /**
-        * @description get the default value for Picklist field type
+        * Gets the default value for Picklist field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1174,7 +1174,7 @@ public class TestDataFactory {
             return getSFDefaultPicklistValue(fieldDesc);
         }
         /**
-        * @description get the default value for Multipicklist field type
+        * Gets the default value for Multipicklist field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1184,7 +1184,7 @@ public class TestDataFactory {
             return getSFDefaultPicklistValue(fieldDesc);
         }
         /**
-        * @description get the default value for Text field type
+        * Gets the default value for Text field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1194,7 +1194,7 @@ public class TestDataFactory {
             return 'test'+recordIndex.format();
         }
         /**
-        * @description get the default value for TextArea field type
+        * Gets the default value for TextArea field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1204,7 +1204,7 @@ public class TestDataFactory {
             return 'test'+recordIndex.format();
         }
         /**
-        * @description get the default value for Time field type
+        * Gets the default value for Time field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1214,7 +1214,7 @@ public class TestDataFactory {
             return Time.newInstance(12, 0, 0, 0);
         }
         /**
-        * @description get the default value for URL field type
+        * Gets the default value for URL field type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
@@ -1227,21 +1227,21 @@ public class TestDataFactory {
     }
 
     /**
-    * @description common interface fo the field default value classes
+    * Common interface fo the field default value classes.
     */
     public interface IFieldDefaultValue{
         /**
-        * @description get the value wrapped for a given record index
+        * Gets the value wrapped for a given record index.
         */
         Object getValue(Integer recordIndex);
     }
 
     /**
-    * @description wrapper for default value that will be auto generated 
+    * Wrapper for default value that will be auto generated.
     */
     public class AutoFieldDefaultValue implements IFieldDefaultValue{
         /**
-        * @description get the value wrapped for a given record index
+        * Gets the value wrapped for a given record index.
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
         * @return field default value
         */
@@ -1251,7 +1251,7 @@ public class TestDataFactory {
     }
 
     /**
-    * @description wrapper for a field default value
+    * Wrapper for a field default value.
     */
     @TestVisible
     private class FieldDefaultValue implements IFieldDefaultValue{
@@ -1265,7 +1265,7 @@ public class TestDataFactory {
         private Schema.DescribeFieldResult fieldDesc = null;
 
         /**
-        * @description construtor to wrap a griven field value
+        * Constructor to wrap a griven field value.
         * @param value (Object): the value that will be wrapped
         */
         public FieldDefaultValue(Object value){
@@ -1273,7 +1273,7 @@ public class TestDataFactory {
         }   
 
         /**
-        * @description construtor to wrap a field value that will be generated based on the given sObject & Field describe informations
+        * Constructor to wrap a field value that will be generated based on the given sObject & Field describe informations.
         * @param dvPrvdr (DefaultValueProvider): default value provider instance of the containing class DefaultValueProvider
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
@@ -1285,7 +1285,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description get the wrapped value for a given record index
+        * Gets the wrapped value for a given record index.
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
         * @return field default value
         */
@@ -1302,7 +1302,7 @@ public class TestDataFactory {
     }
 
     /**
-    * @description wrapper for a relationship field default value
+    * Wrapper for a relationship field default value.
     */
     @TestVisible
     private class RelationshipFieldDefaultValue implements IFieldDefaultValue{
@@ -1310,7 +1310,7 @@ public class TestDataFactory {
         private SObject sObjectValue = null;
 
         /**
-        * @description construtor to wrap a griven field sObject value
+        * Constructor to wrap a griven field sObject value.
         * @param sObjectValue (Object): the sObject value that will be wrapped
         */
         public RelationshipFieldDefaultValue(SObject sObjectValue){
@@ -1318,7 +1318,7 @@ public class TestDataFactory {
         }   
 
         /**
-        * @description get the wrapped sObject value for a given record index
+        * Gets the wrapped sObject value for a given record index.
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
         * @return Id of the sObject field default value
         */
@@ -1328,7 +1328,7 @@ public class TestDataFactory {
     }
 
     /**
-    * @description wrapper for a list of field default values
+    * Wrapper for a list of field default values.
     */
     @TestVisible
     private class ListFieldDefaultValue implements IFieldDefaultValue{
@@ -1336,7 +1336,7 @@ public class TestDataFactory {
         private List<Object> listValues = null;
 
         /**
-        * @description construtor to wrap a griven field list of values
+        * Constructor to wrap a griven field list of values.
         * @param listValues (List<Object>): the list of values that will be wrapped
         */
         public ListFieldDefaultValue(List<Object> listValues){
@@ -1344,7 +1344,7 @@ public class TestDataFactory {
         }   
 
         /**
-        * @description get the wrapped value for a given record index
+        * Gets the wrapped value for a given record index.
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
         * @return value at recordIndex position of list field default values
         */
@@ -1353,7 +1353,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description return the size of the wrapped list of values
+        * Returns the size of the wrapped list of values.
         */
         public Integer size(){
             return listValues.size();
@@ -1361,7 +1361,7 @@ public class TestDataFactory {
     }
 
     /**
-    * @description wrapper for a list of relationship field default values
+    * Wrapper for a list of relationship field default values.
     */
     @TestVisible
     private class ListRelationshipFieldDefaultValue implements IFieldDefaultValue{
@@ -1369,7 +1369,7 @@ public class TestDataFactory {
         private List<SObject> listSObjectValues = null;
 
         /**
-        * @description construtor to wrap a griven field list of sObject values
+        * Constructor to wrap a griven field list of sObject values.
         * @param listSObjectValues (List<SObject>): the list of values that will be wrapped
         */
         public ListRelationshipFieldDefaultValue(List<SObject> listSObjectValues){
@@ -1377,7 +1377,7 @@ public class TestDataFactory {
         }   
 
         /**
-        * @description get the wrapped list sObject values for a given record index
+        * Gets the wrapped list sObject values for a given record index.
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
         * @return id of the sObject at recordIndex position of list relationship field default values
         */
@@ -1386,7 +1386,7 @@ public class TestDataFactory {
         }
 
         /**
-        * @description return the size of the wrapped list of the sObject values
+        * Returns the size of the wrapped list of the sObject values.
         */
         public Integer size(){
             return listSObjectValues.size();
@@ -1396,7 +1396,7 @@ public class TestDataFactory {
     /* ===========================  Utility methods  =========================== */
 
     /**
-     * @description get the field tokens map of an sObject type with caching
+     * Gets the field tokens map of an sObject type with caching.
      * @param sObjectType (Schema.SObjectType): sObject type for which the map of field tokens will be returned
      * @return field tokens map
      */
@@ -1412,7 +1412,7 @@ public class TestDataFactory {
     }
 
     /**
-    * @description get field name from a relationship name
+    * Gets field name from a relationship name.
     * @param relationshipName (String): relationship name
     * @return field name 
     */
@@ -1425,7 +1425,7 @@ public class TestDataFactory {
     }
 
     /**
-    * @description merge given value in a string
+    * Merges given value in a string.
     * @param text (String): text with a merge value
     * @param name (String): name of the merge value
     * @param value (String): value to be merged
@@ -1439,7 +1439,7 @@ public class TestDataFactory {
     }
 
     /**
-    * @description format an error message
+    * Formats an error message.
     * @param message (String): error message
     * @param mergeValues (List<String>): values to be merge in the error message
     * @param originalMessage (String): original error message
@@ -1454,13 +1454,13 @@ public class TestDataFactory {
     }
     
     /**
-    * @description this is a dummy test method needed in order to create a managed package for TestDataFactory
+    * This is a dummy test method needed in order to create a managed package for TestDataFactory.
     */
     @IsTest
     private static void dummyTest(){}
 
     /**
-    * @description Test Data Factory Exception
+    * Tests Data Factory Exception.
     */
     public class TestDataFactoryException extends Exception {}
 
