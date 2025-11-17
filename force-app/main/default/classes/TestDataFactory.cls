@@ -959,6 +959,26 @@ public class TestDataFactory {
         }
 
         /**
+        * @description check if a field is unique
+        * @param fieldDesc (Schema.DescribeFieldResult): field describe information
+        * @return true if a value should be unique
+        */
+        @TestVisible
+        private Boolean isUniqueValueRequired(Schema.DescribeFieldResult fieldDesc){
+            return 
+                fieldDesc?.isUnique() == true
+                || fieldDesc?.isExternalID() == true;
+        }
+
+        /**
+        * @description return the unique 6 digits Integer
+        * @return unique Integer
+        */
+        private Integer getUniqueNumber() {
+            return Integer.valueOf(Math.random()*1000000);
+        }
+
+        /**
         * @description generate a default value for a given field of an sObject 
         *                       depending on the field type, the corresponding get{FieldType}DefaultValue method will be invoked to retrieve the default value
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
@@ -1121,7 +1141,7 @@ public class TestDataFactory {
         * @return email default value
         */
         public virtual String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
-            return 'test'+recordIndex.format()+'@email.com';
+            return 'test'+recordIndex.format()+getUniqueNumber()+'@email.com';
         }
         /**
         * @description get the default value for Geolocation field type
@@ -1191,7 +1211,10 @@ public class TestDataFactory {
         * @return text default value
         */
         public virtual String getTextDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
-            return 'test'+recordIndex.format();
+            String textValue = 'test' + recordIndex.format();
+            if (isUniqueValueRequired(fieldDesc)) {
+                textValue = getUniqueNumber() + textValue;
+            }
         }
         /**
         * @description get the default value for TextArea field type

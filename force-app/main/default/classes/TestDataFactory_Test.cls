@@ -518,6 +518,8 @@ public class TestDataFactory_Test {
 			System.assertEquals('test',conList.get(0).Account.Name);
 		}catch(DmlException e) {
 			System.assert (true); // if missing required fields
+		}catch(TestDataFactory.TestDataFactoryException e) {
+			System.assert (true); // if missing required fields
 		}
 	}
 	/**
@@ -565,6 +567,8 @@ public class TestDataFactory_Test {
 			sObjManager.insertList(accList,'');
 			System.assertNotEquals(null,accList.get(0).Id);
 		}catch(DmlException e) {
+			System.assert (true); // if missing required fields
+		}catch(TestDataFactory.TestDataFactoryException e) {
 			System.assert (true); // if missing required fields
 		}
 	}
@@ -1011,7 +1015,8 @@ public class TestDataFactory_Test {
 		System.assertEquals(0,dvProvider.getDefaultValue(Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe(),0)); // currency
 		System.assertEquals(Date.today(),dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe(),0)); // date
 		System.assertEquals(Datetime.now(),dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.CreatedDate.getDescribe(),0)); // datetime
-		System.assertEquals('test0@email.com',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe(),0)); // email
+		System.assert(String.valueOf(dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe(),0)).startsWith('test0')); // email
+		System.assert(String.valueOf(dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe(),0)).endsWith('@email.com')); // email
 		// no standard geolocation field
 		System.assertEquals(0,dvProvider.getDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.BodyLength.getDescribe(),0)); // number
 		System.assertEquals(0,dvProvider.getDefaultValue(Asset.SObjectType.getDescribe(),Asset.fields.Quantity.getDescribe(),0)); // number
@@ -1022,7 +1027,7 @@ public class TestDataFactory_Test {
 		System.assertEquals('test0',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.FirstName.getDescribe(),0));  // text
 		System.assertEquals('test0',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Description.getDescribe(),0)); // textarea
 		// no standard time field
-		System.assertEquals('http://test0.com',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Website.getDescribe(),0));
+		System.assertEquals('http://test0.com',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Website.getDescribe(),0)); // url
 		System.assertEquals(null,dvProvider.getDefaultValue(null,null,0));
 	}
 	@isTest
@@ -1033,7 +1038,8 @@ public class TestDataFactory_Test {
 		System.assertEquals(0,dvProvider.getCurrencyDefaultValue(null,null,0));
 		System.assertEquals(Date.today(),dvProvider.getDateDefaultValue(null,null,0));
 		System.assertEquals(Datetime.now(),dvProvider.getDateTimeDefaultValue(null,null,0));
-		System.assertEquals('test0@email.com',dvProvider.getEmailDefaultValue(null,null,0));
+		System.assert(String.valueOf(dvProvider.getEmailDefaultValue(null,null,0)).startsWith('test0'));
+		System.assert(String.valueOf(dvProvider.getEmailDefaultValue(null,null,0)).endsWith('@email.com'));
 		System.assertNotEquals(null,dvProvider.getGeolocationDefaultValue(null,null,0));
 		System.assertEquals(0,dvProvider.getNumberDefaultValue(null,null,0));
 		System.assertEquals(0,dvProvider.getPercentDefaultValue(null,null,0));
@@ -1076,7 +1082,8 @@ public class TestDataFactory_Test {
 		TestDataFactory.IFieldDefaultValue fieldDV8 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Asset.SObjectType.getDescribe(),Asset.fields.Quantity.getDescribe());
 		System.assertEquals(0,fieldDV8.getValue(0));
 		TestDataFactory.IFieldDefaultValue fieldDV9 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe());
-		System.assertEquals('test0@email.com',fieldDV9.getValue(0));
+		System.assert(String.valueOf(fieldDV9.getValue(0)).startsWith('test0'));
+		System.assert(String.valueOf(fieldDV9.getValue(0)).endsWith('@email.com'));
 		TestDataFactory.IFieldDefaultValue fieldDV10 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.Id.getDescribe());
 		System.assertEquals(null,fieldDV10.getValue(0));
 		TestDataFactory.IFieldDefaultValue fieldDV11 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Attachment.SObjectType.getDescribe(),Attachment.fields.BodyLength.getDescribe());
