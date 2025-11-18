@@ -28,7 +28,7 @@ jobs:
       - name: Build documentation
         run: bash ./generateapexdocs.sh
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: apexdocs
 
@@ -39,4 +39,4 @@ jobs:
     permissions:
       pages: write
     steps:
-      - uses: actions/deploy-pages@v1
+      - uses: actions/deploy-pages@v4
