@@ -7,7 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docsify:serve": "docsify serve apexdocs"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,6 @@
   "homepage": "https://github.com/benahm/TestDataFactory#readme",
   "devDependencies": {
     "@cparra/apexdocs": "^3.15.0",
-    "vitepress": "^0.1.1"
+    "docsify-cli": "^4.4.4"
   }
 }
