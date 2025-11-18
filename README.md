@@ -1,7 +1,7 @@
 # Apex Test Data Factory
 
 
-<p align="center"><img src ="/docs/assets/logo.png" width="400"/></p>
+<p align="center"><img src ="./documentation/assets/logo.png" width="400"/></p>
 
 
 
@@ -48,12 +48,12 @@ Get the ``TestDataFactory`` class by installing the [TestDataFactory Unlocked Pa
 
   
   ### More :
-* [Examples 💻](/docs/EXAMPLES.md)
-* [Core Concepts 💡](/docs/CONCEPT.md)
-* [Performance 🚀](/docs/PERFORMANCE.md)
-* [Customize ⚙️](/docs/CUSTOMIZE.md)
-* [Limitations 🛑](/docs/LIMITATIONS.md)
-* [Contribute 👐](/docs/CONTRIBUTE.md)
+* [Examples 💻](./documentation/EXAMPLES.md)
+* [Core Concepts 💡](./documentation/CONCEPT.md)
+* [Performance 🚀](./documentation/PERFORMANCE.md)
+* [Customize ⚙️](./documentation/CUSTOMIZE.md)
+* [Limitations 🛑](./documentation/LIMITATIONS.md)
+* [Contribute 👐](./documentation/CONTRIBUTE.md)
 
 
 
