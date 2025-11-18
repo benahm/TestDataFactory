@@ -11,6 +11,10 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build site
@@ -19,6 +23,8 @@ jobs:
       site-dir: apexdocs
     steps:
       - uses: actions/checkout@v4
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
       - uses: actions/setup-node@v4
         with:
           node-version: 20
