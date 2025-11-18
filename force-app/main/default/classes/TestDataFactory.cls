@@ -9,7 +9,8 @@
  //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
 /**
- * Provides reusable utilities for generating test SObject records with default and override values.
+ * “ The ultimate Apex Test Data Factory ” 🏭 👌
+ * Generate & insert an sObject with all the required fields & relationships auto-filled
  * @author benahm
  * @since 2017
  * @group Apex Test Data Factory
