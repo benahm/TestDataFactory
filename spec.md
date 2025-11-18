@@ -1,1 +1,0 @@
-setup npm project here to install this page https://github.com/cesarParra/apexdocs and also install a ssg static site generation vitepress
