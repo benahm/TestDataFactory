@@ -10,11 +10,13 @@ if ! command -v sf >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "Running Salesforce Code Analyzer with Recommended rules..."
+RULE_SELECTORS="Recommended,pmd:TestDataFactoryDocs"
+
+echo "Running Salesforce Code Analyzer with rule selectors: $RULE_SELECTORS"
 sf code-analyzer run \
   --workspace "$ROOT_DIR" \
   --target "$ROOT_DIR/force-app" \
-  --rule-selector Recommended \
+  --rule-selector "$RULE_SELECTORS" \
   --output-file "$OUTPUT_JSON" \
   --output-file "$OUTPUT_HTML" \
   --view table

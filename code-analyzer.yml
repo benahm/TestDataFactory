@@ -1,0 +1,10 @@
+# Custom settings for Salesforce Code Analyzer
+rules:
+  pmd:
+    ApexDoc:
+      # Remove the Recommended tag so the stock ApexDoc rule isn't pulled in automatically
+      tags: []
+engines:
+  pmd:
+    custom_rulesets:
+      - config/pmd-test-data-factory-overrides.xml
