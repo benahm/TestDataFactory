@@ -1,1 +1,2 @@
 force-app/main/default/classes/*.cls linguist-language=Apex
+*.sh text eol=lf
