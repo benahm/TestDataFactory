@@ -75,7 +75,7 @@ public class TestDataFactory_Test {
 	static void createSObjectTest4(){
 		BusinessHours caseBusinessHours = [SELECT Id FROM BusinessHours WHERE IsDefault = TRUE LIMIT 1];
         Test.startTest();
-        SObject sObj = TestDataFactory.createSObject('Case', new Map<String,Object>{
+        TestDataFactory.createSObject('Case', new Map<String,Object>{
             'Id' => null,
 				'id' => null,
 				'BusinessHoursId' => caseBusinessHours.Id,
@@ -138,13 +138,14 @@ public class TestDataFactory_Test {
 	@isTest
 	static void createSObjectTest7(){
 		Test.startTest();
-		SObject sObj = TestDataFactory.createSObject('Account', new Map<String,Object> {
+		Account acc = (Account)TestDataFactory.createSObject('Account', new Map<String,Object> {
 			'Name'=> 'test',
 			'OwnerId'=> UserInfo.getUserId()
 		});
 		Test.stopTest();
-		Account acc = [select OwnerId from Account limit 1];
-		System.assertEquals(UserInfo.getUserId(),acc.OwnerId);
+		System.assertNotEquals(null,acc.Id);
+		Account insertedAcc = [select OwnerId from Account where Id = :acc.Id limit 1];
+		System.assertEquals(UserInfo.getUserId(),insertedAcc.OwnerId);
 	}
 	/**
 	 * @description create an Account sObject instance (insert flag = false) that triggers the creation of a user by bypassing a username and ProfileId in the map of values
@@ -167,7 +168,7 @@ public class TestDataFactory_Test {
 	static void createSObjectTest9(){
 		try{
 			Test.startTest();
-			SObject sObj = TestDataFactory.createSObject('TEST');
+			TestDataFactory.createSObject('TEST');
 			Test.stopTest();
 			System.assert (false);
 		}catch(TestDataFactory.TestDataFactoryException e) {
@@ -181,7 +182,7 @@ public class TestDataFactory_Test {
 	static void createSObjectTest10(){
 		try{
 			Test.startTest();
-			SObject sObj = TestDataFactory.createSObject('Profile');
+			TestDataFactory.createSObject('Profile');
 			Test.stopTest();
 			System.assert (false);
 		}catch(TestDataFactory.TestDataFactoryException e) {
@@ -195,7 +196,7 @@ public class TestDataFactory_Test {
 	static void createSObjectTest11(){
 		try{
 			Test.startTest();
-			SObject sObj = TestDataFactory.createSObject('Asset');
+			TestDataFactory.createSObject('Asset');
 			Test.stopTest();
 			System.assert (false);
 		}catch(TestDataFactory.TestDataFactoryException e) {
@@ -211,7 +212,7 @@ public class TestDataFactory_Test {
 			// Positive test
 			try{
 				Test.startTest();
-				SObject sObj = TestDataFactory.createSObject('Account');
+				TestDataFactory.createSObject('Account');
 				Test.stopTest();
 				System.assert (true);
 			}catch(TestDataFactory.TestDataFactoryException e) {
@@ -229,7 +230,7 @@ public class TestDataFactory_Test {
 			// Negative test
 			try{
 				Test.startTest();
-				SObject sObj = TestDataFactory.createSObject('Account',new Map<String,Object> {
+				TestDataFactory.createSObject('Account',new Map<String,Object> {
 					'RecordTypeId' => 'BadId'
 				});
 				Test.stopTest();
@@ -246,7 +247,7 @@ public class TestDataFactory_Test {
 	static void createSObjectTest14(){
 		try{
 			Test.startTest();
-			SObject sObj = TestDataFactory.createSObject('Contact',new Map<String,Object> {
+			TestDataFactory.createSObject('Contact',new Map<String,Object> {
 				'Test' => 'test'
 			});
 			Test.stopTest();
@@ -262,7 +263,7 @@ public class TestDataFactory_Test {
 	static void createSObjectTest15(){
 		try{
 			Test.startTest();
-			SObject sObj = TestDataFactory.createSObject('Contact',new Map<String,Object> {
+			TestDataFactory.createSObject('Contact',new Map<String,Object> {
 				'Account.Test' => 'test'
 			});
 			Test.stopTest();
@@ -278,7 +279,7 @@ public class TestDataFactory_Test {
 	static void createSObjectTest16(){
 		try{
 			Test.startTest();
-			SObject sObj = TestDataFactory.createSObject('Contact',new Map<String,Object> {
+			TestDataFactory.createSObject('Contact',new Map<String,Object> {
 				'Account.Test.Parent.Id' => 'test'
 			});
 			Test.stopTest();
@@ -294,7 +295,7 @@ public class TestDataFactory_Test {
 	static void createSObjectTest17(){
 		try{
 			Test.startTest();
-			SObject sObj = TestDataFactory.createSObject('Contact',new Map<String,Object> {
+			TestDataFactory.createSObject('Contact',new Map<String,Object> {
 				'Description' => Date.today()
 			});
 			Test.stopTest();
@@ -410,6 +411,8 @@ public class TestDataFactory_Test {
 			'Owner.ProfileId' => UserInfo.getProfileId()
 		},5);
 		Test.stopTest();
+		System.assertNotEquals(null,sObjList);
+		System.assertEquals(5,sObjList.size());
 		List<User> uList = [select Id,ProfileId from User where Username LIKE 'test123456789@mycompanydomain.developer%'];
 		System.assertNotEquals(null,uList);
 		System.assertEquals(5,uList.size());
@@ -1093,7 +1096,7 @@ public class TestDataFactory_Test {
 	@isTest
 	static void getValueTest2(){
 		TestDataFactory.IFieldDefaultValue fieldDV1 = new TestDataFactory.FieldDefaultValue(null);
-		System.assertEquals(null,(new TestDataFactory.FieldDefaultValue(null)).getValue(0));
+		System.assertEquals(null,fieldDV1.getValue(0));
 		TestDataFactory.IFieldDefaultValue fieldDV2 = new TestDataFactory.FieldDefaultValue('test');
 		System.assertEquals('test',fieldDV2.getValue(0));
 		TestDataFactory.IFieldDefaultValue fieldDV3 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Attachment'),Attachment.fields.Body.getDescribe());
