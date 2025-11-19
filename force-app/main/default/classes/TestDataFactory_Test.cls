@@ -17,6 +17,19 @@
 @isTest
 public class TestDataFactory_Test {
 
+	private static Map<String, Schema.DescribeSObjectResult> describeCache = new Map<String, Schema.DescribeSObjectResult>();
+
+	private static Schema.DescribeSObjectResult getDescribe(String apiName) {
+		if(!describeCache.containsKey(apiName)) {
+			Schema.SObjectType sObjectType = Schema.getGlobalDescribe().get(apiName);
+			if(sObjectType == null) {
+				throw new TestDataFactory.TestDataFactoryException('Unknown sObject describe request for ' + apiName);
+			}
+			describeCache.put(apiName, sObjectType.getDescribe(SObjectDescribeOptions.DEFERRED));
+		}
+		return describeCache.get(apiName);
+	}
+
 
 	/************************* TestDataFactory tests *************************/
 	/**
@@ -568,6 +581,26 @@ public class TestDataFactory_Test {
 			System.assert (true); // if missing required fields
 		}
 	}
+	/**
+	 * @description ensure insertList surfaces the correct failing record when later rows fail
+	 */
+	@isTest
+	static void insertListKeepsOriginalIndexingTest(){
+		TestDataFactory.SObjectManager sObjManager = new TestDataFactory.SObjectManager('Account');
+		List<Account> accList = new List<Account>{
+			new Account(Name='Good Account'),
+			new Account(Name='Bad Account', OwnerId='005000000000000AAA')
+		};
+		try {
+			sObjManager.insertList(accList,'');
+			System.assert(false, 'Expected insertList to throw when a row fails');
+		}catch(TestDataFactory.TestDataFactoryException e) {
+			System.assertNotEquals(null, accList.get(0).Id, 'Successful rows should still insert');
+			System.assertEquals(null, accList.get(1).Id, 'Failing row should not insert');
+			System.assert(e.getMessage().contains('Bad Account'), 'Error message should reference the failing record');
+			System.assert(!e.getMessage().contains('Good Account'), 'Error message should not reference successful records');
+		}
+	}
 
 
 	/************************* SObjectFactory tests *************************/
@@ -861,7 +894,7 @@ public class TestDataFactory_Test {
 	@isTest
 	static void managePersonAccountOrgEnabledTest2(){
 		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
-		Id personAccountRecordTypeId = Account.SObjectType.getDescribe().getRecordTypeInfos().get(0).getRecordTypeId();
+		Id personAccountRecordTypeId = getDescribe('Account').getRecordTypeInfos().get(0).getRecordTypeId();
 		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
 			'account.recordtypeid' => new TestDataFactory.FieldDefaultValue(personAccountRecordTypeId)
 		};
@@ -897,7 +930,7 @@ public class TestDataFactory_Test {
 	@isTest
 	static void managePersonAccountOrgEnabledTest4(){
 		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
-		Id personAccountRecordTypeId = Account.SObjectType.getDescribe().getRecordTypeInfos().get(0).getRecordTypeId();
+		Id personAccountRecordTypeId = getDescribe('Account').getRecordTypeInfos().get(0).getRecordTypeId();
 		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue> {
 			'account.recordtypeid' => new TestDataFactory.ListFieldDefaultValue(new List<Id> {personAccountRecordTypeId})
 		};
@@ -1006,23 +1039,23 @@ public class TestDataFactory_Test {
 	@isTest
 	static void getDefaultValueTest(){
 		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
-		System.assertEquals(Blob.valueOf('0'),dvProvider.getDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.Body.getDescribe(),0)); // base64
-		System.assertEquals(false,dvProvider.getDefaultValue(Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe(),0)); // checkbox
-		System.assertEquals(0,dvProvider.getDefaultValue(Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe(),0)); // currency
-		System.assertEquals(Date.today(),dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe(),0)); // date
-		System.assertEquals(Datetime.now(),dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.CreatedDate.getDescribe(),0)); // datetime
-		System.assertEquals('test0@email.com',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe(),0)); // email
+		System.assertEquals(Blob.valueOf('0'),dvProvider.getDefaultValue(getDescribe('Attachment'),Attachment.fields.Body.getDescribe(),0)); // base64
+		System.assertEquals(false,dvProvider.getDefaultValue(getDescribe('Campaign'),Campaign.fields.IsActive.getDescribe(),0)); // checkbox
+		System.assertEquals(0,dvProvider.getDefaultValue(getDescribe('Lead'),Lead.fields.AnnualRevenue.getDescribe(),0)); // currency
+		System.assertEquals(Date.today(),dvProvider.getDefaultValue(getDescribe('Account'),Account.fields.LastActivityDate.getDescribe(),0)); // date
+		System.assertEquals(Datetime.now(),dvProvider.getDefaultValue(getDescribe('Account'),Account.fields.CreatedDate.getDescribe(),0)); // datetime
+		System.assertEquals('test0@email.com',dvProvider.getDefaultValue(getDescribe('Contact'),Contact.fields.Email.getDescribe(),0)); // email
 		// no standard geolocation field
-		System.assertEquals(0,dvProvider.getDefaultValue(Attachment.SObjectType.getDescribe(),Attachment.fields.BodyLength.getDescribe(),0)); // number
-		System.assertEquals(0,dvProvider.getDefaultValue(Asset.SObjectType.getDescribe(),Asset.fields.Quantity.getDescribe(),0)); // number
-		System.assertEquals(0,dvProvider.getDefaultValue(Opportunity.SObjectType.getDescribe(),Opportunity.fields.Probability.getDescribe(),0)); // percent
-		System.assertEquals('01 23 45 67 89',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.Phone.getDescribe(),0)); // phone
-		System.assertNotEquals('',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0)); //  picklist
+		System.assertEquals(0,dvProvider.getDefaultValue(getDescribe('Attachment'),Attachment.fields.BodyLength.getDescribe(),0)); // number
+		System.assertEquals(0,dvProvider.getDefaultValue(getDescribe('Asset'),Asset.fields.Quantity.getDescribe(),0)); // number
+		System.assertEquals(0,dvProvider.getDefaultValue(getDescribe('Opportunity'),Opportunity.fields.Probability.getDescribe(),0)); // percent
+		System.assertEquals('01 23 45 67 89',dvProvider.getDefaultValue(getDescribe('Contact'),Contact.fields.Phone.getDescribe(),0)); // phone
+		System.assertNotEquals('',dvProvider.getDefaultValue(getDescribe('Account'),Account.fields.Type.getDescribe(),0)); //  picklist
 		// no standard multipicklist field
-		System.assertEquals('test0',dvProvider.getDefaultValue(Contact.SObjectType.getDescribe(),Contact.fields.FirstName.getDescribe(),0));  // text
-		System.assertEquals('test0',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Description.getDescribe(),0)); // textarea
+		System.assertEquals('test0',dvProvider.getDefaultValue(getDescribe('Contact'),Contact.fields.FirstName.getDescribe(),0));  // text
+		System.assertEquals('test0',dvProvider.getDefaultValue(getDescribe('Account'),Account.fields.Description.getDescribe(),0)); // textarea
 		// no standard time field
-		System.assertEquals('http://test0.com',dvProvider.getDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Website.getDescribe(),0));
+		System.assertEquals('http://test0.com',dvProvider.getDefaultValue(getDescribe('Account'),Account.fields.Website.getDescribe(),0));
 		System.assertEquals(null,dvProvider.getDefaultValue(null,null,0));
 	}
 	@isTest
@@ -1039,10 +1072,10 @@ public class TestDataFactory_Test {
 		System.assertEquals(0,dvProvider.getPercentDefaultValue(null,null,0));
 		System.assertEquals('01 23 45 67 89',dvProvider.getPhoneDefaultValue(null,null,0));
 		System.assertEquals(null,dvProvider.getPicklistDefaultValue(null,null,0));
-		System.assertNotEquals('',dvProvider.getPicklistDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0));
+		System.assertNotEquals('',dvProvider.getPicklistDefaultValue(getDescribe('Account'),Account.fields.Type.getDescribe(),0));
 		System.assertEquals('test0',dvProvider.getTextDefaultValue(null,null,0));
 		System.assertEquals(null,dvProvider.getMultiPicklistDefaultValue(null,null,0));
-		System.assertNotEquals('',dvProvider.getMultiPicklistDefaultValue(Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe(),0));
+		System.assertNotEquals('',dvProvider.getMultiPicklistDefaultValue(getDescribe('Account'),Account.fields.Type.getDescribe(),0));
 		System.assertEquals('test0',dvProvider.getTextDefaultValue(null,null,0));
 		System.assertEquals('test0',dvProvider.getTextAreaDefaultValue(null,null,0));
 		System.assertEquals(Time.newInstance(12, 0, 0, 0),dvProvider.getTimeDefaultValue(null,null,0));
@@ -1063,33 +1096,33 @@ public class TestDataFactory_Test {
 		System.assertEquals(null,(new TestDataFactory.FieldDefaultValue(null)).getValue(0));
 		TestDataFactory.IFieldDefaultValue fieldDV2 = new TestDataFactory.FieldDefaultValue('test');
 		System.assertEquals('test',fieldDV2.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV3 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Attachment.SObjectType.getDescribe(),Attachment.fields.Body.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV3 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Attachment'),Attachment.fields.Body.getDescribe());
 		System.assertEquals(Blob.valueOf('0'),fieldDV3.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV4 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Campaign.SObjectType.getDescribe(),Campaign.fields.IsActive.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV4 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Campaign'),Campaign.fields.IsActive.getDescribe());
 		System.assertEquals(false,fieldDV4.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV5 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Lead.SObjectType.getDescribe(),Lead.fields.AnnualRevenue.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV5 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Lead'),Lead.fields.AnnualRevenue.getDescribe());
 		System.assertEquals(0,fieldDV5.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV6 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.LastActivityDate.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV6 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Account'),Account.fields.LastActivityDate.getDescribe());
 		System.assertEquals(Date.today(),fieldDV6.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV7 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.CreatedDate.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV7 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Account'),Account.fields.CreatedDate.getDescribe());
 		System.assertEquals(Datetime.now(),fieldDV7.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV8 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Asset.SObjectType.getDescribe(),Asset.fields.Quantity.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV8 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Asset'),Asset.fields.Quantity.getDescribe());
 		System.assertEquals(0,fieldDV8.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV9 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Contact.SObjectType.getDescribe(),Contact.fields.Email.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV9 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Contact'),Contact.fields.Email.getDescribe());
 		System.assertEquals('test0@email.com',fieldDV9.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV10 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.Id.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV10 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Account'),Account.fields.Id.getDescribe());
 		System.assertEquals(null,fieldDV10.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV11 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Attachment.SObjectType.getDescribe(),Attachment.fields.BodyLength.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV11 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Attachment'),Attachment.fields.BodyLength.getDescribe());
 		System.assertEquals(0,fieldDV11.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV12 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Opportunity.SObjectType.getDescribe(),Opportunity.fields.Probability.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV12 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Opportunity'),Opportunity.fields.Probability.getDescribe());
 		System.assertEquals(0,fieldDV12.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV13 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Contact.SObjectType.getDescribe(),Contact.fields.Phone.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV13 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Contact'),Contact.fields.Phone.getDescribe());
 		System.assertEquals('01 23 45 67 89',fieldDV13.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV14 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.Type.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV14 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Account'),Account.fields.Type.getDescribe());
 		System.assertNotEquals('',fieldDV14.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV15 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Contact.SObjectType.getDescribe(),Contact.fields.FirstName.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV15 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Contact'),Contact.fields.FirstName.getDescribe());
 		System.assertEquals('test0',fieldDV15.getValue(0));
-		TestDataFactory.IFieldDefaultValue fieldDV16 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),Account.SObjectType.getDescribe(),Account.fields.Description.getDescribe());
+		TestDataFactory.IFieldDefaultValue fieldDV16 = new TestDataFactory.FieldDefaultValue(new TestDataFactory.DefaultValueProvider(),getDescribe('Account'),Account.fields.Description.getDescribe());
 		System.assertEquals('test0',fieldDV16.getValue(0));
 	}
 	@isTest

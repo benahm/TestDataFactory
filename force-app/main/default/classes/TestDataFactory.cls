@@ -364,21 +364,27 @@ public class TestDataFactory {
         @testVisible
         private void insertList(List<SObject> sObjList, String errorMessageMergeValue){
             Database.SaveResult[] saveResults = Database.insert(sObjList, false);
-            Integer i = 0;
             List<String> listErrors = new List<String>();
-            // Iterate through the save results
-            for (Database.SaveResult saveResult : saveResults) {
+            // Iterate through the save results and keep the original index in sync
+	        for (Integer idx = 0; idx < saveResults.size(); idx++) {
+                Database.SaveResult saveResult = saveResults.get(idx);
                 if (!saveResult.isSuccess()){
+                    SObject failingRecord = null;
+	                failingRecord = sObjList.get(idx);
                     // Iterate through the errors                
                     for(Database.Error error : saveResult.getErrors()) {
                         Set<String> fieldNames = new Set<String>{'Name','RecordTypeId'};
                         fieldNames.addAll(error.getFields());
                         String listFieldValues = '';     
                         for(String fieldName : fieldNames){
-                            Object fieldValue;
-                            try {
-                                fieldValue = sObjList.get(i).get(fieldName);
-                            }catch(Exception e){ /*  ignore errors */}
+                            Object fieldValue = null;
+	                            try {
+	                                if(failingRecord != null){
+	                                    fieldValue = failingRecord.get(fieldName);
+	                                }
+	                            }catch(Exception e){
+	                                System.debug(LoggingLevel.WARN, 'Unable to read field '+fieldName+' from failing record: '+e.getMessage());
+	                            }
                             if(fieldValue != null){
                                 listFieldValues += fieldName + '='+ fieldValue +', ';
                             }
@@ -386,7 +392,6 @@ public class TestDataFactory {
                         listFieldValues = listFieldValues.removeEnd(', ');
                         listErrors.add(error.getStatusCode() + ': ' + error.getMessage() + ' ' +'['+listFieldValues+']');
                     }
-                    i++;
                 }
             }
             if(!listErrors.isEmpty()){
