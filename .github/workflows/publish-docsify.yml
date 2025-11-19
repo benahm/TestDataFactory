@@ -32,7 +32,7 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
       - name: Build documentation
-        run: bash ./generateapexdocs.sh
+        run: bash ./generateApexDocs.sh
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
