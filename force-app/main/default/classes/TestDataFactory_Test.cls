@@ -30,6 +30,15 @@ public class TestDataFactory_Test {
 		return describeCache.get(apiName);
 	}
 
+	private static Id getDefaultRecordTypeId(String apiName){
+		for(Schema.RecordTypeInfo rti : getDescribe(apiName).getRecordTypeInfos()){
+			if(rti.isDefaultRecordTypeMapping()){
+				return rti.getRecordTypeId();
+			}
+		}
+		return null;
+	}
+
 
 	/************************* TestDataFactory tests *************************/
 	/**
@@ -962,6 +971,55 @@ public class TestDataFactory_Test {
 		}
 	}
 	@isTest
+	static void resolveRecordTypeIdTest1(){
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Id defaultAccountRecordTypeId = getDefaultRecordTypeId('Account');
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue>{
+			'recordtypeid' => new TestDataFactory.FieldDefaultValue(defaultAccountRecordTypeId)
+		};
+		Id resolvedRecordTypeId = dvProvider.resolveRecordTypeId(mapOfValues,'',getDescribe('Account'));
+		System.assertEquals(defaultAccountRecordTypeId,resolvedRecordTypeId);
+	}
+	@isTest
+	static void resolveRecordTypeIdTest2(){
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Id resolvedRecordTypeId = dvProvider.resolveRecordTypeId(new Map<String,TestDataFactory.IFieldDefaultValue>(),'',getDescribe('Account'));
+		System.assertEquals(getDefaultRecordTypeId('Account'),resolvedRecordTypeId);
+	}
+	@isTest
+	static void resolveRecordTypeIdTest3(){
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Id defaultContactRecordTypeId = getDefaultRecordTypeId('Contact');
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue>{
+			'contact.recordtypeid' => new TestDataFactory.FieldDefaultValue(defaultContactRecordTypeId)
+		};
+		Id resolvedRecordTypeId = dvProvider.resolveRecordTypeId(mapOfValues,'contact.',getDescribe('Contact'));
+		System.assertEquals(defaultContactRecordTypeId,resolvedRecordTypeId);
+	}
+	@isTest
+	static void resolveRecordTypeIdTest4(){
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Id defaultAccountRecordTypeId = getDefaultRecordTypeId('Account');
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue>{
+			'recordtypeid' => new TestDataFactory.ListFieldDefaultValue(new List<Id>{defaultAccountRecordTypeId})
+		};
+		try{
+			dvProvider.resolveRecordTypeId(mapOfValues,'',getDescribe('Account'));
+			System.assert(false);
+		}catch(TestDataFactory.TestDataFactoryException e){
+			System.assert(true);
+		}
+	}
+	@isTest
+	static void resolveRecordTypeIdTest5(){
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		Map<String,TestDataFactory.IFieldDefaultValue> mapOfValues = new Map<String,TestDataFactory.IFieldDefaultValue>{
+			'recordtypeid' => new TestDataFactory.FieldDefaultValue('BAD_ID')
+		};
+		Id resolvedRecordTypeId = dvProvider.resolveRecordTypeId(mapOfValues,'',getDescribe('Account'));
+		System.assertEquals(null,resolvedRecordTypeId);
+	}
+	@isTest
 	static void getDefinedSObjectRequiredFieldsTest(){
 		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		Set<String> definedRequiredFields = dvProvider.getDefinedSObjectRequiredFields(Case.SObjectType);
@@ -1034,6 +1092,17 @@ public class TestDataFactory_Test {
 		System.assertNotEquals('',defaultValue);
 	}
 	@isTest
+	static void getRecordTypeAwarePicklistValueTest(){
+		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
+		String sfDefault = dvProvider.getSFDefaultPicklistValue(Account.fields.Type.getDescribe());
+		String fallbackValue = dvProvider.getRecordTypeAwarePicklistValue(getDescribe('Account'),Account.fields.Type.getDescribe(),null);
+		System.assertEquals(sfDefault,fallbackValue);
+		Id defaultAccountRecordTypeId = getDefaultRecordTypeId('Account');
+		String recordTypeAwareValue = dvProvider.getRecordTypeAwarePicklistValue(getDescribe('Account'),Account.fields.Type.getDescribe(),defaultAccountRecordTypeId);
+		System.assertNotEquals(null,recordTypeAwareValue);
+		System.assertNotEquals('',recordTypeAwareValue);
+	}
+	@isTest
 	static void isDefaultValueRequiredTest(){
 		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		System.assertEquals(true,dvProvider.isDefaultValueRequired(Contact.fields.Lastname.getDescribe()));
@@ -1060,6 +1129,13 @@ public class TestDataFactory_Test {
 		// no standard time field
 		System.assertEquals('http://test0.com',dvProvider.getDefaultValue(getDescribe('Account'),Account.fields.Website.getDescribe(),0));
 		System.assertEquals(null,dvProvider.getDefaultValue(null,null,0));
+	}
+	@isTest
+	static void getDefaultValuePicklistOverrideHookTest(){
+		TestDataFactory.DefaultValueProvider dvProvider = new DefaultValueProviderOverride();
+		System.assertEquals('picklist_override',dvProvider.getDefaultValue(getDescribe('Account'),Account.fields.Type.getDescribe(),0));
+		System.assertEquals('picklist_override',dvProvider.getDefaultValue(getDescribe('Account'),Account.fields.Type.getDescribe(),getDefaultRecordTypeId('Account'),0));
+		System.assertEquals('multipicklist_override',dvProvider.getMultiPicklistDefaultValue(getDescribe('Account'),Account.fields.Type.getDescribe(),0));
 	}
 	@isTest
 	static void getTypeDefaultValueTest(){
@@ -1163,6 +1239,14 @@ public class TestDataFactory_Test {
 
 		public override String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return 'my_custom_email'+recordIndex.format()+'@email.com';
+		}
+
+		public override String getPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
+			return 'picklist_override';
+		}
+
+		public override String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
+			return 'multipicklist_override';
 		}
 	}
 
