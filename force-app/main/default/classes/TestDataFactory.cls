@@ -734,6 +734,7 @@ public class TestDataFactory {
             if(sObjectType == Account.sObjectType && isPersonAccountEnabled){ 
                 managePersonAccountOrgEnabled(mapOfValues,prefix,definedRequiredFields);
             }
+            Id resolvedRecordTypeId = resolveRecordTypeId(mapOfValues,prefix,sObjectDesc);
             // loop through fields map
             for(String fieldName : fieldsMap.keySet()){
                 Schema.DescribeFieldResult fieldDesc = fieldsMap.get(fieldName).getDescribe(); // get field describe
@@ -746,7 +747,7 @@ public class TestDataFactory {
                     if(overrideFieldValue instanceof AutoFieldDefaultValue) { // auto generate a field value
                         if(fieldDesc.getRelationshipName() == null){ // field
                             // put a fieldDefaultValue instance of the field in order to auto-generate the field default value
-                            mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(this,sObjectDesc,fieldDesc));
+                            mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(this,sObjectDesc,fieldDesc,resolvedRecordTypeId));
                         }else { // relationship
                             // put a field relationship in the map of values
                             putRelationshipField(mapOfValues,fieldDesc,prefix); // <== recursion
@@ -760,7 +761,7 @@ public class TestDataFactory {
                     if(fieldDesc.getRelationshipName() == null){ // field
                         if(isRequired){
                             // put a fieldDefaultValue instance of the field in order to auto-generate the field default value
-                            mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(this,sObjectDesc,fieldDesc));
+                            mapOfValues.put(fullyQualifiedFieldName,new FieldDefaultValue(this,sObjectDesc,fieldDesc,resolvedRecordTypeId));
                         }
                     }else { // relationship
                         String relationshipName = fieldDesc.getRelationshipName().toLowerCase();
@@ -771,6 +772,52 @@ public class TestDataFactory {
                     }
                 }
             }
+        }
+
+        /**
+        * Resolves the record type id for an sObject generation scope.
+        * @param mapOfValues (Map<String,IFieldDefaultValue>): generation value map
+        * @param prefix (String): relationship prefix (example : Contact.Account.)
+        * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+        * @return resolved record type id or null
+        */
+        @TestVisible
+        private Id resolveRecordTypeId(Map<String,IFieldDefaultValue> mapOfValues, String prefix, Schema.DescribeSObjectResult sObjectDesc){
+            String fullyQualifiedRecordTypeIdFieldName = prefix+'recordtypeid';
+            IFieldDefaultValue recordTypeIdDefaultValue = mapOfValues.get(fullyQualifiedRecordTypeIdFieldName);
+            if(recordTypeIdDefaultValue instanceof ListFieldDefaultValue){
+                throw new TestDataFactoryException(formatErrorMessage(ERR_LIST_VALUE_NOT_SUPPORTED,new List<String>{fullyQualifiedRecordTypeIdFieldName},''));
+            }
+            if(recordTypeIdDefaultValue != null){
+                try{
+                    Object recordTypeIdValue = recordTypeIdDefaultValue.getValue(0);
+                    if(recordTypeIdValue == null){
+                        return null;
+                    }
+                    return Id.valueOf(String.valueOf(recordTypeIdValue));
+                }catch(Exception e){
+                    return null;
+                }
+            }
+            return getDefaultRecordTypeId(sObjectDesc);
+        }
+
+        /**
+        * Gets the default record type id from a describe result.
+        * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+        * @return default record type id or null
+        */
+        @TestVisible
+        private Id getDefaultRecordTypeId(Schema.DescribeSObjectResult sObjectDesc){
+            if(sObjectDesc == null){
+                return null;
+            }
+            for(Schema.RecordTypeInfo rti : sObjectDesc.getRecordTypeInfos()){
+                if(rti.isDefaultRecordTypeMapping()){
+                    return rti.getRecordTypeId();
+                }
+            }
+            return null;
         }
 
         /**
@@ -974,6 +1021,19 @@ public class TestDataFactory {
         */
         @TestVisible
         private Object getDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
+            return getDefaultValue(sObjectDesc,fieldDesc,null,recordIndex);
+        }
+
+        /**
+        * Generates a default value for a given field of an sObject and record type.
+        * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+        * @param fieldDesc (Schema.DescribeFieldResult): field describe information
+        * @param recordTypeId (Id): resolved record type id
+        * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
+        * @return the generated field default value
+        */
+        @TestVisible
+        private Object getDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Id recordTypeId, Integer recordIndex){
             if(fieldDesc != null){
                 // DisplayType Enum -> https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_enum_Schema_DisplayType.htm
                 switch on fieldDesc.getType() {
@@ -1008,10 +1068,10 @@ public class TestDataFactory {
                         return getPhoneDefaultValue(sObjectDesc,fieldDesc,recordIndex);
                     }
                     when Picklist {
-                        return getPicklistDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                        return getPicklistDefaultValue(sObjectDesc,fieldDesc,recordTypeId,recordIndex);
                     }
                     when MultiPicklist {
-                        return getMultiPicklistDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                        return getMultiPicklistDefaultValue(sObjectDesc,fieldDesc,recordTypeId,recordIndex);
                     }
                     when String {
                         return getTextDefaultValue(sObjectDesc,fieldDesc,recordIndex);
@@ -1028,6 +1088,55 @@ public class TestDataFactory {
                 }
             }
             return null;
+        }
+
+        /**
+        * Gets the picklist default value for the resolved record type if available.
+        * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+        * @param fieldDesc (Schema.DescribeFieldResult): field describe information
+        * @param recordTypeId (Id): record type id used for lookup
+        * @return resolved picklist value or Salesforce default
+        */
+        @TestVisible
+        private String getRecordTypeAwarePicklistValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Id recordTypeId){
+            if(sObjectDesc == null || fieldDesc == null || recordTypeId == null){
+                return getSFDefaultPicklistValue(fieldDesc);
+            }
+            ConnectApi.PicklistValuesCollection picklistCollection = getPicklistCollection(sObjectDesc.getName(),recordTypeId);
+            if(picklistCollection != null && picklistCollection.picklistFieldValues != null){
+                ConnectApi.PicklistValues fieldPicklist = picklistCollection.picklistFieldValues.get(fieldDesc.getName());
+                if(fieldPicklist != null){
+                    if(fieldPicklist.defaultValue != null && !String.isBlank(fieldPicklist.defaultValue.value)){
+                        return fieldPicklist.defaultValue.value;
+                    }
+                    if(fieldPicklist.values != null){
+                        for(ConnectApi.PicklistValue picklistValue : fieldPicklist.values){
+                            if(picklistValue != null && !String.isBlank(picklistValue.value)){
+                                return picklistValue.value;
+                            }
+                        }
+                    }
+                }
+            }
+            return getSFDefaultPicklistValue(fieldDesc);
+        }
+
+        /**
+        * Gets picklist metadata collection for an object and record type.
+        * @param objectApiName (String): sObject API name
+        * @param recordTypeId (Id): record type id
+        * @return picklist collection or null when unavailable
+        */
+        @TestVisible
+        private ConnectApi.PicklistValuesCollection getPicklistCollection(String objectApiName, Id recordTypeId){
+            if(String.isBlank(objectApiName) || recordTypeId == null){
+                return null;
+            }
+            try{
+                return ConnectApi.RecordUi.getPicklistValuesByRecordType(objectApiName,String.valueOf(recordTypeId));
+            }catch(Exception e){
+                return null;
+            }
         }
 
         /**
@@ -1170,24 +1279,26 @@ public class TestDataFactory {
             return '01 23 45 67 89';
         }
         /**
-        * Gets the default value for Picklist field type.
+        * Gets the default value for Picklist field type for a specific record type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
+        * @param recordTypeId (Id): resolved record type id
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
         * @return picklist default value
         */
-        public virtual String getPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
-            return getSFDefaultPicklistValue(fieldDesc);
+        public virtual String getPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Id recordTypeId, Integer recordIndex){
+            return getRecordTypeAwarePicklistValue(sObjectDesc,fieldDesc,recordTypeId);
         }
         /**
-        * Gets the default value for Multipicklist field type.
+        * Gets the default value for Multipicklist field type for a specific record type.
         * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
         * @param fieldDesc (Schema.DescribeFieldResult): field describe information
+        * @param recordTypeId (Id): resolved record type id
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
         * @return multipicklist default value
         */
-        public virtual String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
-            return getSFDefaultPicklistValue(fieldDesc);
+        public virtual String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Id recordTypeId, Integer recordIndex){
+            return getRecordTypeAwarePicklistValue(sObjectDesc,fieldDesc,recordTypeId);
         }
         /**
         * Gets the default value for Text field type.
@@ -1269,6 +1380,8 @@ public class TestDataFactory {
         private Schema.DescribeSObjectResult sObjectDesc = null;
         /** Field describe information */
         private Schema.DescribeFieldResult fieldDesc = null;
+        /** Record type id used to generate picklist-aware defaults */
+        private Id recordTypeId = null;
 
         /**
         * Constructor to wrap a griven field value.
@@ -1291,6 +1404,20 @@ public class TestDataFactory {
         }
 
         /**
+        * Constructor to wrap a field value generated based on the given sObject, field and record type.
+        * @param dvPrvdr (DefaultValueProvider): default value provider instance
+        * @param sObjectDesc (Schema.DescribeSObjectResult): sObject describe information
+        * @param fieldDesc (Schema.DescribeFieldResult): field describe information
+        * @param recordTypeId (Id): resolved record type id
+        */
+        public FieldDefaultValue(DefaultValueProvider dvPrvdr,Schema.DescribeSObjectResult sObjectDesc,Schema.DescribeFieldResult fieldDesc, Id recordTypeId){
+            this.dvPrvdr = dvPrvdr;
+            this.sObjectDesc = sObjectDesc;
+            this.fieldDesc = fieldDesc;
+            this.recordTypeId = recordTypeId;
+        }
+
+        /**
         * Gets the wrapped value for a given record index.
         * @param recordIndex (Integer): index number (starting from 0) of each record when creating a list of sObjects. For single sObject creation recordIndex is default to 0
         * @return field default value
@@ -1298,7 +1425,7 @@ public class TestDataFactory {
         public Object getValue(Integer recordIndex){
             if(dvPrvdr != null){ // if default value provider is set
                 // generate the value from the sObject & field describe informations
-                return dvPrvdr.getDefaultValue(sObjectDesc,fieldDesc,recordIndex);
+                return dvPrvdr.getDefaultValue(sObjectDesc,fieldDesc,recordTypeId,recordIndex);
             }else {
                 if(value instanceof String) // if value is of type string merge the index value
                     return mergeValue((String)value,'index',recordIndex.format());
