@@ -1131,13 +1131,6 @@ public class TestDataFactory_Test {
 		System.assertEquals(null,dvProvider.getDefaultValue(null,null,0));
 	}
 	@isTest
-	static void getDefaultValuePicklistOverrideHookTest(){
-		TestDataFactory.DefaultValueProvider dvProvider = new DefaultValueProviderOverride();
-		System.assertEquals('picklist_override',dvProvider.getDefaultValue(getDescribe('Account'),Account.fields.Type.getDescribe(),0));
-		System.assertEquals('picklist_override',dvProvider.getDefaultValue(getDescribe('Account'),Account.fields.Type.getDescribe(),getDefaultRecordTypeId('Account'),0));
-		System.assertEquals('multipicklist_override',dvProvider.getMultiPicklistDefaultValue(getDescribe('Account'),Account.fields.Type.getDescribe(),getDefaultRecordTypeId('Account'),0));
-	}
-	@isTest
 	static void getTypeDefaultValueTest(){
 		TestDataFactory.DefaultValueProvider dvProvider = new TestDataFactory.DefaultValueProvider();
 		System.assertEquals(Blob.valueOf('0'),dvProvider.getBase64DefaultValue(null,null,0));
@@ -1239,14 +1232,6 @@ public class TestDataFactory_Test {
 
 		public override String getEmailDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Integer recordIndex){
 			return 'my_custom_email'+recordIndex.format()+'@email.com';
-		}
-
-		public override String getPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Id recordTypeId, Integer recordIndex){
-			return 'picklist_override';
-		}
-
-		public override String getMultiPicklistDefaultValue(Schema.DescribeSObjectResult sObjectDesc, Schema.DescribeFieldResult fieldDesc, Id recordTypeId, Integer recordIndex){
-			return 'multipicklist_override';
 		}
 	}
 

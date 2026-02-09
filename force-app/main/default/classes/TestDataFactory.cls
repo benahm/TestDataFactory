@@ -660,6 +660,9 @@ public class TestDataFactory {
         private final String ERR_LIST_VALUE_NOT_SUPPORTED = 'List values is not supported for field {0}';
         /** Bad record type Id provided for Account */
         private final String ERR_BAD_RECORDTYPE_ID_FOR_ACCOUNT = 'Bad record type Id provided for Account';
+        /** Cached picklist values by object and record type */
+        @TestVisible
+        private Map<String, ConnectApi.PicklistValuesCollection> picklistByObjRtCache = new Map<String, ConnectApi.PicklistValuesCollection>();
 
         /* ===========================  Properties =========================== */
         /** Person Account record type Ids */
